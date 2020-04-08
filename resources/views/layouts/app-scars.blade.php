@@ -10,8 +10,8 @@
     <title>{{ config('app.name', 'Scars Photo') }}</title>
 
     <!-- Scripts -->
-    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-    <script type='text/javascript' src='http://kinetika.imaginem.co/wp-content/themes/kinetika/js/pace.min.js'></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type='text/javascript' src='https://kinetika.imaginem.co/wp-content/themes/kinetika/js/pace.min.js'></script>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
