@@ -10,16 +10,20 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
-    <!--script src="{{ asset('js/app.js') }}" defer></script-->
-    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-
+    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script>
+        const LARAVEL = @php echo json_encode([
+            '_TOKEN' => csrf_token(),
+            '_BASE_URL'  => \URL::to('/'),
+        ]);
+        @endphp
+    </script>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
     
     <!-- Styles -->
-    <!--link href="{{ asset('css/app.css') }}" rel="stylesheet"-->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @yield('css')
 </head>
 <body>
@@ -36,7 +40,16 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        <li class="nav-item">
+                            <router-link :to="{ name: 'admin.categories.index' }" class="nav-link">
+                                Categories
+                            </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link :to="{ name: 'admin.medias.index' }" class="nav-link">
+                                Medias
+                            </router-link>
+                        </li>                        
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -52,6 +65,7 @@
                                 </li>
                             @endif
                         @else
+                     
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>
@@ -74,10 +88,13 @@
                 </div>
             </div>
         </nav>
-
-        <main class="py-4">
-            @yield('content')
-        </main>
+        <div class="container-fluid">
+            <div class="col-md-10 offset-md-1">
+                <main class="py-4">
+                    @yield('content')
+                </main>
+            </div>
+        </div>
     </div>
     @yield('scripts')
 </body>

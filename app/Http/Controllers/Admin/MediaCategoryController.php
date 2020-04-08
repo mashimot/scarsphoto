@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\MediaCategory;
-use App\Category;
 
-class GalleryController extends Controller
+class MediaCategoryController extends Controller
 {
+
+    public function __construct(MediaCategory $mediaCategory){
+        $this->mediaCategory = $mediaCategory;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,11 +19,8 @@ class GalleryController extends Controller
      */
     public function index()
     {
-        //
-        $categories = Category::all();
-        return view('galleries.index')->with(
-            compact('categories')
-        );
+       //
+       return view('admin.galleries.index');
     }
 
     /**
@@ -52,20 +53,7 @@ class GalleryController extends Controller
     public function show($id)
     {
         //
-        $categories = Category::all();
-        $images     = MediaCategory::from('medias_categories as mca')
-        ->join('categories as cca', 'cca.category_id', 'mca.category_id')
-        ->join('medias as med', 'med.media_id', 'mca.media_id')
-        ->join('users as usr', 'usr.id', 'med.user_id')
-        ->where('cca.category_id', $id)
-        ->select(['cca.category_name', 'med.media_url', 'usr.name'])
-        ->get();
-
-        return view('portfolio.index')->with(
-            compact(
-                'images', 'categories'
-            )
-        );
+        return $this->mediaCategory->find($id);
     }
 
     /**
@@ -89,6 +77,30 @@ class GalleryController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $request->validate([
+            'new_category_id' => 'required|numeric',
+            //'old_category_id' => 'required|numeric',
+            //'media_id' => 'required|numeric'
+        ]);
+        if(is_null($request->old_category_id)){
+            $this->mediaCategory->create([
+                'media_id' => $id,
+                'category_id' => $request->new_category_id
+            ]);
+        } else {
+            $mediaCategory = $this->mediaCategory->where('media_id', $id)
+            ->where('category_id', $request->old_category_id)
+            ->update([
+                'category_id' => $request->new_category_id
+            ]);
+            //->first();
+            //return $mediaCategory;
+            /*->update([
+                'category_id' => $request->mediaCategory_title,
+                'media_id' => $request->mediaCategory_comment,
+            ]);*/
+        }
+        
     }
 
     /**
@@ -100,5 +112,6 @@ class GalleryController extends Controller
     public function destroy($id)
     {
         //
+        return $id;
     }
 }

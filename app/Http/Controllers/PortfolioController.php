@@ -3,6 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Category;
+use App\MediaType;
+use App\User;
+use App\Media;
+use App\MediaCategory;
+use Hash;
 
 class PortfolioController extends Controller
 {
@@ -16,14 +22,41 @@ class PortfolioController extends Controller
     public function index()
     {
         //
-        $images1 = json_decode($this->random_imgs);
-        $images = [];
-        $count = 0;
-        while($count < 8){
-            $images[] = $images1[$count];
-            $count++;
+        /*Category::create([
+            'category_name' => 'Sensual'
+        ]);
+
+        MediaType::create([
+            'media_type_short_name' => 'im',
+            'media_type_name' => 'Images'
+        ]);
+
+        User::create([
+            'name' => 'Fabio Hashimoto', 
+            'email' => 'fabioh@scarsphoto.com.br' , 
+            'password' => Hash::make('fabio')
+        ]);
+        $random_imgs = json_decode($this->random_imgs);
+
+        foreach($random_imgs as $img){
+            Media::create([
+                'media_title' => $img->author,
+                'media_comment' => 'comment: ' . $img->author,
+                'media_url' => $img->download_url,
+                'media_has_parental_control' => 0,
+                'media_type_id' => MediaType::first()->media_type_id,                
+                'user_id' => User::first()->id
+            ]);
         }
-        //dd($images[0]->download_url);
+        $medias = Media::all();
+        foreach($medias as $m){
+            MediaCategory::create([
+                'media_id' => $m->media_id,
+                'category_id' => Category::first()->category_id
+            ]);
+        }*/
+        //$categories = MediaCategory::all();
+        $images = Media::limit(5)->get();
         return view('portfolio.index')->with(
             compact('images')
         );

@@ -1,13 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\MediaCategory;
 use App\Category;
 
-class GalleryController extends Controller
+class CategoryController extends Controller
 {
+
+    public function __construct(Category $category){
+        $this->category = $category;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,11 +20,8 @@ class GalleryController extends Controller
      */
     public function index()
     {
-        //
-        $categories = Category::all();
-        return view('galleries.index')->with(
-            compact('categories')
-        );
+       //
+       //return view('admin.galleries.index');
     }
 
     /**
@@ -30,6 +32,7 @@ class GalleryController extends Controller
     public function create()
     {
         //
+        return $this->category->get();
     }
 
     /**
@@ -52,20 +55,7 @@ class GalleryController extends Controller
     public function show($id)
     {
         //
-        $categories = Category::all();
-        $images     = MediaCategory::from('medias_categories as mca')
-        ->join('categories as cca', 'cca.category_id', 'mca.category_id')
-        ->join('medias as med', 'med.media_id', 'mca.media_id')
-        ->join('users as usr', 'usr.id', 'med.user_id')
-        ->where('cca.category_id', $id)
-        ->select(['cca.category_name', 'med.media_url', 'usr.name'])
-        ->get();
-
-        return view('portfolio.index')->with(
-            compact(
-                'images', 'categories'
-            )
-        );
+        return $this->category->find($id);
     }
 
     /**
@@ -89,6 +79,13 @@ class GalleryController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $request->validate([
+            'category_name' => 'required|max:255',
+        ]);
+
+        $this->category->find($id)->update([
+            'category_name' => $request->category_name
+        ]);
     }
 
     /**
@@ -100,5 +97,6 @@ class GalleryController extends Controller
     public function destroy($id)
     {
         //
+        return $id;
     }
 }

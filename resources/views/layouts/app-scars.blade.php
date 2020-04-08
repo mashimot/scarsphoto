@@ -26,7 +26,7 @@
 <link rel='stylesheet' id='videoJSCSS-css'  href='https://imaginem.io/kinetika/wp-content/themes/kinetika/js/videojs/video-js.css?ver=5.3.2' type='text/css' media='screen' />
 <!--link rel='stylesheet' id='demo_css-css'  href='https://imaginem.io/kinetika/wp-content/themes/kinetika/framework/demopanel/demo.panel.css?ver=5.3.2' type='text/css' media='screen' /-->
 <link rel='stylesheet' id='owlcarousel_css-css'  href='https://imaginem.io/kinetika/wp-content/themes/kinetika/css/owlcarousel/owl.carousel.css?ver=5.3.2' type='text/css' media='screen' />
-<!--link rel='stylesheet' id='magnific_lightbox-css'  href='https://imaginem.io/kinetika/wp-content/themes/kinetika/css/magnific/magnific-popup.css?ver=5.3.2' type='text/css' media='screen' /-->
+<link rel='stylesheet' id='magnific_lightbox-css'  href='https://imaginem.io/kinetika/wp-content/themes/kinetika/css/magnific/magnific-popup.css?ver=5.3.2' type='text/css' media='screen' />
 <link rel='stylesheet' id='magnific_lightbox-css'  href='https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css' type='text/css' media='screen' />
     
 <link rel='stylesheet' id='MainStyle-Light-css'  href='https://imaginem.io/kinetika/wp-content/themes/kinetika/style-light.css?ver=screen' type='text/css' media='all' />

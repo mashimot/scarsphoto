@@ -2,7 +2,10 @@
 @extends('layouts.app-scars')
 
 @section('content')
-<a href="{{ route('galleries.index') }}" class="text-white">Gallery</a>
+<div class="portfolio">
+    <a href="{{ route('portfolio.index') }}" class="text-white">Fotos ({{ count($images) }})</a>
+    <a href="{{ route('galleries.index') }}" class="text-white">Galleries ({{ 0 }})</a>
+</div>
 
 <div class="title-container-outer-wrap">
 	<div class="container-fluid clearfix">
@@ -15,14 +18,14 @@
 								<div id="mtheme-block-1" class="mtheme-block mtheme-block-em_portfolio_grid span12 mtheme-first-cell " data-width="12">
 									<div id="gridblock-container" class="portfolio-gutter-nospace thumnails-gutter-active gridblock-masonary gridblock-three clearfix" data-columns="3" style="position: relative; height: 1203.83px;">
                                         @foreach($images as $img)
-										<div class="gridblock-element gridblock-element-id-110 gridblock-element-order-1  gridblock-filterable filter-paintings p-1" data-portfolio="portfolio-110" data-id="id-2" style="width: 33.3333%; position: absolute; left: 0px; top: 0px;">
+										<div class="gridblock-element gridblock-element-id-110 gridblock-element-order-1  gridblock-filterable filter-paintings p-1">
 											<div class="gridblock-grid-element gridblock-element-inner" data-portfolioid="110">
 												<div class="gridblock-background-hover">
 													<div class="gridblock-links-wrap box-title-true">
                                                         <a class="column-gridblock-icon" href="https://imaginem.io/kinetika/project/nullam-rhoncus-magna/?menu_type=middle" rel="bookmark" title="Vertical image set">
                                                             <span class="hover-icon-effect"><i class="feather-icon-plus"></i></span>
                                                         </a>
-                                                        <a data-lightbox="magnific-image" class="column-gridblock-icon" title="Bridge" href="{{ $img->download_url }}">
+                                                        <a data-lightbox="magnific-image" class="column-gridblock-icon" title="Bridge" href="{{ $img->media_url }}">
                                                             <span class="hover-icon-effect"><i class="feather-icon-maximize"></i></span>
                                                         </a>
                                                         <span class="boxtitle-hover">
@@ -31,7 +34,7 @@
                                                         </span>
 													</div>
 												</div>
-												<img src="{{ $img->download_url }}" alt="" class="displayed-image">
+												<img src="{{ $img->media_url }}" alt="" class="displayed-image">
 											</div>
 										</div>
                                         @endforeach
