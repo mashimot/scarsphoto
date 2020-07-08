@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\MediaRoute;
+use App\Media;
+use App\User;
 
 class MainController extends Controller
 {
+    private $media_route_id = 2;
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,27 @@ class MainController extends Controller
     public function index()
     {
         //
-        return view('home.index');
+/*        $request = new Request;
+        $request->replace([
+            'media_route_id' => $this->media_route_id, //Home
+            'user_id' => 1
+        ]);
+        $medias = MediaRoute::getMediasWithoutGalleriesByRoute($request);
+*/
+        $request = new Request;
+        $request->merge([
+            'user_id' => User::where('email', 'like', '%fabioh%')->first()->id,
+            //'gallery_id' => 0
+        ]);
+        $medias = Media::getMediasGalleries($request);
+        $medias = $medias->map(function($media){
+            $media->image = $media->media_url;
+            $media->title = $media->media_title;
+            return collect($media)->only(['image', 'title']);
+        });
+        return view('home.index')->with(
+            compact('medias')
+        );
     }
 
     /**

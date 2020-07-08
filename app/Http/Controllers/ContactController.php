@@ -3,9 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\ContactRequest;
+use App\Contact;
 
 class ContactController extends Controller
 {
+    public function __construct(Contact $contact){
+        $this->contact = $contact;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -33,9 +39,21 @@ class ContactController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ContactRequest $request)
     {
         //
+        //dd($request->all());
+        $this->contact->create([
+            'contact_name' => $request->contact_name,
+            'contact_email' => $request->contact_email,
+            'contact_phone' => $request->contact_phone,
+            'contact_subject' => $request->contact_subject,
+            'contact_message' => $request->contact_message
+        ]);
+
+        /*return redirect()->route('contact.index')->with([
+            'success' => 'Success!'
+        ]);*/
     }
 
     /**

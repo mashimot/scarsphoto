@@ -1,0 +1,19 @@
+.logo img { width: 154px; }
+.stickymenu-zone.sticky-menu-activate .logo img { height:auto; width: 154px; }.logo img { top: 28px; }.vertical-logoimage { width: 300px; }
+    @media only screen and (max-width: 1024px) {
+        
+    }
+    @media only screen and (min-width: 768px) and (max-width: 959px) {
+        
+    }
+    @media only screen and (max-width: 767px) {
+        
+    }
+    @media only screen and (min-width: 480px) and (max-width: 767px) {
+        
+    }
+html{
+    position:absolute;height:100%;width:100%;min-height:100%;min-width:100%;
+}
+#contactus { padding-top : 120px; }  #contactus { padding-bottom : 120px; }  
+#mtheme-block-6 .section-heading { width : 60%; }  #mtheme-block-6 .section-heading { padding-top : 0; }  #mtheme-block-6 .section-heading { padding-bottom : 0; }  #mtheme-block-6 .section-heading { margin-bottom : 15px; }  

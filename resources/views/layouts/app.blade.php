@@ -8,22 +8,30 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
+	<link href="{{ asset('css/admin.css') }}" rel="stylesheet">
+
 
     <!-- Scripts -->
-    <script src="{{ secure_asset('js/app.js') }}" defer></script>
     <script>
-        const LARAVEL = @php echo json_encode([
-            '_TOKEN' => csrf_token(),
-            '_BASE_URL'  => \URL::to('/'),
-        ]);
-        @endphp
-    </script>
+    let Laravel = {!! json_encode([
+        'csrfToken' => csrf_token(),
+        'apiToken' => $currentUser->api_token ?? null,
+        '_BASE_URL' => URL::to('/')
+    ]) !!};
+    </script>  
+    <script src="{{ asset('js/admin.js') }}" defer></script>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
     
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+    .card-img-top {
+        width: 100%!important;
+        height: 200px!important;
+        object-fit: cover;
+    }
+    </style>
     @yield('css')
 </head>
 <body>
@@ -39,18 +47,25 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
+                    @auth
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
-                            <router-link :to="{ name: 'admin.categories.index' }" class="nav-link">
-                                Categories
+                            <router-link :to="{ name: 'admin.galleries.index' }" class="nav-link">
+                                Galleries
                             </router-link>
                         </li>
                         <li class="nav-item">
                             <router-link :to="{ name: 'admin.medias.index' }" class="nav-link">
                                 Medias
                             </router-link>
-                        </li>                        
+                        </li>
+                        <li class="nav-item">
+                            <router-link :to="{ name: 'admin.contacts.index' }" class="nav-link">
+                                Contatos
+                            </router-link>
+                        </li>                                                
                     </ul>
+                    @endauth
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -65,7 +80,6 @@
                                 </li>
                             @endif
                         @else
-                     
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>
@@ -89,11 +103,9 @@
             </div>
         </nav>
         <div class="container-fluid">
-            <div class="col-md-10 offset-md-1">
-                <main class="py-4">
-                    @yield('content')
-                </main>
-            </div>
+            <main class="py-4">
+                @yield('content')
+            </main>
         </div>
     </div>
     @yield('scripts')

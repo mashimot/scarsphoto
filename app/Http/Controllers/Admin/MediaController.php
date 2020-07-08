@@ -5,17 +5,24 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Media;
+use App\MediaGallery;
+use App\MediaRoute;
+use App\MediaType;
+use App\GalleryUser;
 use DB;
 use Illuminate\Support\Facades\Storage;
 use Image;
 use Illuminate\Support\Facades\File;
 use Auth;
+use App\Http\Requests\Admin\MediaRequest;
+use App\Helpers\FileHelper;
 
 class MediaController extends Controller
 {
 
-    public function __construct(Media $media){
+    public function __construct(Media $media, MediaGallery $mediaGallery){
         $this->media = $media;
+        $this->mediaGallery = $mediaGallery;
     }
     /**
      * Display a listing of the resource.
@@ -36,49 +43,10 @@ class MediaController extends Controller
     public function create(Request $request)
     {
         //
-        //return $request->all();
-        //if($request->ajax()){
-            $id = Auth::user()->id;
-            $medias = $this->media->from('medias as meds')
-            ->leftJoin('medias_categories as meca', 'meds.media_id', 'meca.media_id');
-            if($request->filled('category_id')){
-                if($request->category_id == '0'){
-                    $medias = $medias->whereNotExists(function($query){
-                        $query->select(DB::raw(1))
-                        ->whereRaw('meca.media_id = meds.media_id');
-                    });
-                } else {
-                    $medias = $medias->where('meca.category_id', $request->category_id);
-                }
-            }
-
-            $medias = $medias
-            //->where('meds.media_id', 29)
-            ->select([
-                'meds.media_id',
-                'meds.media_title',
-                'meds.media_comment',
-                'meds.media_url',
-                'meds.created_at',
-                'meca.category_id'
-            ])
-            ->orderBy('meds.media_id', 'DESC')
-            ->paginate();
-
-            $updatedItems = $medias->getCollection()
-            ->map(function($media) use($id) {
-                $media_url = $media->media_url;
-
-                //$media->media_url = asset("storage/galleries/images/{$id}/{$media_url}");
-                //$media->media_thumb_url = asset("storage/galleries/thumbnails/{$id}/{$media_url}");
-                $media->media_thumb_url = $media_url;
-                return $media;
-            });
-
-            $medias->setCollection($updatedItems);
-
-            return  $medias;
-        //}
+        $request->merge([
+            'user_id' => Auth::user()->id
+        ]);
+        return $this->media->getMediasGalleries($request);
     }
 
     /**
@@ -86,83 +54,74 @@ class MediaController extends Controller
      * @param  Request $request Request with form data: filename and file info
      * @return boolean True if success, otherwise - false
      */
-    public function store(Request $request)
+    public function store(MediaRequest $request)
     {
-        //return $request->all();
-        $max_size   = (int)ini_get('upload_max_filesize') * 1000;
-        $all_ext    = implode(',', ['jpg', 'jpeg', 'png', 'gif']);
+        //return $request->medias;
 
-        $request->validate([
-            'media_title' => 'required',
-            'media_comment' => 'required',
-            'media_has_parental_control' => 'required',            
-            'file' => "required|file|mimes:{$all_ext}|max:{$max_size}"
-        ]);
-
-        $file       = $request->file('file');
-        $user_id    = Auth::user()->id;
-        $name       = $file->getClientOriginalName();
-        $ext        = $file->getClientOriginalExtension();
-
+        $user_id        = Auth::user()->id;
+        $path_basic     = FileHelper::getUserImagePath($user_id, "images/users");
+        $mediaType      = MediaType::where('media_type_short_name', 'im')->first();
         try {
             DB::beginTransaction();
-            $mediaCreate = $this->media->create([
-                'media_title' => '$request->media_title',
-                'media_comment' => $request->media_comment,
-                'media_url' => "{$name}.{$ext}",
-                'media_has_parental_control' => 0,
-                'media_type_id' => 1,
-                'user_id' => $user_id                
-            ]);
+            foreach($request->medias as $media){
+                $file           = $media['media_file'];
+                $name           = $file->getClientOriginalName();
+                $ext            = $file->getClientOriginalExtension();
+                $random_name    = uniqid($user_id).md5(time());  //for generate a random name based on ID
+                $file_name      = "{$random_name}.{$ext}";
+                $mediaCreate = $this->media->create([
+                    'media_title' => $media['media_title'],
+                    'media_comment' => $media['media_comment'],
+                    'media_url' => $file_name,
+                    'media_nsfw' => $media['media_nsfw'],
+                    'media_type_id' => $mediaType->media_type_id,
+                    'user_id' => $user_id                
+                ]);
 
-            $fileName = "{$mediaCreate->media_id}.{$ext}";
-            $this->media->find($mediaCreate->media_id)->update([
-                'media_url' => $fileName
-            ]);
-            
-            $width = 300; // your max width
-            $height = 300; // your max height
-            $imgFull = Image::make($file);
-            $imgThumb = Image::make($file);
-            $imgThumb->height() > $imgThumb->width() ? $width=null : $height=null;
-            $imgThumb->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });            
-            $storeImg = Storage::disk('public')
-                ->put("galleries/images/{$user_id}/{$fileName}", $imgFull->encode());
-            $storeImgThumb = Storage::disk('public')
-                ->put("galleries/thumbnails/{$user_id}/{$fileName}", $imgThumb->encode());
-
-            if($storeImg && $storeImgThumb){
-                DB::commit();
-            } else {
-                DB::rollback();
+                if(!is_null($media['media_galleries'])){
+                    $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->first();
+                    $galleryUserMax = GalleryUser::where('user_id', $user_id)->max('gallery_user_pos');
+                    foreach($media['media_galleries'] as $media_gallery){
+                        $last_media_gallery_pos = $this->mediaGallery->from('medias_galleries as mega')
+                        ->join('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
+                        ->where('gaus.user_id', $user_id)
+                        ->where('gaus.gallery_user_id', $media_gallery['gallery_id'])
+                        ->max('mega.media_gallery_pos');
+                        $galleryUser = GalleryUser::where('user_id', $user_id)
+                        ->where('gallery_user_id', $media_gallery['gallery_id'])
+                        ->first();
+    
+                        $this->mediaGallery->create([
+                            'media_id' => $mediaCreate->media_id,
+                            'gallery_user_id' => $galleryUser->gallery_user_id,
+                            'media_gallery_pos' => is_null($last_media_gallery_pos)? 0 : $last_media_gallery_pos + 1,
+                            'media_route_id' => $mediaRoute->media_route_id
+                        ]);
+                    }
+                }
+    
+                $width = 300; // your max width
+                $height = 300; // your max height
+                $imgFull = Image::make($file);
+                $imgThumb = Image::make($file);
+                $imgThumb->height() > $imgThumb->width() ? $width = null : $height = null;
+                $imgThumb->resize($width, $height, function ($constraint) {
+                    $constraint->aspectRatio();
+                });            
+                $storeImg = Storage::disk('public')
+                    ->put("{$path_basic}/{$file_name}", $imgFull->encode());
             }
-        } catch(\Exception $e){       
+            /*$storeImgThumb = Storage::disk('public')
+                ->put("{$path_basic}/{$file_name}", $imgThumb->encode());*/
+
+            //if($storeImg && $storeImgThumb){
+            DB::commit();
+        } catch(\Exception $e){  
             DB::rollback();
+            return response()->json($e, 422);
         }
+
         return [];
-    }
-
-    public function store2(Request $request)
-    {
-        $request->validate([
-            //'media_id' => 'required',
-            'media_title' => 'required',
-            'media_comment' => 'required',
-            'media_url' => 'required',
-            'media_has_parental_control' => 'required',
-            //'media_type_id' => 'required'
-        ]);
-
-        $this->media->create([
-            'media_title' => $request->media_title,
-            'media_comment' => $request->media_comment,
-            'media_url' => $request->media_url,
-            'media_has_parental_control' => $request->media_has_parental_control,
-            'media_type_id' => 1,
-            'user_id' => 1
-        ]);
     }
 
     /**
@@ -195,23 +154,14 @@ class MediaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(MediaRequest $request, $id)
     {
         //
-        $request->validate([
-            'media_id' => 'required',
-            'media_title' => 'required',
-            'media_comment' => 'required',
-            'media_url' => 'required',
-            'media_has_parental_control' => 'required',
-            //'media_type_id' => 'required'
-        ]);
-
         $this->media->find($id)->update([
             'media_title' => $request->media_title,
             'media_comment' => $request->media_comment,
             'media_url' => $request->media_url,
-            'media_has_parental_control' => $request->media_has_parental_control,
+            'media_nsfw' => $request->media_nsfw,
             'media_type_id' => 1
         ]);
     }
@@ -225,6 +175,49 @@ class MediaController extends Controller
     public function destroy($id)
     {
         //
-        return $id;
+        DB::beginTransaction();
+        try {
+            $user_id    = Auth::user()->id;
+            $media      = $this->media->find($id);
+
+            if($media->user_id == $user_id){
+                $path_basic = FileHelper::getUserImagePath($user_id, "images/users");
+                $media_url  = "{$path_basic}/{$media->media_url}";
+                $mediaGallery = $this->mediaGallery->from('medias_galleries as mega')
+                ->join('medias as medi', 'medi.media_id', 'mega.media_id')
+                ->join('galleries_users as gaus', 'gaus.banner_media_id', 'medi.media_id')
+                ->where('medi.media_id', $id)
+                ->where('gaus.user_id', $user_id)
+                ->select([
+                    'gaus.gallery_user_id',
+                    'gaus.banner_media_id'
+                ])
+                ->first();
+    
+                if(!is_null($mediaGallery)){
+                    GalleryUser::where('banner_media_id', $mediaGallery->banner_media_id)
+                    ->update([
+                        'banner_media_id' => null
+                    ]);
+                }
+                
+                $mediaGallery = $this->mediaGallery->where('media_id', $id)->delete();
+                $m = $this->media->find($id)->delete();
+                
+                if($m){
+                    Storage::disk('public')->delete($media_url);
+                    DB::commit();
+                } else {
+                    DB::rollback();    
+                }
+            } else {
+                return response()->json([
+                    'You must be the owner of the picture'
+                ], 402);
+            }
+        } catch (\Exception $e){
+            DB::rollback();
+            return json_encode($e);
+        }
     }
 }
