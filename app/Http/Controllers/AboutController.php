@@ -26,6 +26,15 @@ class AboutController extends Controller
     public function index()
     {
         //
+        MediaType::create([
+            'media_type_short_name' => 'im',
+            'media_type_name' => 'images'
+        ]);        
+        MediaRoute::create([
+            'media_route_name' => 'galleries',
+            'media_route_has_galleries' => 1,
+            'media_route_description' => 'Galeria de Imagens'
+        ]);
         return 'ABOUT';
         $directories = Storage::disk('public')->directories('fabio');
         try {

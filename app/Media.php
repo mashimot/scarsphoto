@@ -75,7 +75,7 @@ class Media extends Model
             'user.name as owner_media_name'
         ])
         ->orderBy('meds.created_at', 'ASC')
-        ->paginate(20);
+        ->paginate(2);
 
         $newMedias = [];
         if(count($medias) > 0){

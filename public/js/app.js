@@ -3966,6 +3966,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
 //import 'justifiedGallery';
 
 
@@ -3990,7 +3991,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         to: null,
         total: null
       },
-      loading: true
+      isScrolled: false,
+      loading: false
     };
   },
   components: {
@@ -3998,52 +4000,58 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   },
   methods: {
     getGalleries: function getGalleries() {
+      var _this2 = this;
+
       var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       var __this = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       var vm = this;
-      this.loading = true;
 
       if (vm.page <= vm.images.last_page) {
-        vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries/").concat(this.gallery_id, "?page=").concat(this.page)).then(function (response) {
-          if (vm.page == 1) {
-            vm.gallery = response.data.gallery;
-          }
-
-          if (response.data.images.data.length > 0) {
-            var _vm$images$data;
-
-            for (var key in response.data.images) {
-              if (key != 'data') {
-                vm.images[key] = response.data.images[key];
-              }
+        if (!vm.loading) {
+          vm.loading = true;
+          vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries/").concat(vm.gallery_id, "?page=").concat(vm.page)).then(function (response) {
+            if (vm.page == 1) {
+              vm.gallery = response.data.gallery;
             }
 
-            (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
-          }
-        }).then(function () {
-          vm.loading = false;
+            if (response.data.images.data.length > 0) {
+              var _vm$images$data;
 
-          if (vm.page == 1) {
-            $(vm.$refs.infinite_scroll).justifiedGallery({
-              rowHeight: 500,
-              margins: 6 //lastRow: 'justify'
+              for (var key in response.data.images) {
+                if (key != 'data') {
+                  vm.images[key] = response.data.images[key];
+                }
+              }
 
-            });
-          } else {
-            $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
-          }
+              (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
+            }
+          }).then(function () {
+            //alert('vm.page: ' + vm.page);
+            if (vm.page == 1) {
+              $(vm.$refs.infinite_scroll).justifiedGallery({
+                rowHeight: 500,
+                margins: 6 //lastRow: 'justify'
 
-          vm.initMagnificPopup();
+              });
+            } else {
+              $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
+            }
 
-          if (pos != null) {
-            $(vm.$refs.image_link).magnificPopup('open', pos);
-            $.magnificPopup.proto.next.call(__this);
-          }
+            vm.initMagnificPopup();
+            console.log('pos: ' + pos);
 
-          vm.page++;
-        });
+            if (pos != null) {
+              $(vm.$refs.image_link).magnificPopup('open', pos);
+              $.magnificPopup.proto.next.call(__this);
+            }
+
+            vm.page++;
+          })["finally"](function () {
+            _this2.loading = false;
+          });
+        }
       } else {
         if ($.magnificPopup.instance.isOpen) {
           $.magnificPopup.proto.next.call(__this);
@@ -4060,7 +4068,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
       $(window).scroll(function () {
         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-          vm.getGalleries();
+          if (!vm.loading) {
+            vm.getGalleries();
+          }
         }
       });
     },
@@ -4068,7 +4078,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       var vm = this;
       $(vm.$refs.image_link).magnificPopup({
         type: 'image',
-        tLoading: '<div style="background-color: red: color: white;; font-size: 60px;">Loading image #%curr%..</div>',
+        tLoading: '<div style="background-color: red !important; color: white !important; font-size: 60px;">Loading image #%curr%..</div>',
         closeBtnInside: false,
         fixedContentPos: true,
         mainClass: 'mfp-zoom-in',
@@ -4114,14 +4124,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             $.magnificPopup.instance.next = function () {
               var __this = this;
 
-              var last_pos = $("a.image-link").length - 1;
-              console.log(last_pos, __this.index);
+              var last_pos = $("a.image-link").length - 1; //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
 
               __this.wrap.removeClass('mfp-image-loaded');
 
               if (last_pos == __this.index) {
+                //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
                 vm.getGalleries(last_pos, __this);
               } else {
+                //alert(__this.index)
                 setTimeout(function () {
                   $.magnificPopup.proto.next.call(__this);
                 }, 120);
@@ -4160,8 +4171,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   },
   created: function created() {
     this.gallery_id = this.$route.params.id;
-    this.getGalleries();
-    this.initMagnificPopup();
+    this.getGalleries(); //this.initMagnificPopup();   
   },
   mounted: function mounted() {
     this.scroll();
@@ -4677,6 +4687,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
 //import 'justifiedGallery';
 
 
@@ -4686,7 +4697,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       page: 1,
       itsTimeToStop: false,
       gallery_id: -1,
-      galleries: [],
+      gallery: {},
       images: {
         current_page: null,
         data: [],
@@ -4701,7 +4712,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         to: null,
         total: null
       },
-      loading: true
+      isScrolled: false,
+      loading: false
     };
   },
   components: {
@@ -4709,49 +4721,58 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   },
   methods: {
     getGalleries: function getGalleries() {
+      var _this2 = this;
+
       var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       var __this = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       var vm = this;
-      this.loading = true;
 
       if (vm.page <= vm.images.last_page) {
-        vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio?page=").concat(this.page)).then(function (response) {
-          console.log('page', response.data.images.current_page);
-
-          if (response.data.images.data.length > 0) {
-            var _vm$images$data;
-
-            for (var key in response.data.images) {
-              if (key != 'data') {
-                vm.images[key] = response.data.images[key];
-              }
+        if (!vm.loading) {
+          vm.loading = true;
+          vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio?page=").concat(this.page)).then(function (response) {
+            if (vm.page == 1) {
+              vm.gallery = response.data.gallery;
             }
 
-            (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
-          }
-        }).then(function () {
-          vm.loading = false;
+            if (response.data.images.data.length > 0) {
+              var _vm$images$data;
 
-          if (vm.page == 1) {
-            $(vm.$refs.infinite_scroll).justifiedGallery({
-              rowHeight: 500,
-              margins: 6 //lastRow: 'justify'
+              for (var key in response.data.images) {
+                if (key != 'data') {
+                  vm.images[key] = response.data.images[key];
+                }
+              }
 
-            });
-          } else {
-            $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
-          }
+              (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
+            }
+          }).then(function () {
+            //alert('vm.page: ' + vm.page);
+            if (vm.page == 1) {
+              $(vm.$refs.infinite_scroll).justifiedGallery({
+                rowHeight: 500,
+                margins: 6 //lastRow: 'justify'
 
-          vm.page++;
-          vm.initMagnificPopup();
+              });
+            } else {
+              $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
+            }
 
-          if (pos != null) {
-            $(vm.$refs.image_link).magnificPopup('open', pos);
-            $.magnificPopup.proto.next.call(__this);
-          }
-        });
+            vm.initMagnificPopup();
+            console.log('pos: ' + pos);
+
+            if (pos != null) {
+              $(vm.$refs.image_link).magnificPopup('open', pos);
+              $.magnificPopup.proto.next.call(__this);
+            }
+
+            vm.page++;
+          })["finally"](function () {
+            _this2.loading = false;
+          });
+        }
       } else {
         if ($.magnificPopup.instance.isOpen) {
           $.magnificPopup.proto.next.call(__this);
@@ -4768,16 +4789,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
       $(window).scroll(function () {
         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-          vm.getGalleries();
+          if (!vm.loading) {
+            vm.getGalleries();
+          }
         }
       });
     },
     initMagnificPopup: function initMagnificPopup() {
       var vm = this;
-      console.log('magnific');
       $(vm.$refs.image_link).magnificPopup({
         type: 'image',
-        tLoading: '<div style="background-color: red: color: white;; font-size: 60px;">Loading image #%curr%..</div>',
+        tLoading: '<div style="background-color: red !important; color: white !important; font-size: 60px;">Loading image #%curr%..</div>',
         closeBtnInside: false,
         fixedContentPos: true,
         mainClass: 'mfp-zoom-in',
@@ -4823,14 +4845,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             $.magnificPopup.instance.next = function () {
               var __this = this;
 
-              var last_pos = $("a.image-link").length - 1;
-              console.log(last_pos, __this.index);
+              var last_pos = $("a.image-link").length - 1; //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
 
               __this.wrap.removeClass('mfp-image-loaded');
 
               if (last_pos == __this.index) {
+                //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
                 vm.getGalleries(last_pos, __this);
               } else {
+                //alert(__this.index)
                 setTimeout(function () {
                   $.magnificPopup.proto.next.call(__this);
                 }, 120);
@@ -4864,25 +4887,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     this.$nextTick().then(function () {
       var _document$body$classL;
 
-      return (_document$body$classL = document.body.classList).remove.apply(_document$body$classL, [//"page-template-template-fullpage",
-        //"page-template-template-fullpage-php"
-      ]);
+      return (_document$body$classL = document.body.classList).remove.apply(_document$body$classL, ["page-template-template-fullpage", "page-template-template-fullpage-php"]);
     });
   },
   created: function created() {
     this.gallery_id = this.$route.params.id;
-    this.getGalleries();
-    this.initMagnificPopup();
+    this.getGalleries(); //this.initMagnificPopup();   
   },
   mounted: function mounted() {
     this.scroll();
-    /* window.setTimeout(function() {
-        $('.justified-gallery').justifiedGallery({
-            rowHeight: 500,
-            margins: 6
-            //lastRow: 'justify'
-        }); 
-    }, 1000);*/
   }
 });
 
@@ -4976,7 +4989,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 exports.i(__webpack_require__(/*! -!../../../../node_modules/css-loader??ref--7-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/justifiedGallery/dist/css/justifiedGallery.min.css */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/justifiedGallery/dist/css/justifiedGallery.min.css"), "");
 
 // module
-exports.push([module.i, "\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-5501cafc] {\r\n    min-height: 600px !important;\n}\r\n", ""]);
 
 // exports
 
@@ -16756,10 +16769,10 @@ return jQuery;
 
 /***/ }),
 
-/***/ "./node_modules/justifiedGallery/dist/js/jquery.justifiedGallery.js":
-/*!**************************************************************************!*\
-  !*** ./node_modules/justifiedGallery/dist/js/jquery.justifiedGallery.js ***!
-  \**************************************************************************/
+/***/ "./node_modules/justifiedGallery/dist/js/jquery.justifiedGallery.min.js":
+/*!******************************************************************************!*\
+  !*** ./node_modules/justifiedGallery/dist/js/jquery.justifiedGallery.min.js ***!
+  \******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -16769,1184 +16782,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
  * Copyright (c) 2018 Miro Mannino
  * Licensed under the MIT license.
  */
-(function (factory) {
-  if (true) {
-    // AMD. Register as an anonymous module.
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+
+!function(e){ true?!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (e),
 				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
 				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else {}
-}(function ($) {
-
-  /**
-   * Justified Gallery controller constructor
-   *
-   * @param $gallery the gallery to build
-   * @param settings the settings (the defaults are in JustifiedGallery.defaults)
-   * @constructor
-   */
-  var JustifiedGallery = function ($gallery, settings) {
-  
-    this.settings = settings;
-    this.checkSettings();
-  
-    this.imgAnalyzerTimeout = null;
-    this.entries = null;
-    this.buildingRow = {
-      entriesBuff : [],
-      width : 0,
-      height : 0,
-      aspectRatio : 0
-    };
-    this.lastFetchedEntry = null;
-    this.lastAnalyzedIndex = -1;
-    this.yield = {
-      every : 2, // do a flush every n flushes (must be greater than 1)
-      flushed : 0 // flushed rows without a yield
-    };
-    this.border = settings.border >= 0 ? settings.border : settings.margins;
-    this.maxRowHeight = this.retrieveMaxRowHeight();
-    this.suffixRanges = this.retrieveSuffixRanges();
-    this.offY = this.border;
-    this.rows = 0;
-    this.spinner = {
-      phase : 0,
-      timeSlot : 150,
-      $el : $('<div class="spinner"><span></span><span></span><span></span></div>'),
-      intervalId : null
-    };
-    this.scrollBarOn = false;
-    this.checkWidthIntervalId = null;
-    this.galleryWidth = $gallery.width();
-    this.$gallery = $gallery;
-  
-  };
-  
-  /** @returns {String} the best suffix given the width and the height */
-  JustifiedGallery.prototype.getSuffix = function (width, height) {
-    var longestSide, i;
-    longestSide = (width > height) ? width : height;
-    for (i = 0; i < this.suffixRanges.length; i++) {
-      if (longestSide <= this.suffixRanges[i]) {
-        return this.settings.sizeRangeSuffixes[this.suffixRanges[i]];
-      }
-    }
-    return this.settings.sizeRangeSuffixes[this.suffixRanges[i - 1]];
-  };
-  
-  /**
-   * Remove the suffix from the string
-   *
-   * @returns {string} a new string without the suffix
-   */
-  JustifiedGallery.prototype.removeSuffix = function (str, suffix) {
-    return str.substring(0, str.length - suffix.length);
-  };
-  
-  /**
-   * @returns {boolean} a boolean to say if the suffix is contained in the str or not
-   */
-  JustifiedGallery.prototype.endsWith = function (str, suffix) {
-    return str.indexOf(suffix, str.length - suffix.length) !== -1;
-  };
-  
-  /**
-   * Get the used suffix of a particular url
-   *
-   * @param str
-   * @returns {String} return the used suffix
-   */
-  JustifiedGallery.prototype.getUsedSuffix = function (str) {
-    for (var si in this.settings.sizeRangeSuffixes) {
-      if (this.settings.sizeRangeSuffixes.hasOwnProperty(si)) {
-        if (this.settings.sizeRangeSuffixes[si].length === 0) continue;
-        if (this.endsWith(str, this.settings.sizeRangeSuffixes[si])) return this.settings.sizeRangeSuffixes[si];
-      }
-    }
-    return '';
-  };
-  
-  /**
-   * Given an image src, with the width and the height, returns the new image src with the
-   * best suffix to show the best quality thumbnail.
-   *
-   * @returns {String} the suffix to use
-   */
-  JustifiedGallery.prototype.newSrc = function (imageSrc, imgWidth, imgHeight, image) {
-    var newImageSrc;
-  
-    if (this.settings.thumbnailPath) {
-      newImageSrc = this.settings.thumbnailPath(imageSrc, imgWidth, imgHeight, image);
-    } else {
-      var matchRes = imageSrc.match(this.settings.extension);
-      var ext = (matchRes !== null) ? matchRes[0] : '';
-      newImageSrc = imageSrc.replace(this.settings.extension, '');
-      newImageSrc = this.removeSuffix(newImageSrc, this.getUsedSuffix(newImageSrc));
-      newImageSrc += this.getSuffix(imgWidth, imgHeight) + ext;
-    }
-  
-    return newImageSrc;
-  };
-  
-  /**
-   * Shows the images that is in the given entry
-   *
-   * @param $entry the entry
-   * @param callback the callback that is called when the show animation is finished
-   */
-  JustifiedGallery.prototype.showImg = function ($entry, callback) {
-    if (this.settings.cssAnimation) {
-      $entry.addClass('entry-visible');
-      if (callback) callback();
-    } else {
-      $entry.stop().fadeTo(this.settings.imagesAnimationDuration, 1.0, callback);
-      $entry.find(this.settings.imgSelector).stop().fadeTo(this.settings.imagesAnimationDuration, 1.0, callback);
-    }
-  };
-  
-  /**
-   * Extract the image src form the image, looking from the 'safe-src', and if it can't be found, from the
-   * 'src' attribute. It saves in the image data the 'jg.originalSrc' field, with the extracted src.
-   *
-   * @param $image the image to analyze
-   * @returns {String} the extracted src
-   */
-  JustifiedGallery.prototype.extractImgSrcFromImage = function ($image) {
-    var imageSrc = (typeof $image.data('safe-src') !== 'undefined') ? $image.data('safe-src') : $image.attr('src');
-    $image.data('jg.originalSrc', imageSrc);
-    return imageSrc;
-  };
-  
-  /** @returns {jQuery} the image in the given entry */
-  JustifiedGallery.prototype.imgFromEntry = function ($entry) {
-    var $img = $entry.find(this.settings.imgSelector);
-    return $img.length === 0 ? null : $img;
-  };
-  
-  /** @returns {jQuery} the caption in the given entry */
-  JustifiedGallery.prototype.captionFromEntry = function ($entry) {
-    var $caption = $entry.find('> .caption');
-    return $caption.length === 0 ? null : $caption;
-  };
-  
-  /**
-   * Display the entry
-   *
-   * @param {jQuery} $entry the entry to display
-   * @param {int} x the x position where the entry must be positioned
-   * @param y the y position where the entry must be positioned
-   * @param imgWidth the image width
-   * @param imgHeight the image height
-   * @param rowHeight the row height of the row that owns the entry
-   */
-  JustifiedGallery.prototype.displayEntry = function ($entry, x, y, imgWidth, imgHeight, rowHeight) {
-    $entry.width(imgWidth);
-    $entry.height(rowHeight);
-    $entry.css('top', y);
-    $entry.css('left', x);
-  
-    var $image = this.imgFromEntry($entry);
-    if ($image !== null) {
-      $image.css('width', imgWidth);
-      $image.css('height', imgHeight);
-      $image.css('margin-left', - imgWidth / 2);
-      $image.css('margin-top', - imgHeight / 2);
-  
-      // Image reloading for an high quality of thumbnails
-      var imageSrc = $image.attr('src');
-      var newImageSrc = this.newSrc(imageSrc, imgWidth, imgHeight, $image[0]);
-  
-      $image.one('error', function () {
-        $image.attr('src', $image.data('jg.originalSrc')); //revert to the original thumbnail, we got it.
-      });
-  
-      var loadNewImage = function () {
-        if (imageSrc !== newImageSrc) { //load the new image after the fadeIn
-          $image.attr('src', newImageSrc);
-        }
-      };
-  
-      if ($entry.data('jg.loaded') === 'skipped') {
-        this.onImageEvent(imageSrc, $.proxy(function() {
-          this.showImg($entry, loadNewImage);
-          $entry.data('jg.loaded', true);
-        }, this));
-      } else {
-        this.showImg($entry, loadNewImage);
-      }
-  
-    } else {
-      this.showImg($entry);
-    }
-  
-    this.displayEntryCaption($entry);
-  };
-  
-  /**
-   * Display the entry caption. If the caption element doesn't exists, it creates the caption using the 'alt'
-   * or the 'title' attributes.
-   *
-   * @param {jQuery} $entry the entry to process
-   */
-  JustifiedGallery.prototype.displayEntryCaption = function ($entry) {
-    var $image = this.imgFromEntry($entry);
-    if ($image !== null && this.settings.captions) {
-      var $imgCaption = this.captionFromEntry($entry);
-  
-      // Create it if it doesn't exists
-      if ($imgCaption === null) {
-        var caption = $image.attr('alt');
-        if (!this.isValidCaption(caption)) caption = $entry.attr('title');
-        if (this.isValidCaption(caption)) { // Create only we found something
-          $imgCaption = $('<div class="caption">' + caption + '</div>');
-          $entry.append($imgCaption);
-          $entry.data('jg.createdCaption', true);
-        }
-      }
-  
-      // Create events (we check again the $imgCaption because it can be still inexistent)
-      if ($imgCaption !== null) {
-        if (!this.settings.cssAnimation) $imgCaption.stop().fadeTo(0, this.settings.captionSettings.nonVisibleOpacity);
-        this.addCaptionEventsHandlers($entry);
-      }
-    } else {
-      this.removeCaptionEventsHandlers($entry);
-    }
-  };
-  
-  /**
-   * Validates the caption
-   *
-   * @param caption The caption that should be validated
-   * @return {boolean} Validation result
-   */
-  JustifiedGallery.prototype.isValidCaption = function (caption) {
-    return (typeof caption !== 'undefined' && caption.length > 0);
-  };
-  
-  /**
-   * The callback for the event 'mouseenter'. It assumes that the event currentTarget is an entry.
-   * It shows the caption using jQuery (or using CSS if it is configured so)
-   *
-   * @param {Event} eventObject the event object
-   */
-  JustifiedGallery.prototype.onEntryMouseEnterForCaption = function (eventObject) {
-    var $caption = this.captionFromEntry($(eventObject.currentTarget));
-    if (this.settings.cssAnimation) {
-      $caption.addClass('caption-visible').removeClass('caption-hidden');
-    } else {
-      $caption.stop().fadeTo(this.settings.captionSettings.animationDuration,
-          this.settings.captionSettings.visibleOpacity);
-    }
-  };
-  
-  /**
-   * The callback for the event 'mouseleave'. It assumes that the event currentTarget is an entry.
-   * It hides the caption using jQuery (or using CSS if it is configured so)
-   *
-   * @param {Event} eventObject the event object
-   */
-  JustifiedGallery.prototype.onEntryMouseLeaveForCaption = function (eventObject) {
-    var $caption = this.captionFromEntry($(eventObject.currentTarget));
-    if (this.settings.cssAnimation) {
-      $caption.removeClass('caption-visible').removeClass('caption-hidden');
-    } else {
-      $caption.stop().fadeTo(this.settings.captionSettings.animationDuration,
-          this.settings.captionSettings.nonVisibleOpacity);
-    }
-  };
-  
-  /**
-   * Add the handlers of the entry for the caption
-   *
-   * @param $entry the entry to modify
-   */
-  JustifiedGallery.prototype.addCaptionEventsHandlers = function ($entry) {
-    var captionMouseEvents = $entry.data('jg.captionMouseEvents');
-    if (typeof captionMouseEvents === 'undefined') {
-      captionMouseEvents = {
-        mouseenter: $.proxy(this.onEntryMouseEnterForCaption, this),
-        mouseleave: $.proxy(this.onEntryMouseLeaveForCaption, this)
-      };
-      $entry.on('mouseenter', undefined, undefined, captionMouseEvents.mouseenter);
-      $entry.on('mouseleave', undefined, undefined, captionMouseEvents.mouseleave);
-      $entry.data('jg.captionMouseEvents', captionMouseEvents);
-    }
-  };
-  
-  /**
-   * Remove the handlers of the entry for the caption
-   *
-   * @param $entry the entry to modify
-   */
-  JustifiedGallery.prototype.removeCaptionEventsHandlers = function ($entry) {
-    var captionMouseEvents = $entry.data('jg.captionMouseEvents');
-    if (typeof captionMouseEvents !== 'undefined') {
-      $entry.off('mouseenter', undefined, captionMouseEvents.mouseenter);
-      $entry.off('mouseleave', undefined, captionMouseEvents.mouseleave);
-      $entry.removeData('jg.captionMouseEvents');
-    }
-  };
-  
-  /**
-   * Clear the building row data to be used for a new row
-   */
-  JustifiedGallery.prototype.clearBuildingRow = function () {
-    this.buildingRow.entriesBuff = [];
-    this.buildingRow.aspectRatio = 0;
-    this.buildingRow.width = 0;
-  };
-  
-  /**
-   * Justify the building row, preparing it to
-   *
-   * @param isLastRow
-   * @returns a boolean to know if the row has been justified or not
-   */
-  JustifiedGallery.prototype.prepareBuildingRow = function (isLastRow) {
-    var i, $entry, imgAspectRatio, newImgW, newImgH, justify = true;
-    var minHeight = 0;
-    var availableWidth = this.galleryWidth - 2 * this.border - (
-        (this.buildingRow.entriesBuff.length - 1) * this.settings.margins);
-    var rowHeight = availableWidth / this.buildingRow.aspectRatio;
-    var defaultRowHeight = this.settings.rowHeight;
-    var justifiable = this.buildingRow.width / availableWidth > this.settings.justifyThreshold;
-  
-    //Skip the last row if we can't justify it and the lastRow == 'hide'
-    if (isLastRow && this.settings.lastRow === 'hide' && !justifiable) {
-      for (i = 0; i < this.buildingRow.entriesBuff.length; i++) {
-        $entry = this.buildingRow.entriesBuff[i];
-        if (this.settings.cssAnimation)
-          $entry.removeClass('entry-visible');
-        else {
-          $entry.stop().fadeTo(0, 0.1);
-          $entry.find('> img, > a > img').fadeTo(0, 0);
-        }
-      }
-      return -1;
-    }
-  
-    // With lastRow = nojustify, justify if is justificable (the images will not become too big)
-    if (isLastRow && !justifiable && this.settings.lastRow !== 'justify' && this.settings.lastRow !== 'hide') {
-      justify = false;
-  
-      if (this.rows > 0) {
-        defaultRowHeight = (this.offY - this.border - this.settings.margins * this.rows) / this.rows;
-        justify = defaultRowHeight * this.buildingRow.aspectRatio / availableWidth > this.settings.justifyThreshold;
-      }
-    }
-  
-    for (i = 0; i < this.buildingRow.entriesBuff.length; i++) {
-      $entry = this.buildingRow.entriesBuff[i];
-      imgAspectRatio = $entry.data('jg.width') / $entry.data('jg.height');
-  
-      if (justify) {
-        newImgW = (i === this.buildingRow.entriesBuff.length - 1) ? availableWidth : rowHeight * imgAspectRatio;
-        newImgH = rowHeight;
-      } else {
-        newImgW = defaultRowHeight * imgAspectRatio;
-        newImgH = defaultRowHeight;
-      }
-  
-      availableWidth -= Math.round(newImgW);
-      $entry.data('jg.jwidth', Math.round(newImgW));
-      $entry.data('jg.jheight', Math.ceil(newImgH));
-      if (i === 0 || minHeight > newImgH) minHeight = newImgH;
-    }
-  
-    this.buildingRow.height = minHeight;
-    return justify;
-  };
-  
-  /**
-   * Flush a row: justify it, modify the gallery height accordingly to the row height
-   *
-   * @param isLastRow
-   */
-  JustifiedGallery.prototype.flushRow = function (isLastRow) {
-    var settings = this.settings;
-    var $entry, buildingRowRes, offX = this.border, i;
-  
-    buildingRowRes = this.prepareBuildingRow(isLastRow);
-    if (isLastRow && settings.lastRow === 'hide' && buildingRowRes === -1) {
-      this.clearBuildingRow();
-      return;
-    }
-  
-    if(this.maxRowHeight) {
-      if(this.maxRowHeight < this.buildingRow.height)  this.buildingRow.height = this.maxRowHeight;
-    }
-  
-    //Align last (unjustified) row
-    if (isLastRow && (settings.lastRow === 'center' || settings.lastRow === 'right')) {
-      var availableWidth = this.galleryWidth - 2 * this.border - (this.buildingRow.entriesBuff.length - 1) * settings.margins;
-  
-      for (i = 0; i < this.buildingRow.entriesBuff.length; i++) {
-        $entry = this.buildingRow.entriesBuff[i];
-        availableWidth -= $entry.data('jg.jwidth');
-      }
-  
-      if (settings.lastRow === 'center')
-        offX += availableWidth / 2;
-      else if (settings.lastRow === 'right')
-        offX += availableWidth;
-    }
-  
-    var lastEntryIdx = this.buildingRow.entriesBuff.length - 1;
-    for (i = 0; i <= lastEntryIdx; i++) {
-      $entry = this.buildingRow.entriesBuff[ this.settings.rtl ? lastEntryIdx - i : i ];
-      this.displayEntry($entry, offX, this.offY, $entry.data('jg.jwidth'), $entry.data('jg.jheight'), this.buildingRow.height);
-      offX += $entry.data('jg.jwidth') + settings.margins;
-    }
-  
-    //Gallery Height
-    this.galleryHeightToSet = this.offY + this.buildingRow.height + this.border;
-    this.setGalleryTempHeight(this.galleryHeightToSet + this.getSpinnerHeight());
-  
-    if (!isLastRow || (this.buildingRow.height <= settings.rowHeight && buildingRowRes)) {
-      //Ready for a new row
-      this.offY += this.buildingRow.height + settings.margins;
-      this.rows += 1;
-      this.clearBuildingRow();
-      this.settings.triggerEvent.call(this, 'jg.rowflush');
-    }
-  };
-  
-  
-  // Scroll position not restoring: https://github.com/miromannino/Justified-Gallery/issues/221
-  var galleryPrevStaticHeight = 0;
-  
-  JustifiedGallery.prototype.rememberGalleryHeight = function () {
-    galleryPrevStaticHeight = this.$gallery.height();
-    this.$gallery.height(galleryPrevStaticHeight);
-  };
-  
-  // grow only
-  JustifiedGallery.prototype.setGalleryTempHeight = function (height) {
-    galleryPrevStaticHeight = Math.max(height, galleryPrevStaticHeight);
-    this.$gallery.height(galleryPrevStaticHeight);
-  };
-  
-  JustifiedGallery.prototype.setGalleryFinalHeight = function (height) {
-    galleryPrevStaticHeight = height;
-    this.$gallery.height(height);
-  };
-  
-  /**
-   * @returns {boolean} a boolean saying if the scrollbar is active or not
-   */
-  function hasScrollBar() {
-    return $("body").height() > $(window).height();
-  }
-  
-  /**
-   * Checks the width of the gallery container, to know if a new justification is needed
-   */
-  JustifiedGallery.prototype.checkWidth = function () {
-    this.checkWidthIntervalId = setInterval($.proxy(function () {
-  
-      // if the gallery is not currently visible, abort.
-      if (!this.$gallery.is(":visible")) return;
-  
-      var galleryWidth = parseFloat(this.$gallery.width());
-      if (hasScrollBar() === this.scrollBarOn) {
-        if (Math.abs(galleryWidth - this.galleryWidth) > this.settings.refreshSensitivity) {
-          this.galleryWidth = galleryWidth;
-          this.rewind();
-  
-          this.rememberGalleryHeight();
-  
-          // Restart to analyze
-          this.startImgAnalyzer(true);
-        }
-      } else {
-        this.scrollBarOn = hasScrollBar();
-        this.galleryWidth = galleryWidth;
-      }
-    }, this), this.settings.refreshTime);
-  };
-  
-  /**
-   * @returns {boolean} a boolean saying if the spinner is active or not
-   */
-  JustifiedGallery.prototype.isSpinnerActive = function () {
-    return this.spinner.intervalId !== null;
-  };
-  
-  /**
-   * @returns {int} the spinner height
-   */
-  JustifiedGallery.prototype.getSpinnerHeight = function () {
-    return this.spinner.$el.innerHeight();
-  };
-  
-  /**
-   * Stops the spinner animation and modify the gallery height to exclude the spinner
-   */
-  JustifiedGallery.prototype.stopLoadingSpinnerAnimation = function () {
-    clearInterval(this.spinner.intervalId);
-    this.spinner.intervalId = null;
-    this.setGalleryTempHeight(this.$gallery.height() - this.getSpinnerHeight());
-    this.spinner.$el.detach();
-  };
-  
-  /**
-   * Starts the spinner animation
-   */
-  JustifiedGallery.prototype.startLoadingSpinnerAnimation = function () {
-    var spinnerContext = this.spinner;
-    var $spinnerPoints = spinnerContext.$el.find('span');
-    clearInterval(spinnerContext.intervalId);
-    this.$gallery.append(spinnerContext.$el);
-    this.setGalleryTempHeight(this.offY + this.buildingRow.height + this.getSpinnerHeight());
-    spinnerContext.intervalId = setInterval(function () {
-      if (spinnerContext.phase < $spinnerPoints.length) {
-        $spinnerPoints.eq(spinnerContext.phase).fadeTo(spinnerContext.timeSlot, 1);
-      } else {
-        $spinnerPoints.eq(spinnerContext.phase - $spinnerPoints.length).fadeTo(spinnerContext.timeSlot, 0);
-      }
-      spinnerContext.phase = (spinnerContext.phase + 1) % ($spinnerPoints.length * 2);
-    }, spinnerContext.timeSlot);
-  };
-  
-  /**
-   * Rewind the image analysis to start from the first entry.
-   */
-  JustifiedGallery.prototype.rewind = function () {
-    this.lastFetchedEntry = null;
-    this.lastAnalyzedIndex = -1;
-    this.offY = this.border;
-    this.rows = 0;
-    this.clearBuildingRow();
-  };
-  
-  /**
-   * Update the entries searching it from the justified gallery HTML element
-   *
-   * @param norewind if norewind only the new entries will be changed (i.e. randomized, sorted or filtered)
-   * @returns {boolean} true if some entries has been founded
-   */
-  JustifiedGallery.prototype.updateEntries = function (norewind) {
-    var newEntries;
-  
-    if (norewind && this.lastFetchedEntry != null) {
-      newEntries = $(this.lastFetchedEntry).nextAll(this.settings.selector).toArray();
-    } else {
-      this.entries = [];
-      newEntries = this.$gallery.children(this.settings.selector).toArray();
-    }
-  
-    if (newEntries.length > 0) {
-  
-      // Sort or randomize
-      if ($.isFunction(this.settings.sort)) {
-        newEntries = this.sortArray(newEntries);
-      } else if (this.settings.randomize) {
-        newEntries = this.shuffleArray(newEntries);
-      }
-      this.lastFetchedEntry = newEntries[newEntries.length - 1];
-  
-      // Filter
-      if (this.settings.filter) {
-        newEntries = this.filterArray(newEntries);
-      } else {
-        this.resetFilters(newEntries);
-      }
-  
-    }
-  
-    this.entries = this.entries.concat(newEntries);
-    return true;
-  };
-  
-  /**
-   * Apply the entries order to the DOM, iterating the entries and appending the images
-   *
-   * @param entries the entries that has been modified and that must be re-ordered in the DOM
-   */
-  JustifiedGallery.prototype.insertToGallery = function (entries) {
-    var that = this;
-    $.each(entries, function () {
-      $(this).appendTo(that.$gallery);
-    });
-  };
-  
-  /**
-   * Shuffle the array using the Fisher-Yates shuffle algorithm
-   *
-   * @param a the array to shuffle
-   * @return the shuffled array
-   */
-  JustifiedGallery.prototype.shuffleArray = function (a) {
-    var i, j, temp;
-    for (i = a.length - 1; i > 0; i--) {
-      j = Math.floor(Math.random() * (i + 1));
-      temp = a[i];
-      a[i] = a[j];
-      a[j] = temp;
-    }
-    this.insertToGallery(a);
-    return a;
-  };
-  
-  /**
-   * Sort the array using settings.comparator as comparator
-   *
-   * @param a the array to sort (it is sorted)
-   * @return the sorted array
-   */
-  JustifiedGallery.prototype.sortArray = function (a) {
-    a.sort(this.settings.sort);
-    this.insertToGallery(a);
-    return a;
-  };
-  
-  /**
-   * Reset the filters removing the 'jg-filtered' class from all the entries
-   *
-   * @param a the array to reset
-   */
-  JustifiedGallery.prototype.resetFilters = function (a) {
-    for (var i = 0; i < a.length; i++) $(a[i]).removeClass('jg-filtered');
-  };
-  
-  /**
-   * Filter the entries considering theirs classes (if a string has been passed) or using a function for filtering.
-   *
-   * @param a the array to filter
-   * @return the filtered array
-   */
-  JustifiedGallery.prototype.filterArray = function (a) {
-    var settings = this.settings;
-    if ($.type(settings.filter) === 'string') {
-      // Filter only keeping the entries passed in the string
-      return a.filter(function (el) {
-        var $el = $(el);
-        if ($el.is(settings.filter)) {
-          $el.removeClass('jg-filtered');
-          return true;
-        } else {
-          $el.addClass('jg-filtered').removeClass('jg-visible');
-          return false;
-        }
-      });
-    } else if ($.isFunction(settings.filter)) {
-      // Filter using the passed function
-      var filteredArr = a.filter(settings.filter);
-      for (var i = 0; i < a.length; i++) {
-        if (filteredArr.indexOf(a[i]) === -1) {
-          $(a[i]).addClass('jg-filtered').removeClass('jg-visible');
-        } else {
-          $(a[i]).removeClass('jg-filtered');
-        }
-      }
-      return filteredArr;
-    }
-  };
-  
-  /**
-   * Destroy the Justified Gallery instance.
-   *
-   * It clears all the css properties added in the style attributes. We doesn't backup the original
-   * values for those css attributes, because it costs (performance) and because in general one
-   * shouldn't use the style attribute for an uniform set of images (where we suppose the use of
-   * classes). Creating a backup is also difficult because JG could be called multiple times and
-   * with different style attributes.
-   */
-  JustifiedGallery.prototype.destroy = function () {
-    clearInterval(this.checkWidthIntervalId);
-  
-    $.each(this.entries, $.proxy(function(_, entry) {
-      var $entry = $(entry);
-  
-      // Reset entry style
-      $entry.css('width', '');
-      $entry.css('height', '');
-      $entry.css('top', '');
-      $entry.css('left', '');
-      $entry.data('jg.loaded', undefined);
-      $entry.removeClass('jg-entry');
-  
-      // Reset image style
-      var $img = this.imgFromEntry($entry);
-      $img.css('width', '');
-      $img.css('height', '');
-      $img.css('margin-left', '');
-      $img.css('margin-top', '');
-      $img.attr('src', $img.data('jg.originalSrc'));
-      $img.data('jg.originalSrc', undefined);
-  
-      // Remove caption
-      this.removeCaptionEventsHandlers($entry);
-      var $caption = this.captionFromEntry($entry);
-      if ($entry.data('jg.createdCaption')) {
-        // remove also the caption element (if created by jg)
-        $entry.data('jg.createdCaption', undefined);
-        if ($caption !== null) $caption.remove();
-      } else {
-        if ($caption !== null) $caption.fadeTo(0, 1);
-      }
-  
-    }, this));
-  
-    this.$gallery.css('height', '');
-    this.$gallery.removeClass('justified-gallery');
-    this.$gallery.data('jg.controller', undefined);
-  };
-  
-  /**
-   * Analyze the images and builds the rows. It returns if it found an image that is not loaded.
-   *
-   * @param isForResize if the image analyzer is called for resizing or not, to call a different callback at the end
-   */
-  JustifiedGallery.prototype.analyzeImages = function (isForResize) {
-    for (var i = this.lastAnalyzedIndex + 1; i < this.entries.length; i++) {
-      var $entry = $(this.entries[i]);
-      if ($entry.data('jg.loaded') === true || $entry.data('jg.loaded') === 'skipped') {
-        var availableWidth = this.galleryWidth - 2 * this.border - (
-            (this.buildingRow.entriesBuff.length - 1) * this.settings.margins);
-        var imgAspectRatio = $entry.data('jg.width') / $entry.data('jg.height');
-        if (availableWidth / (this.buildingRow.aspectRatio + imgAspectRatio) < this.settings.rowHeight) {
-          this.flushRow(false);
-  
-          if(++this.yield.flushed >= this.yield.every) {
-            this.startImgAnalyzer(isForResize);
-            return;
-          }
-        }
-  
-        this.buildingRow.entriesBuff.push($entry);
-        this.buildingRow.aspectRatio += imgAspectRatio;
-        this.buildingRow.width += imgAspectRatio * this.settings.rowHeight;
-        this.lastAnalyzedIndex = i;
-  
-      } else if ($entry.data('jg.loaded') !== 'error') {
-        return;
-      }
-    }
-  
-    // Last row flush (the row is not full)
-    if (this.buildingRow.entriesBuff.length > 0) this.flushRow(true);
-  
-    if (this.isSpinnerActive()) {
-      this.stopLoadingSpinnerAnimation();
-    }
-  
-    /* Stop, if there is, the timeout to start the analyzeImages.
-     This is because an image can be set loaded, and the timeout can be set,
-     but this image can be analyzed yet.
-     */
-    this.stopImgAnalyzerStarter();
-  
-    //On complete callback
-    this.settings.triggerEvent.call(this, isForResize ? 'jg.resize' : 'jg.complete');
-    this.setGalleryFinalHeight(this.galleryHeightToSet);
-  };
-  
-  /**
-   * Stops any ImgAnalyzer starter (that has an assigned timeout)
-   */
-  JustifiedGallery.prototype.stopImgAnalyzerStarter = function () {
-    this.yield.flushed = 0;
-    if (this.imgAnalyzerTimeout !== null) {
-      clearTimeout(this.imgAnalyzerTimeout);
-      this.imgAnalyzerTimeout = null;
-    }
-  };
-  
-  /**
-   * Starts the image analyzer. It is not immediately called to let the browser to update the view
-   *
-   * @param isForResize specifies if the image analyzer must be called for resizing or not
-   */
-  JustifiedGallery.prototype.startImgAnalyzer = function (isForResize) {
-    var that = this;
-    this.stopImgAnalyzerStarter();
-    this.imgAnalyzerTimeout = setTimeout(function () {
-      that.analyzeImages(isForResize);
-    }, 0.001); // we can't start it immediately due to a IE different behaviour
-  };
-  
-  /**
-   * Checks if the image is loaded or not using another image object. We cannot use the 'complete' image property,
-   * because some browsers, with a 404 set complete = true.
-   *
-   * @param imageSrc the image src to load
-   * @param onLoad callback that is called when the image has been loaded
-   * @param onError callback that is called in case of an error
-   */
-  JustifiedGallery.prototype.onImageEvent = function (imageSrc, onLoad, onError) {
-    if (!onLoad && !onError) return;
-  
-    var memImage = new Image();
-    var $memImage = $(memImage);
-    if (onLoad) {
-      $memImage.one('load', function () {
-        $memImage.off('load error');
-        onLoad(memImage);
-      });
-    }
-    if (onError) {
-      $memImage.one('error', function() {
-        $memImage.off('load error');
-        onError(memImage);
-      });
-    }
-    memImage.src = imageSrc;
-  };
-  
-  /**
-   * Init of Justified Gallery controlled
-   * It analyzes all the entries starting theirs loading and calling the image analyzer (that works with loaded images)
-   */
-  JustifiedGallery.prototype.init = function () {
-    var imagesToLoad = false, skippedImages = false, that = this;
-    $.each(this.entries, function (index, entry) {
-      var $entry = $(entry);
-      var $image = that.imgFromEntry($entry);
-  
-      $entry.addClass('jg-entry');
-  
-      if ($entry.data('jg.loaded') !== true && $entry.data('jg.loaded') !== 'skipped') {
-  
-        // Link Rel global overwrite
-        if (that.settings.rel !== null) $entry.attr('rel', that.settings.rel);
-  
-        // Link Target global overwrite
-        if (that.settings.target !== null) $entry.attr('target', that.settings.target);
-  
-        if ($image !== null) {
-  
-          // Image src
-          var imageSrc = that.extractImgSrcFromImage($image);
-          $image.attr('src', imageSrc);
-  
-          /* If we have the height and the width, we don't wait that the image is loaded, but we start directly
-           * with the justification */
-          if (that.settings.waitThumbnailsLoad === false) {
-            var width = parseFloat($image.prop('width'));
-            var height = parseFloat($image.prop('height'));
-            if (!isNaN(width) && !isNaN(height)) {
-              $entry.data('jg.width', width);
-              $entry.data('jg.height', height);
-              $entry.data('jg.loaded', 'skipped');
-              skippedImages = true;
-              that.startImgAnalyzer(false);
-              return true; // continue
-            }
-          }
-  
-          $entry.data('jg.loaded', false);
-          imagesToLoad = true;
-  
-          // Spinner start
-          if (!that.isSpinnerActive()) that.startLoadingSpinnerAnimation();
-  
-          that.onImageEvent(imageSrc, function (loadImg) { // image loaded
-            $entry.data('jg.width', loadImg.width);
-            $entry.data('jg.height', loadImg.height);
-            $entry.data('jg.loaded', true);
-            that.startImgAnalyzer(false);
-          }, function () { // image load error
-            $entry.data('jg.loaded', 'error');
-            that.startImgAnalyzer(false);
-          });
-  
-        } else {
-          $entry.data('jg.loaded', true);
-          $entry.data('jg.width', $entry.width() | parseFloat($entry.css('width')) | 1);
-          $entry.data('jg.height', $entry.height() | parseFloat($entry.css('height')) | 1);
-        }
-  
-      }
-  
-    });
-  
-    if (!imagesToLoad && !skippedImages) this.startImgAnalyzer(false);
-    this.checkWidth();
-  };
-  
-  /**
-   * Checks that it is a valid number. If a string is passed it is converted to a number
-   *
-   * @param settingContainer the object that contains the setting (to allow the conversion)
-   * @param settingName the setting name
-   */
-  JustifiedGallery.prototype.checkOrConvertNumber = function (settingContainer, settingName) {
-    if ($.type(settingContainer[settingName]) === 'string') {
-      settingContainer[settingName] = parseFloat(settingContainer[settingName]);
-    }
-  
-    if ($.type(settingContainer[settingName]) === 'number') {
-      if (isNaN(settingContainer[settingName])) throw 'invalid number for ' + settingName;
-    } else {
-      throw settingName + ' must be a number';
-    }
-  };
-  
-  /**
-   * Checks the sizeRangeSuffixes and, if necessary, converts
-   * its keys from string (e.g. old settings with 'lt100') to int.
-   */
-  JustifiedGallery.prototype.checkSizeRangesSuffixes = function () {
-    if ($.type(this.settings.sizeRangeSuffixes) !== 'object') {
-      throw 'sizeRangeSuffixes must be defined and must be an object';
-    }
-  
-    var suffixRanges = [];
-    for (var rangeIdx in this.settings.sizeRangeSuffixes) {
-      if (this.settings.sizeRangeSuffixes.hasOwnProperty(rangeIdx)) suffixRanges.push(rangeIdx);
-    }
-  
-    var newSizeRngSuffixes = {0: ''};
-    for (var i = 0; i < suffixRanges.length; i++) {
-      if ($.type(suffixRanges[i]) === 'string') {
-        try {
-          var numIdx = parseInt(suffixRanges[i].replace(/^[a-z]+/, ''), 10);
-          newSizeRngSuffixes[numIdx] = this.settings.sizeRangeSuffixes[suffixRanges[i]];
-        } catch (e) {
-          throw 'sizeRangeSuffixes keys must contains correct numbers (' + e + ')';
-        }
-      } else {
-        newSizeRngSuffixes[suffixRanges[i]] = this.settings.sizeRangeSuffixes[suffixRanges[i]];
-      }
-    }
-  
-    this.settings.sizeRangeSuffixes = newSizeRngSuffixes;
-  };
-  
-  /**
-   * check and convert the maxRowHeight setting
-   * requires rowHeight to be already set
-   * TODO: should be always called when only rowHeight is changed
-   * @return number or null
-   */
-  JustifiedGallery.prototype.retrieveMaxRowHeight = function () {
-    var newMaxRowHeight = null;
-    var rowHeight = this.settings.rowHeight;
-  
-    if ($.type(this.settings.maxRowHeight) === 'string') {
-      if (this.settings.maxRowHeight.match(/^[0-9]+%$/)) {
-        newMaxRowHeight = rowHeight * parseFloat(this.settings.maxRowHeight.match(/^([0-9]+)%$/)[1]) / 100;
-      } else {
-        newMaxRowHeight = parseFloat(this.settings.maxRowHeight);
-      }
-    } else if ($.type(this.settings.maxRowHeight) === 'number') {
-      newMaxRowHeight = this.settings.maxRowHeight;
-    } else if (this.settings.maxRowHeight === false || this.settings.maxRowHeight == null) {
-      return null;
-    } else {
-      throw 'maxRowHeight must be a number or a percentage';
-    }
-  
-    // check if the converted value is not a number
-    if (isNaN(newMaxRowHeight)) throw 'invalid number for maxRowHeight';
-  
-    // check values, maxRowHeight must be >= rowHeight
-    if (newMaxRowHeight < rowHeight) newMaxRowHeight = rowHeight;
-  
-    return newMaxRowHeight;
-  };
-  
-  /**
-   * Checks the settings
-   */
-  JustifiedGallery.prototype.checkSettings = function () {
-    this.checkSizeRangesSuffixes();
-  
-    this.checkOrConvertNumber(this.settings, 'rowHeight');
-    this.checkOrConvertNumber(this.settings, 'margins');
-    this.checkOrConvertNumber(this.settings, 'border');
-  
-    var lastRowModes = [
-      'justify',
-      'nojustify',
-      'left',
-      'center',
-      'right',
-      'hide'
-    ];
-    if (lastRowModes.indexOf(this.settings.lastRow) === -1) {
-      throw 'lastRow must be one of: ' + lastRowModes.join(', ');
-    }
-  
-    this.checkOrConvertNumber(this.settings, 'justifyThreshold');
-    if (this.settings.justifyThreshold < 0 || this.settings.justifyThreshold > 1) {
-      throw 'justifyThreshold must be in the interval [0,1]';
-    }
-    if ($.type(this.settings.cssAnimation) !== 'boolean') {
-      throw 'cssAnimation must be a boolean';
-    }
-  
-    if ($.type(this.settings.captions) !== 'boolean') throw 'captions must be a boolean';
-    this.checkOrConvertNumber(this.settings.captionSettings, 'animationDuration');
-  
-    this.checkOrConvertNumber(this.settings.captionSettings, 'visibleOpacity');
-    if (this.settings.captionSettings.visibleOpacity < 0 ||
-        this.settings.captionSettings.visibleOpacity > 1) {
-      throw 'captionSettings.visibleOpacity must be in the interval [0, 1]';
-    }
-  
-    this.checkOrConvertNumber(this.settings.captionSettings, 'nonVisibleOpacity');
-    if (this.settings.captionSettings.nonVisibleOpacity < 0 ||
-        this.settings.captionSettings.nonVisibleOpacity > 1) {
-      throw 'captionSettings.nonVisibleOpacity must be in the interval [0, 1]';
-    }
-  
-    this.checkOrConvertNumber(this.settings, 'imagesAnimationDuration');
-    this.checkOrConvertNumber(this.settings, 'refreshTime');
-    this.checkOrConvertNumber(this.settings, 'refreshSensitivity');
-    if ($.type(this.settings.randomize) !== 'boolean') throw 'randomize must be a boolean';
-    if ($.type(this.settings.selector) !== 'string') throw 'selector must be a string';
-  
-    if (this.settings.sort !== false && !$.isFunction(this.settings.sort)) {
-      throw 'sort must be false or a comparison function';
-    }
-  
-    if (this.settings.filter !== false && !$.isFunction(this.settings.filter) &&
-        $.type(this.settings.filter) !== 'string') {
-      throw 'filter must be false, a string or a filter function';
-    }
-  };
-  
-  /**
-   * It brings all the indexes from the sizeRangeSuffixes and it orders them. They are then sorted and returned.
-   * @returns {Array} sorted suffix ranges
-   */
-  JustifiedGallery.prototype.retrieveSuffixRanges = function () {
-    var suffixRanges = [];
-    for (var rangeIdx in this.settings.sizeRangeSuffixes) {
-      if (this.settings.sizeRangeSuffixes.hasOwnProperty(rangeIdx)) suffixRanges.push(parseInt(rangeIdx, 10));
-    }
-    suffixRanges.sort(function (a, b) { return a > b ? 1 : a < b ? -1 : 0; });
-    return suffixRanges;
-  };
-  
-  /**
-   * Update the existing settings only changing some of them
-   *
-   * @param newSettings the new settings (or a subgroup of them)
-   */
-  JustifiedGallery.prototype.updateSettings = function (newSettings) {
-    // In this case Justified Gallery has been called again changing only some options
-    this.settings = $.extend({}, this.settings, newSettings);
-    this.checkSettings();
-  
-    // As reported in the settings: negative value = same as margins, 0 = disabled
-    this.border = this.settings.border >= 0 ? this.settings.border : this.settings.margins;
-  
-    this.maxRowHeight = this.retrieveMaxRowHeight();
-    this.suffixRanges = this.retrieveSuffixRanges();
-  };
-  
-  JustifiedGallery.prototype.defaults = {
-    sizeRangeSuffixes: { }, /* e.g. Flickr configuration
-        {
-          100: '_t',  // used when longest is less than 100px
-          240: '_m',  // used when longest is between 101px and 240px
-          320: '_n',  // ...
-          500: '',
-          640: '_z',
-          1024: '_b'  // used as else case because it is the last
-        }
-    */
-    thumbnailPath: undefined, /* If defined, sizeRangeSuffixes is not used, and this function is used to determine the
-    path relative to a specific thumbnail size. The function should accept respectively three arguments:
-    current path, width and height */
-    rowHeight: 120, // required? required to be > 0?
-    maxRowHeight: false, // false or negative value to deactivate. Positive number to express the value in pixels,
-                         // A string '[0-9]+%' to express in percentage (e.g. 300% means that the row height
-                         // can't exceed 3 * rowHeight)
-    margins: 1,
-    border: -1, // negative value = same as margins, 0 = disabled, any other value to set the border
-  
-    lastRow: 'nojustify', // … which is the same as 'left', or can be 'justify', 'center', 'right' or 'hide'
-  
-    justifyThreshold: 0.90, /* if row width / available space > 0.90 it will be always justified
-                             * (i.e. lastRow setting is not considered) */
-    waitThumbnailsLoad: true,
-    captions: true,
-    cssAnimation: true,
-    imagesAnimationDuration: 500, // ignored with css animations
-    captionSettings: { // ignored with css animations
-      animationDuration: 500,
-      visibleOpacity: 0.7,
-      nonVisibleOpacity: 0.0
-    },
-    rel: null, // rewrite the rel of each analyzed links
-    target: null, // rewrite the target of all links
-    extension: /\.[^.\\/]+$/, // regexp to capture the extension of an image
-    refreshTime: 200, // time interval (in ms) to check if the page changes its width
-    refreshSensitivity: 0, // change in width allowed (in px) without re-building the gallery
-    randomize: false,
-    rtl: false, // right-to-left mode
-    sort: false, /*
-      - false: to do not sort
-      - function: to sort them using the function as comparator (see Array.prototype.sort())
-    */
-    filter: false, /*
-      - false, null or undefined: for a disabled filter
-      - a string: an entry is kept if entry.is(filter string) returns true
-                  see jQuery's .is() function for further information
-      - a function: invoked with arguments (entry, index, array). Return true to keep the entry, false otherwise.
-                    It follows the specifications of the Array.prototype.filter() function of JavaScript.
-    */
-    selector: 'a, div:not(.spinner)', // The selector that is used to know what are the entries of the gallery
-    imgSelector: '> img, > a > img', // The selector that is used to know what are the images of each entry
-    triggerEvent: function (event) { // This is called to trigger events, the default behavior is to call $.trigger
-      this.$gallery.trigger(event);  // Consider that 'this' is this set to the JustifiedGallery object, so it can
-    }                                // access to fields such as $gallery, useful to trigger events with jQuery.
-  };
-
-  /**
-   * Justified Gallery plugin for jQuery
-   *
-   * Events
-   *  - jg.complete : called when all the gallery has been created
-   *  - jg.resize : called when the gallery has been resized
-   *  - jg.rowflush : when a new row appears
-   *
-   * @param arg the action (or the settings) passed when the plugin is called
-   * @returns {*} the object itself
-   */
-  $.fn.justifiedGallery = function (arg) {
-    return this.each(function (index, gallery) {
-
-      var $gallery = $(gallery);
-      $gallery.addClass('justified-gallery');
-
-      var controller = $gallery.data('jg.controller');
-      if (typeof controller === 'undefined') {
-        // Create controller and assign it to the object data
-        if (typeof arg !== 'undefined' && arg !== null && $.type(arg) !== 'object') {
-          if (arg === 'destroy') return; // Just a call to an unexisting object
-          throw 'The argument must be an object';
-        }
-        controller = new JustifiedGallery($gallery, $.extend({}, JustifiedGallery.prototype.defaults, arg));
-        $gallery.data('jg.controller', controller);
-      } else if (arg === 'norewind') {
-        // In this case we don't rewind: we analyze only the latest images (e.g. to complete the last unfinished row
-        // ... left to be more readable
-      } else if (arg === 'destroy') {
-        controller.destroy();
-        return;
-      } else {
-        // In this case Justified Gallery has been called again changing only some options
-        controller.updateSettings(arg);
-        controller.rewind();
-      }
-
-      // Update the entries list
-      if (!controller.updateEntries(arg === 'norewind')) return;
-
-      // Init justified gallery
-      controller.init();
-
-    });
-  };
-
-}));
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):undefined}(function(g){var r=function(t,i){this.settings=i,this.checkSettings(),this.imgAnalyzerTimeout=null,this.entries=null,this.buildingRow={entriesBuff:[],width:0,height:0,aspectRatio:0},this.lastFetchedEntry=null,this.lastAnalyzedIndex=-1,this.yield={every:2,flushed:0},this.border=0<=i.border?i.border:i.margins,this.maxRowHeight=this.retrieveMaxRowHeight(),this.suffixRanges=this.retrieveSuffixRanges(),this.offY=this.border,this.rows=0,this.spinner={phase:0,timeSlot:150,$el:g('<div class="spinner"><span></span><span></span><span></span></div>'),intervalId:null},this.scrollBarOn=!1,this.checkWidthIntervalId=null,this.galleryWidth=t.width(),this.$gallery=t};r.prototype.getSuffix=function(t,i){var e,s;for(e=i<t?t:i,s=0;s<this.suffixRanges.length;s++)if(e<=this.suffixRanges[s])return this.settings.sizeRangeSuffixes[this.suffixRanges[s]];return this.settings.sizeRangeSuffixes[this.suffixRanges[s-1]]},r.prototype.removeSuffix=function(t,i){return t.substring(0,t.length-i.length)},r.prototype.endsWith=function(t,i){return-1!==t.indexOf(i,t.length-i.length)},r.prototype.getUsedSuffix=function(t){for(var i in this.settings.sizeRangeSuffixes)if(this.settings.sizeRangeSuffixes.hasOwnProperty(i)){if(0===this.settings.sizeRangeSuffixes[i].length)continue;if(this.endsWith(t,this.settings.sizeRangeSuffixes[i]))return this.settings.sizeRangeSuffixes[i]}return""},r.prototype.newSrc=function(t,i,e,s){var n;if(this.settings.thumbnailPath)n=this.settings.thumbnailPath(t,i,e,s);else{var r=t.match(this.settings.extension),o=null!==r?r[0]:"";n=t.replace(this.settings.extension,""),n=this.removeSuffix(n,this.getUsedSuffix(n)),n+=this.getSuffix(i,e)+o}return n},r.prototype.showImg=function(t,i){this.settings.cssAnimation?(t.addClass("entry-visible"),i&&i()):(t.stop().fadeTo(this.settings.imagesAnimationDuration,1,i),t.find(this.settings.imgSelector).stop().fadeTo(this.settings.imagesAnimationDuration,1,i))},r.prototype.extractImgSrcFromImage=function(t){var i=void 0!==t.data("safe-src")?t.data("safe-src"):t.attr("src");return t.data("jg.originalSrc",i),i},r.prototype.imgFromEntry=function(t){var i=t.find(this.settings.imgSelector);return 0===i.length?null:i},r.prototype.captionFromEntry=function(t){var i=t.find("> .caption");return 0===i.length?null:i},r.prototype.displayEntry=function(t,i,e,s,n,r){t.width(s),t.height(r),t.css("top",e),t.css("left",i);var o=this.imgFromEntry(t);if(null!==o){o.css("width",s),o.css("height",n),o.css("margin-left",-s/2),o.css("margin-top",-n/2);var a=o.attr("src"),h=this.newSrc(a,s,n,o[0]);o.one("error",function(){o.attr("src",o.data("jg.originalSrc"))});var l=function(){a!==h&&o.attr("src",h)};"skipped"===t.data("jg.loaded")?this.onImageEvent(a,g.proxy(function(){this.showImg(t,l),t.data("jg.loaded",!0)},this)):this.showImg(t,l)}else this.showImg(t);this.displayEntryCaption(t)},r.prototype.displayEntryCaption=function(t){var i=this.imgFromEntry(t);if(null!==i&&this.settings.captions){var e=this.captionFromEntry(t);if(null===e){var s=i.attr("alt");this.isValidCaption(s)||(s=t.attr("title")),this.isValidCaption(s)&&(e=g('<div class="caption">'+s+"</div>"),t.append(e),t.data("jg.createdCaption",!0))}null!==e&&(this.settings.cssAnimation||e.stop().fadeTo(0,this.settings.captionSettings.nonVisibleOpacity),this.addCaptionEventsHandlers(t))}else this.removeCaptionEventsHandlers(t)},r.prototype.isValidCaption=function(t){return void 0!==t&&0<t.length},r.prototype.onEntryMouseEnterForCaption=function(t){var i=this.captionFromEntry(g(t.currentTarget));this.settings.cssAnimation?i.addClass("caption-visible").removeClass("caption-hidden"):i.stop().fadeTo(this.settings.captionSettings.animationDuration,this.settings.captionSettings.visibleOpacity)},r.prototype.onEntryMouseLeaveForCaption=function(t){var i=this.captionFromEntry(g(t.currentTarget));this.settings.cssAnimation?i.removeClass("caption-visible").removeClass("caption-hidden"):i.stop().fadeTo(this.settings.captionSettings.animationDuration,this.settings.captionSettings.nonVisibleOpacity)},r.prototype.addCaptionEventsHandlers=function(t){var i=t.data("jg.captionMouseEvents");void 0===i&&(i={mouseenter:g.proxy(this.onEntryMouseEnterForCaption,this),mouseleave:g.proxy(this.onEntryMouseLeaveForCaption,this)},t.on("mouseenter",void 0,void 0,i.mouseenter),t.on("mouseleave",void 0,void 0,i.mouseleave),t.data("jg.captionMouseEvents",i))},r.prototype.removeCaptionEventsHandlers=function(t){var i=t.data("jg.captionMouseEvents");void 0!==i&&(t.off("mouseenter",void 0,i.mouseenter),t.off("mouseleave",void 0,i.mouseleave),t.removeData("jg.captionMouseEvents"))},r.prototype.clearBuildingRow=function(){this.buildingRow.entriesBuff=[],this.buildingRow.aspectRatio=0,this.buildingRow.width=0},r.prototype.prepareBuildingRow=function(t){var i,e,s,n,r,o=!0,a=0,h=this.galleryWidth-2*this.border-(this.buildingRow.entriesBuff.length-1)*this.settings.margins,l=h/this.buildingRow.aspectRatio,g=this.settings.rowHeight,u=this.buildingRow.width/h>this.settings.justifyThreshold;if(t&&"hide"===this.settings.lastRow&&!u){for(i=0;i<this.buildingRow.entriesBuff.length;i++)e=this.buildingRow.entriesBuff[i],this.settings.cssAnimation?e.removeClass("entry-visible"):(e.stop().fadeTo(0,.1),e.find("> img, > a > img").fadeTo(0,0));return-1}for(t&&!u&&"justify"!==this.settings.lastRow&&"hide"!==this.settings.lastRow&&(o=!1,0<this.rows&&(o=(g=(this.offY-this.border-this.settings.margins*this.rows)/this.rows)*this.buildingRow.aspectRatio/h>this.settings.justifyThreshold)),i=0;i<this.buildingRow.entriesBuff.length;i++)s=(e=this.buildingRow.entriesBuff[i]).data("jg.width")/e.data("jg.height"),o?(n=i===this.buildingRow.entriesBuff.length-1?h:l*s,r=l):(n=g*s,r=g),h-=Math.round(n),e.data("jg.jwidth",Math.round(n)),e.data("jg.jheight",Math.ceil(r)),(0===i||r<a)&&(a=r);return this.buildingRow.height=a,o},r.prototype.flushRow=function(t){var i,e,s,n=this.settings,r=this.border;if(e=this.prepareBuildingRow(t),t&&"hide"===n.lastRow&&-1===e)this.clearBuildingRow();else{if(this.maxRowHeight&&this.maxRowHeight<this.buildingRow.height&&(this.buildingRow.height=this.maxRowHeight),t&&("center"===n.lastRow||"right"===n.lastRow)){var o=this.galleryWidth-2*this.border-(this.buildingRow.entriesBuff.length-1)*n.margins;for(s=0;s<this.buildingRow.entriesBuff.length;s++)o-=(i=this.buildingRow.entriesBuff[s]).data("jg.jwidth");"center"===n.lastRow?r+=o/2:"right"===n.lastRow&&(r+=o)}var a=this.buildingRow.entriesBuff.length-1;for(s=0;s<=a;s++)i=this.buildingRow.entriesBuff[this.settings.rtl?a-s:s],this.displayEntry(i,r,this.offY,i.data("jg.jwidth"),i.data("jg.jheight"),this.buildingRow.height),r+=i.data("jg.jwidth")+n.margins;this.galleryHeightToSet=this.offY+this.buildingRow.height+this.border,this.setGalleryTempHeight(this.galleryHeightToSet+this.getSpinnerHeight()),(!t||this.buildingRow.height<=n.rowHeight&&e)&&(this.offY+=this.buildingRow.height+n.margins,this.rows+=1,this.clearBuildingRow(),this.settings.triggerEvent.call(this,"jg.rowflush"))}};var i=0;function e(){return g("body").height()>g(window).height()}r.prototype.rememberGalleryHeight=function(){i=this.$gallery.height(),this.$gallery.height(i)},r.prototype.setGalleryTempHeight=function(t){i=Math.max(t,i),this.$gallery.height(i)},r.prototype.setGalleryFinalHeight=function(t){i=t,this.$gallery.height(t)},r.prototype.checkWidth=function(){this.checkWidthIntervalId=setInterval(g.proxy(function(){if(this.$gallery.is(":visible")){var t=parseFloat(this.$gallery.width());e()===this.scrollBarOn?Math.abs(t-this.galleryWidth)>this.settings.refreshSensitivity&&(this.galleryWidth=t,this.rewind(),this.rememberGalleryHeight(),this.startImgAnalyzer(!0)):(this.scrollBarOn=e(),this.galleryWidth=t)}},this),this.settings.refreshTime)},r.prototype.isSpinnerActive=function(){return null!==this.spinner.intervalId},r.prototype.getSpinnerHeight=function(){return this.spinner.$el.innerHeight()},r.prototype.stopLoadingSpinnerAnimation=function(){clearInterval(this.spinner.intervalId),this.spinner.intervalId=null,this.setGalleryTempHeight(this.$gallery.height()-this.getSpinnerHeight()),this.spinner.$el.detach()},r.prototype.startLoadingSpinnerAnimation=function(){var t=this.spinner,i=t.$el.find("span");clearInterval(t.intervalId),this.$gallery.append(t.$el),this.setGalleryTempHeight(this.offY+this.buildingRow.height+this.getSpinnerHeight()),t.intervalId=setInterval(function(){t.phase<i.length?i.eq(t.phase).fadeTo(t.timeSlot,1):i.eq(t.phase-i.length).fadeTo(t.timeSlot,0),t.phase=(t.phase+1)%(2*i.length)},t.timeSlot)},r.prototype.rewind=function(){this.lastFetchedEntry=null,this.lastAnalyzedIndex=-1,this.offY=this.border,this.rows=0,this.clearBuildingRow()},r.prototype.updateEntries=function(t){var i;return t&&null!=this.lastFetchedEntry?i=g(this.lastFetchedEntry).nextAll(this.settings.selector).toArray():(this.entries=[],i=this.$gallery.children(this.settings.selector).toArray()),0<i.length&&(g.isFunction(this.settings.sort)?i=this.sortArray(i):this.settings.randomize&&(i=this.shuffleArray(i)),this.lastFetchedEntry=i[i.length-1],this.settings.filter?i=this.filterArray(i):this.resetFilters(i)),this.entries=this.entries.concat(i),!0},r.prototype.insertToGallery=function(t){var i=this;g.each(t,function(){g(this).appendTo(i.$gallery)})},r.prototype.shuffleArray=function(t){var i,e,s;for(i=t.length-1;0<i;i--)e=Math.floor(Math.random()*(i+1)),s=t[i],t[i]=t[e],t[e]=s;return this.insertToGallery(t),t},r.prototype.sortArray=function(t){return t.sort(this.settings.sort),this.insertToGallery(t),t},r.prototype.resetFilters=function(t){for(var i=0;i<t.length;i++)g(t[i]).removeClass("jg-filtered")},r.prototype.filterArray=function(t){var e=this.settings;if("string"===g.type(e.filter))return t.filter(function(t){var i=g(t);return i.is(e.filter)?(i.removeClass("jg-filtered"),!0):(i.addClass("jg-filtered").removeClass("jg-visible"),!1)});if(g.isFunction(e.filter)){for(var i=t.filter(e.filter),s=0;s<t.length;s++)-1===i.indexOf(t[s])?g(t[s]).addClass("jg-filtered").removeClass("jg-visible"):g(t[s]).removeClass("jg-filtered");return i}},r.prototype.destroy=function(){clearInterval(this.checkWidthIntervalId),g.each(this.entries,g.proxy(function(t,i){var e=g(i);e.css("width",""),e.css("height",""),e.css("top",""),e.css("left",""),e.data("jg.loaded",void 0),e.removeClass("jg-entry");var s=this.imgFromEntry(e);s.css("width",""),s.css("height",""),s.css("margin-left",""),s.css("margin-top",""),s.attr("src",s.data("jg.originalSrc")),s.data("jg.originalSrc",void 0),this.removeCaptionEventsHandlers(e);var n=this.captionFromEntry(e);e.data("jg.createdCaption")?(e.data("jg.createdCaption",void 0),null!==n&&n.remove()):null!==n&&n.fadeTo(0,1)},this)),this.$gallery.css("height",""),this.$gallery.removeClass("justified-gallery"),this.$gallery.data("jg.controller",void 0)},r.prototype.analyzeImages=function(t){for(var i=this.lastAnalyzedIndex+1;i<this.entries.length;i++){var e=g(this.entries[i]);if(!0===e.data("jg.loaded")||"skipped"===e.data("jg.loaded")){var s=this.galleryWidth-2*this.border-(this.buildingRow.entriesBuff.length-1)*this.settings.margins,n=e.data("jg.width")/e.data("jg.height");if(s/(this.buildingRow.aspectRatio+n)<this.settings.rowHeight&&(this.flushRow(!1),++this.yield.flushed>=this.yield.every))return void this.startImgAnalyzer(t);this.buildingRow.entriesBuff.push(e),this.buildingRow.aspectRatio+=n,this.buildingRow.width+=n*this.settings.rowHeight,this.lastAnalyzedIndex=i}else if("error"!==e.data("jg.loaded"))return}0<this.buildingRow.entriesBuff.length&&this.flushRow(!0),this.isSpinnerActive()&&this.stopLoadingSpinnerAnimation(),this.stopImgAnalyzerStarter(),this.settings.triggerEvent.call(this,t?"jg.resize":"jg.complete"),this.setGalleryFinalHeight(this.galleryHeightToSet)},r.prototype.stopImgAnalyzerStarter=function(){this.yield.flushed=0,null!==this.imgAnalyzerTimeout&&(clearTimeout(this.imgAnalyzerTimeout),this.imgAnalyzerTimeout=null)},r.prototype.startImgAnalyzer=function(t){var i=this;this.stopImgAnalyzerStarter(),this.imgAnalyzerTimeout=setTimeout(function(){i.analyzeImages(t)},.001)},r.prototype.onImageEvent=function(t,i,e){if(i||e){var s=new Image,n=g(s);i&&n.one("load",function(){n.off("load error"),i(s)}),e&&n.one("error",function(){n.off("load error"),e(s)}),s.src=t}},r.prototype.init=function(){var a=!1,h=!1,l=this;g.each(this.entries,function(t,i){var e=g(i),s=l.imgFromEntry(e);if(e.addClass("jg-entry"),!0!==e.data("jg.loaded")&&"skipped"!==e.data("jg.loaded"))if(null!==l.settings.rel&&e.attr("rel",l.settings.rel),null!==l.settings.target&&e.attr("target",l.settings.target),null!==s){var n=l.extractImgSrcFromImage(s);if(s.attr("src",n),!1===l.settings.waitThumbnailsLoad){var r=parseFloat(s.prop("width")),o=parseFloat(s.prop("height"));if(!isNaN(r)&&!isNaN(o))return e.data("jg.width",r),e.data("jg.height",o),e.data("jg.loaded","skipped"),h=!0,l.startImgAnalyzer(!1),!0}e.data("jg.loaded",!1),a=!0,l.isSpinnerActive()||l.startLoadingSpinnerAnimation(),l.onImageEvent(n,function(t){e.data("jg.width",t.width),e.data("jg.height",t.height),e.data("jg.loaded",!0),l.startImgAnalyzer(!1)},function(){e.data("jg.loaded","error"),l.startImgAnalyzer(!1)})}else e.data("jg.loaded",!0),e.data("jg.width",e.width()|parseFloat(e.css("width"))|1),e.data("jg.height",e.height()|parseFloat(e.css("height"))|1)}),a||h||this.startImgAnalyzer(!1),this.checkWidth()},r.prototype.checkOrConvertNumber=function(t,i){if("string"===g.type(t[i])&&(t[i]=parseFloat(t[i])),"number"!==g.type(t[i]))throw i+" must be a number";if(isNaN(t[i]))throw"invalid number for "+i},r.prototype.checkSizeRangesSuffixes=function(){if("object"!==g.type(this.settings.sizeRangeSuffixes))throw"sizeRangeSuffixes must be defined and must be an object";var t=[];for(var i in this.settings.sizeRangeSuffixes)this.settings.sizeRangeSuffixes.hasOwnProperty(i)&&t.push(i);for(var e={0:""},s=0;s<t.length;s++)if("string"===g.type(t[s]))try{e[parseInt(t[s].replace(/^[a-z]+/,""),10)]=this.settings.sizeRangeSuffixes[t[s]]}catch(t){throw"sizeRangeSuffixes keys must contains correct numbers ("+t+")"}else e[t[s]]=this.settings.sizeRangeSuffixes[t[s]];this.settings.sizeRangeSuffixes=e},r.prototype.retrieveMaxRowHeight=function(){var t=null,i=this.settings.rowHeight;if("string"===g.type(this.settings.maxRowHeight))t=this.settings.maxRowHeight.match(/^[0-9]+%$/)?i*parseFloat(this.settings.maxRowHeight.match(/^([0-9]+)%$/)[1])/100:parseFloat(this.settings.maxRowHeight);else{if("number"!==g.type(this.settings.maxRowHeight)){if(!1===this.settings.maxRowHeight||null==this.settings.maxRowHeight)return null;throw"maxRowHeight must be a number or a percentage"}t=this.settings.maxRowHeight}if(isNaN(t))throw"invalid number for maxRowHeight";return t<i&&(t=i),t},r.prototype.checkSettings=function(){this.checkSizeRangesSuffixes(),this.checkOrConvertNumber(this.settings,"rowHeight"),this.checkOrConvertNumber(this.settings,"margins"),this.checkOrConvertNumber(this.settings,"border");var t=["justify","nojustify","left","center","right","hide"];if(-1===t.indexOf(this.settings.lastRow))throw"lastRow must be one of: "+t.join(", ");if(this.checkOrConvertNumber(this.settings,"justifyThreshold"),this.settings.justifyThreshold<0||1<this.settings.justifyThreshold)throw"justifyThreshold must be in the interval [0,1]";if("boolean"!==g.type(this.settings.cssAnimation))throw"cssAnimation must be a boolean";if("boolean"!==g.type(this.settings.captions))throw"captions must be a boolean";if(this.checkOrConvertNumber(this.settings.captionSettings,"animationDuration"),this.checkOrConvertNumber(this.settings.captionSettings,"visibleOpacity"),this.settings.captionSettings.visibleOpacity<0||1<this.settings.captionSettings.visibleOpacity)throw"captionSettings.visibleOpacity must be in the interval [0, 1]";if(this.checkOrConvertNumber(this.settings.captionSettings,"nonVisibleOpacity"),this.settings.captionSettings.nonVisibleOpacity<0||1<this.settings.captionSettings.nonVisibleOpacity)throw"captionSettings.nonVisibleOpacity must be in the interval [0, 1]";if(this.checkOrConvertNumber(this.settings,"imagesAnimationDuration"),this.checkOrConvertNumber(this.settings,"refreshTime"),this.checkOrConvertNumber(this.settings,"refreshSensitivity"),"boolean"!==g.type(this.settings.randomize))throw"randomize must be a boolean";if("string"!==g.type(this.settings.selector))throw"selector must be a string";if(!1!==this.settings.sort&&!g.isFunction(this.settings.sort))throw"sort must be false or a comparison function";if(!1!==this.settings.filter&&!g.isFunction(this.settings.filter)&&"string"!==g.type(this.settings.filter))throw"filter must be false, a string or a filter function"},r.prototype.retrieveSuffixRanges=function(){var t=[];for(var i in this.settings.sizeRangeSuffixes)this.settings.sizeRangeSuffixes.hasOwnProperty(i)&&t.push(parseInt(i,10));return t.sort(function(t,i){return i<t?1:t<i?-1:0}),t},r.prototype.updateSettings=function(t){this.settings=g.extend({},this.settings,t),this.checkSettings(),this.border=0<=this.settings.border?this.settings.border:this.settings.margins,this.maxRowHeight=this.retrieveMaxRowHeight(),this.suffixRanges=this.retrieveSuffixRanges()},r.prototype.defaults={sizeRangeSuffixes:{},thumbnailPath:void 0,rowHeight:120,maxRowHeight:!1,margins:1,border:-1,lastRow:"nojustify",justifyThreshold:.9,waitThumbnailsLoad:!0,captions:!0,cssAnimation:!0,imagesAnimationDuration:500,captionSettings:{animationDuration:500,visibleOpacity:.7,nonVisibleOpacity:0},rel:null,target:null,extension:/\.[^.\\/]+$/,refreshTime:200,refreshSensitivity:0,randomize:!1,rtl:!1,sort:!1,filter:!1,selector:"a, div:not(.spinner)",imgSelector:"> img, > a > img",triggerEvent:function(t){this.$gallery.trigger(t)}},g.fn.justifiedGallery=function(n){return this.each(function(t,i){var e=g(i);e.addClass("justified-gallery");var s=e.data("jg.controller");if(void 0===s){if(null!=n&&"object"!==g.type(n)){if("destroy"===n)return;throw"The argument must be an object"}s=new r(e,g.extend({},r.prototype.defaults,n)),e.data("jg.controller",s)}else if("norewind"===n);else{if("destroy"===n)return void s.destroy();s.updateSettings(n),s.rewind()}s.updateEntries("norewind"===n)&&s.init()})}});
 
 /***/ }),
 
@@ -44020,34 +42860,52 @@ var render = function() {
           )
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "profile-body" }, [
-          _c(
-            "div",
-            {
-              ref: "infinite_scroll",
-              staticClass:
-                "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
-            },
-            _vm._l(_vm.images.data, function(img, key) {
-              return _c(
-                "a",
-                {
-                  key: key,
-                  ref: "image_link",
-                  refInFor: true,
-                  staticClass: "image-link",
-                  attrs: { title: img.media_title, href: img.media_url }
-                },
-                [
-                  _c("img", {
-                    attrs: { src: img.media_url, alt: img.media_title }
-                  })
-                ]
-              )
-            }),
-            0
-          )
-        ])
+        _c(
+          "div",
+          { staticClass: "profile-body", style: { "margin-bottom": "100px" } },
+          [
+            _c(
+              "div",
+              {
+                ref: "infinite_scroll",
+                staticClass:
+                  "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
+              },
+              _vm._l(_vm.images.data, function(img, key) {
+                return _c(
+                  "a",
+                  {
+                    key: key,
+                    ref: "image_link",
+                    refInFor: true,
+                    staticClass: "image-link",
+                    attrs: { title: img.media_title, href: img.media_url }
+                  },
+                  [
+                    _c("img", {
+                      attrs: { src: img.media_url, alt: img.media_title }
+                    })
+                  ]
+                )
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _vm.loading
+              ? _c(
+                  "h1",
+                  {
+                    style: {
+                      color: "red",
+                      "text-align": "center",
+                      "font-weight": "bold"
+                    }
+                  },
+                  [_vm._v("LOADING...")]
+                )
+              : _vm._e()
+          ]
+        )
       ])
     ],
     1
@@ -44700,34 +43558,52 @@ var render = function() {
       _c("div", { staticClass: "galleries_layout" }, [
         _vm._m(0),
         _vm._v(" "),
-        _c("div", { staticClass: "profile-body" }, [
-          _c(
-            "div",
-            {
-              ref: "infinite_scroll",
-              staticClass:
-                "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
-            },
-            _vm._l(_vm.images.data, function(img, key) {
-              return _c(
-                "a",
-                {
-                  key: key,
-                  ref: "image_link",
-                  refInFor: true,
-                  staticClass: "image-link",
-                  attrs: { title: img.media_title, href: img.media_url }
-                },
-                [
-                  _c("img", {
-                    attrs: { src: img.media_url, alt: img.media_title }
-                  })
-                ]
-              )
-            }),
-            0
-          )
-        ])
+        _c(
+          "div",
+          { staticClass: "profile-body", style: { "margin-bottom": "100px" } },
+          [
+            _c(
+              "div",
+              {
+                ref: "infinite_scroll",
+                staticClass:
+                  "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
+              },
+              _vm._l(_vm.images.data, function(img, key) {
+                return _c(
+                  "a",
+                  {
+                    key: key,
+                    ref: "image_link",
+                    refInFor: true,
+                    staticClass: "image-link",
+                    attrs: { title: img.media_title, href: img.media_url }
+                  },
+                  [
+                    _c("img", {
+                      attrs: { src: img.media_url, alt: img.media_title }
+                    })
+                  ]
+                )
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _vm.loading
+              ? _c(
+                  "h1",
+                  {
+                    style: {
+                      color: "red",
+                      "text-align": "center",
+                      "font-weight": "bold"
+                    }
+                  },
+                  [_vm._v("LOADING...")]
+                )
+              : _vm._e()
+          ]
+        )
       ])
     ],
     1
@@ -60058,8 +58934,9 @@ window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 try {
   window.Popper = __webpack_require__(/*! popper.js */ "./node_modules/popper.js/dist/esm/popper.js")["default"];
   window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js"); //require('bootstrap');
+  //require('justifiedGallery');
 
-  __webpack_require__(/*! justifiedGallery */ "./node_modules/justifiedGallery/dist/js/jquery.justifiedGallery.js");
+  __webpack_require__(/*! justifiedGallery/dist/js/jquery.justifiedGallery.min */ "./node_modules/justifiedGallery/dist/js/jquery.justifiedGallery.min.js");
 } catch (e) {}
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -60069,7 +58946,7 @@ try {
 
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequ st';
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /**
  * Echo exposes an expressive API for subscribing to channels and liste ing
  * for events that are broadcast by Laravel. Echo and event broadcasting

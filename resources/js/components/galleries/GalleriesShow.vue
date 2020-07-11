@@ -67,12 +67,13 @@
 
             </div>
 		</div>
-		<div class="profile-body">
+		<div class="profile-body" :style="{ 'margin-bottom': '100px' }">
 			<div class="full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery" ref="infinite_scroll">
             	<a v-for="(img, key) in images.data" :key="key" :title="img.media_title" :href="img.media_url" class="image-link" ref="image_link"> 
 					<img :src="img.media_url" :alt="img.media_title" />
 				</a>
 			</div>
+            <h1 v-if="loading" :style="{ 'color': 'red', 'text-align': 'center', 'font-weight': 'bold' }">LOADING...</h1>
 		</div>
 	</div>
 </div>
@@ -104,52 +105,59 @@
                     to: null,
                     total: null
                 },
-                loading: true
+                isScrolled: false,
+                loading: false
             }
         },
         components: {
             'galleries-list': GalleriesList
         },
         methods: {
-           
             getGalleries(pos = null, __this = null){
                 let vm = this;
-                this.loading = true;
-                if(vm.page <= vm.images.last_page){
-                    vm.axios
-                        .get(`${Laravel._BASE_URL}/api/portfolio/galleries/${this.gallery_id}?page=${this.page}`)
-                        .then((response) => {
-                            if(vm.page == 1){
-                                vm.gallery = response.data.gallery;
-                            }
-                            if(response.data.images.data.length > 0){
-
-                                for(let key in response.data.images){
-                                    if(key != 'data'){
-                                        vm.images[key] = response.data.images[key];
-                                    }
+                if((vm.page <= vm.images.last_page)){
+                    if(!vm.loading){
+                        vm.loading = true;
+                        vm.axios
+                            .get(`${Laravel._BASE_URL}/api/portfolio/galleries/${vm.gallery_id}?page=${vm.page}`)
+                            .then((response) => {
+                                if(vm.page == 1){
+                                    vm.gallery = response.data.gallery;
                                 }
-                                vm.images.data.push(...response.data.images.data);
-                            }
-                        })
-                        .then(() => {
-                            vm.loading = false;
-                            if(vm.page == 1){
-                                $(vm.$refs.infinite_scroll).justifiedGallery({
-                                    rowHeight: 500,
-                                    margins: 6
-                                    //lastRow: 'justify'
-                                }); 
-                            } else {
-                                $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
-                            }
-                            vm.initMagnificPopup();
-                            if(pos != null){
-                                $(vm.$refs.image_link).magnificPopup('open', pos);		
-                                $.magnificPopup.proto.next.call(__this);
-                            }
-                            vm.page++;                            
-                        });
+                                if(response.data.images.data.length > 0){
+
+                                    for(let key in response.data.images){
+                                        if(key != 'data'){
+                                            vm.images[key] = response.data.images[key];
+                                        }
+                                    }
+                                    vm.images.data.push(...response.data.images.data);
+                                }
+                            })
+                            .then(() => {
+                                //alert('vm.page: ' + vm.page);
+                                if(vm.page == 1){
+                                    $(vm.$refs.infinite_scroll).justifiedGallery({
+                                        rowHeight: 500,
+                                        margins: 6
+                                        //lastRow: 'justify'
+                                    }); 
+                                } else {
+                                    $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
+                                }
+                                vm.initMagnificPopup();
+
+                                console.log('pos: ' + pos);
+                                if(pos != null){
+                                    $(vm.$refs.image_link).magnificPopup('open', pos);		
+                                    $.magnificPopup.proto.next.call(__this);
+                                }
+                                vm.page++;                            
+                            })
+                            .finally(() =>{
+                                this.loading = false;
+                            });
+                    }
                 } else {
                     if ($.magnificPopup.instance.isOpen) {
                         $.magnificPopup.proto.next.call(__this);
@@ -165,7 +173,9 @@
                 }*/
                 $(window).scroll(() => {
                     if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                        vm.getGalleries();
+                        if(!vm.loading){
+                            vm.getGalleries();
+                        }
                     }
                 });
             },
@@ -173,7 +183,7 @@
                 let vm = this;
                 $(vm.$refs.image_link).magnificPopup({
                     type: 'image',
-                    tLoading: '<div style="background-color: red: color: white;; font-size: 60px;">Loading image #%curr%..</div>',
+                    tLoading: '<div style="background-color: red !important; color: white !important; font-size: 60px;">Loading image #%curr%..</div>',
                     closeBtnInside: false,
                     fixedContentPos: true,
                     mainClass: 'mfp-zoom-in',
@@ -220,12 +230,14 @@
                             $.magnificPopup.instance.next = function() {
                                 var __this = this;
                                 let last_pos = $("a.image-link").length - 1;
-                                console.log(last_pos, __this.index);
+                                //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
 
                                 __this.wrap.removeClass('mfp-image-loaded');
                                 if(last_pos == __this.index){
+                                    //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
                                     vm.getGalleries(last_pos, __this);
                                 } else {
+                                    //alert(__this.index)
                                     setTimeout(function() { $.magnificPopup.proto.next.call(__this); }, 120);
                                 }
                             }
@@ -246,7 +258,6 @@
                     }
                 });
             }
-
         },
         beforeCreate() {
             this.$nextTick().then(() => document.body.classList.remove(...[
@@ -257,9 +268,9 @@
         created(){
             this.gallery_id = this.$route.params.id;
             this.getGalleries();
-            this.initMagnificPopup();   
+            //this.initMagnificPopup();   
         },
-        mounted() {
+        mounted() {            
             this.scroll();
         }
     }

@@ -3599,6 +3599,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
 //import 'justifiedGallery';
 
 
@@ -3623,7 +3624,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         to: null,
         total: null
       },
-      loading: true
+      isScrolled: false,
+      loading: false
     };
   },
   components: {
@@ -3631,52 +3633,58 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   },
   methods: {
     getGalleries: function getGalleries() {
+      var _this2 = this;
+
       var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       var __this = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       var vm = this;
-      this.loading = true;
 
       if (vm.page <= vm.images.last_page) {
-        vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries/").concat(this.gallery_id, "?page=").concat(this.page)).then(function (response) {
-          if (vm.page == 1) {
-            vm.gallery = response.data.gallery;
-          }
-
-          if (response.data.images.data.length > 0) {
-            var _vm$images$data;
-
-            for (var key in response.data.images) {
-              if (key != 'data') {
-                vm.images[key] = response.data.images[key];
-              }
+        if (!vm.loading) {
+          vm.loading = true;
+          vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries/").concat(vm.gallery_id, "?page=").concat(vm.page)).then(function (response) {
+            if (vm.page == 1) {
+              vm.gallery = response.data.gallery;
             }
 
-            (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
-          }
-        }).then(function () {
-          vm.loading = false;
+            if (response.data.images.data.length > 0) {
+              var _vm$images$data;
 
-          if (vm.page == 1) {
-            $(vm.$refs.infinite_scroll).justifiedGallery({
-              rowHeight: 500,
-              margins: 6 //lastRow: 'justify'
+              for (var key in response.data.images) {
+                if (key != 'data') {
+                  vm.images[key] = response.data.images[key];
+                }
+              }
 
-            });
-          } else {
-            $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
-          }
+              (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
+            }
+          }).then(function () {
+            //alert('vm.page: ' + vm.page);
+            if (vm.page == 1) {
+              $(vm.$refs.infinite_scroll).justifiedGallery({
+                rowHeight: 500,
+                margins: 6 //lastRow: 'justify'
 
-          vm.initMagnificPopup();
+              });
+            } else {
+              $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
+            }
 
-          if (pos != null) {
-            $(vm.$refs.image_link).magnificPopup('open', pos);
-            $.magnificPopup.proto.next.call(__this);
-          }
+            vm.initMagnificPopup();
+            console.log('pos: ' + pos);
 
-          vm.page++;
-        });
+            if (pos != null) {
+              $(vm.$refs.image_link).magnificPopup('open', pos);
+              $.magnificPopup.proto.next.call(__this);
+            }
+
+            vm.page++;
+          })["finally"](function () {
+            _this2.loading = false;
+          });
+        }
       } else {
         if ($.magnificPopup.instance.isOpen) {
           $.magnificPopup.proto.next.call(__this);
@@ -3693,7 +3701,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
       $(window).scroll(function () {
         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-          vm.getGalleries();
+          if (!vm.loading) {
+            vm.getGalleries();
+          }
         }
       });
     },
@@ -3701,7 +3711,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       var vm = this;
       $(vm.$refs.image_link).magnificPopup({
         type: 'image',
-        tLoading: '<div style="background-color: red: color: white;; font-size: 60px;">Loading image #%curr%..</div>',
+        tLoading: '<div style="background-color: red !important; color: white !important; font-size: 60px;">Loading image #%curr%..</div>',
         closeBtnInside: false,
         fixedContentPos: true,
         mainClass: 'mfp-zoom-in',
@@ -3747,14 +3757,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             $.magnificPopup.instance.next = function () {
               var __this = this;
 
-              var last_pos = $("a.image-link").length - 1;
-              console.log(last_pos, __this.index);
+              var last_pos = $("a.image-link").length - 1; //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
 
               __this.wrap.removeClass('mfp-image-loaded');
 
               if (last_pos == __this.index) {
+                //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
                 vm.getGalleries(last_pos, __this);
               } else {
+                //alert(__this.index)
                 setTimeout(function () {
                   $.magnificPopup.proto.next.call(__this);
                 }, 120);
@@ -3793,8 +3804,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   },
   created: function created() {
     this.gallery_id = this.$route.params.id;
-    this.getGalleries();
-    this.initMagnificPopup();
+    this.getGalleries(); //this.initMagnificPopup();   
   },
   mounted: function mounted() {
     this.scroll();
@@ -4226,6 +4236,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
 //import 'justifiedGallery';
 
 
@@ -4235,7 +4246,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       page: 1,
       itsTimeToStop: false,
       gallery_id: -1,
-      galleries: [],
+      gallery: {},
       images: {
         current_page: null,
         data: [],
@@ -4250,7 +4261,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         to: null,
         total: null
       },
-      loading: true
+      isScrolled: false,
+      loading: false
     };
   },
   components: {
@@ -4258,49 +4270,58 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   },
   methods: {
     getGalleries: function getGalleries() {
+      var _this2 = this;
+
       var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       var __this = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       var vm = this;
-      this.loading = true;
 
       if (vm.page <= vm.images.last_page) {
-        vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio?page=").concat(this.page)).then(function (response) {
-          console.log('page', response.data.images.current_page);
-
-          if (response.data.images.data.length > 0) {
-            var _vm$images$data;
-
-            for (var key in response.data.images) {
-              if (key != 'data') {
-                vm.images[key] = response.data.images[key];
-              }
+        if (!vm.loading) {
+          vm.loading = true;
+          vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio?page=").concat(this.page)).then(function (response) {
+            if (vm.page == 1) {
+              vm.gallery = response.data.gallery;
             }
 
-            (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
-          }
-        }).then(function () {
-          vm.loading = false;
+            if (response.data.images.data.length > 0) {
+              var _vm$images$data;
 
-          if (vm.page == 1) {
-            $(vm.$refs.infinite_scroll).justifiedGallery({
-              rowHeight: 500,
-              margins: 6 //lastRow: 'justify'
+              for (var key in response.data.images) {
+                if (key != 'data') {
+                  vm.images[key] = response.data.images[key];
+                }
+              }
 
-            });
-          } else {
-            $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
-          }
+              (_vm$images$data = vm.images.data).push.apply(_vm$images$data, _toConsumableArray(response.data.images.data));
+            }
+          }).then(function () {
+            //alert('vm.page: ' + vm.page);
+            if (vm.page == 1) {
+              $(vm.$refs.infinite_scroll).justifiedGallery({
+                rowHeight: 500,
+                margins: 6 //lastRow: 'justify'
 
-          vm.page++;
-          vm.initMagnificPopup();
+              });
+            } else {
+              $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
+            }
 
-          if (pos != null) {
-            $(vm.$refs.image_link).magnificPopup('open', pos);
-            $.magnificPopup.proto.next.call(__this);
-          }
-        });
+            vm.initMagnificPopup();
+            console.log('pos: ' + pos);
+
+            if (pos != null) {
+              $(vm.$refs.image_link).magnificPopup('open', pos);
+              $.magnificPopup.proto.next.call(__this);
+            }
+
+            vm.page++;
+          })["finally"](function () {
+            _this2.loading = false;
+          });
+        }
       } else {
         if ($.magnificPopup.instance.isOpen) {
           $.magnificPopup.proto.next.call(__this);
@@ -4317,16 +4338,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
       $(window).scroll(function () {
         if ($(window).scrollTop() + $(window).height() == $(document).height()) {
-          vm.getGalleries();
+          if (!vm.loading) {
+            vm.getGalleries();
+          }
         }
       });
     },
     initMagnificPopup: function initMagnificPopup() {
       var vm = this;
-      console.log('magnific');
       $(vm.$refs.image_link).magnificPopup({
         type: 'image',
-        tLoading: '<div style="background-color: red: color: white;; font-size: 60px;">Loading image #%curr%..</div>',
+        tLoading: '<div style="background-color: red !important; color: white !important; font-size: 60px;">Loading image #%curr%..</div>',
         closeBtnInside: false,
         fixedContentPos: true,
         mainClass: 'mfp-zoom-in',
@@ -4372,14 +4394,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             $.magnificPopup.instance.next = function () {
               var __this = this;
 
-              var last_pos = $("a.image-link").length - 1;
-              console.log(last_pos, __this.index);
+              var last_pos = $("a.image-link").length - 1; //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
 
               __this.wrap.removeClass('mfp-image-loaded');
 
               if (last_pos == __this.index) {
+                //alert('last_pos: ' + last_pos + ' | index: ' + __this.index);
                 vm.getGalleries(last_pos, __this);
               } else {
+                //alert(__this.index)
                 setTimeout(function () {
                   $.magnificPopup.proto.next.call(__this);
                 }, 120);
@@ -4413,25 +4436,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     this.$nextTick().then(function () {
       var _document$body$classL;
 
-      return (_document$body$classL = document.body.classList).remove.apply(_document$body$classL, [//"page-template-template-fullpage",
-        //"page-template-template-fullpage-php"
-      ]);
+      return (_document$body$classL = document.body.classList).remove.apply(_document$body$classL, ["page-template-template-fullpage", "page-template-template-fullpage-php"]);
     });
   },
   created: function created() {
     this.gallery_id = this.$route.params.id;
-    this.getGalleries();
-    this.initMagnificPopup();
+    this.getGalleries(); //this.initMagnificPopup();   
   },
   mounted: function mounted() {
     this.scroll();
-    /* window.setTimeout(function() {
-        $('.justified-gallery').justifiedGallery({
-            rowHeight: 500,
-            margins: 6
-            //lastRow: 'justify'
-        }); 
-    }, 1000);*/
   }
 });
 
@@ -8955,7 +8968,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 exports.i(__webpack_require__(/*! -!../../../../node_modules/css-loader??ref--7-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/justifiedGallery/dist/css/justifiedGallery.min.css */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/justifiedGallery/dist/css/justifiedGallery.min.css"), "");
 
 // module
-exports.push([module.i, "\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-5501cafc] {\r\n    min-height: 600px !important;\n}\r\n", ""]);
 
 // exports
 
@@ -47182,34 +47195,52 @@ var render = function() {
           )
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "profile-body" }, [
-          _c(
-            "div",
-            {
-              ref: "infinite_scroll",
-              staticClass:
-                "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
-            },
-            _vm._l(_vm.images.data, function(img, key) {
-              return _c(
-                "a",
-                {
-                  key: key,
-                  ref: "image_link",
-                  refInFor: true,
-                  staticClass: "image-link",
-                  attrs: { title: img.media_title, href: img.media_url }
-                },
-                [
-                  _c("img", {
-                    attrs: { src: img.media_url, alt: img.media_title }
-                  })
-                ]
-              )
-            }),
-            0
-          )
-        ])
+        _c(
+          "div",
+          { staticClass: "profile-body", style: { "margin-bottom": "100px" } },
+          [
+            _c(
+              "div",
+              {
+                ref: "infinite_scroll",
+                staticClass:
+                  "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
+              },
+              _vm._l(_vm.images.data, function(img, key) {
+                return _c(
+                  "a",
+                  {
+                    key: key,
+                    ref: "image_link",
+                    refInFor: true,
+                    staticClass: "image-link",
+                    attrs: { title: img.media_title, href: img.media_url }
+                  },
+                  [
+                    _c("img", {
+                      attrs: { src: img.media_url, alt: img.media_title }
+                    })
+                  ]
+                )
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _vm.loading
+              ? _c(
+                  "h1",
+                  {
+                    style: {
+                      color: "red",
+                      "text-align": "center",
+                      "font-weight": "bold"
+                    }
+                  },
+                  [_vm._v("LOADING...")]
+                )
+              : _vm._e()
+          ]
+        )
       ])
     ],
     1
@@ -47763,34 +47794,52 @@ var render = function() {
       _c("div", { staticClass: "galleries_layout" }, [
         _vm._m(0),
         _vm._v(" "),
-        _c("div", { staticClass: "profile-body" }, [
-          _c(
-            "div",
-            {
-              ref: "infinite_scroll",
-              staticClass:
-                "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
-            },
-            _vm._l(_vm.images.data, function(img, key) {
-              return _c(
-                "a",
-                {
-                  key: key,
-                  ref: "image_link",
-                  refInFor: true,
-                  staticClass: "image-link",
-                  attrs: { title: img.media_title, href: img.media_url }
-                },
-                [
-                  _c("img", {
-                    attrs: { src: img.media_url, alt: img.media_title }
-                  })
-                ]
-              )
-            }),
-            0
-          )
-        ])
+        _c(
+          "div",
+          { staticClass: "profile-body", style: { "margin-bottom": "100px" } },
+          [
+            _c(
+              "div",
+              {
+                ref: "infinite_scroll",
+                staticClass:
+                  "full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery"
+              },
+              _vm._l(_vm.images.data, function(img, key) {
+                return _c(
+                  "a",
+                  {
+                    key: key,
+                    ref: "image_link",
+                    refInFor: true,
+                    staticClass: "image-link",
+                    attrs: { title: img.media_title, href: img.media_url }
+                  },
+                  [
+                    _c("img", {
+                      attrs: { src: img.media_url, alt: img.media_title }
+                    })
+                  ]
+                )
+              }),
+              0
+            ),
+            _vm._v(" "),
+            _vm.loading
+              ? _c(
+                  "h1",
+                  {
+                    style: {
+                      color: "red",
+                      "text-align": "center",
+                      "font-weight": "bold"
+                    }
+                  },
+                  [_vm._v("LOADING...")]
+                )
+              : _vm._e()
+          ]
+        )
       ])
     ],
     1
