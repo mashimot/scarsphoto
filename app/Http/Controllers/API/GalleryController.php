@@ -48,6 +48,12 @@ class GalleryController extends Controller
         ])
         ->get();
 
+        $photos = GalleryUser::from('galleries_users as gaus')
+        ->distinct('mega.media_id')
+        ->join('medias_galleries as mega', 'mega.gallery_user_id', 'gaus.gallery_user_id')
+        ->where('gaus.user_id', $user_id)
+        ->select('mega.media_id');
+
         $userGalleries->map(function($galleryUser) use ($user_id){
             $media_url = null;
             $path = FileHelper::getUserImagePath($user_id, 'images/users');
@@ -63,7 +69,8 @@ class GalleryController extends Controller
         $newGalleryUser->user_id = $user_id;
         $newGalleryUser->media_url = null;
         $newGalleryUser->gallery_name = "Photos";
-        $newGalleryUser->total = $userGalleries->sum('total');        
+        //$newGalleryUser->total = $userGalleries->sum('total');        
+        $newGalleryUser->total = $photos->count();
         $userGalleries->push($newGalleryUser);
 
         return $userGalleries;
