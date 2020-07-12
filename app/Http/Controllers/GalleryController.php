@@ -56,6 +56,7 @@ class GalleryController extends Controller
             
             return $galleryUser;
         });
+        
         return view('galleries.index')->with(
             compact('userGalleries')
         );

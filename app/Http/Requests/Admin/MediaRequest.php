@@ -32,7 +32,7 @@ class MediaRequest extends FormRequest
             $rules = [
                 'medias' => 'required|array',
                 'medias.*.media_title' => 'required',
-                'medias.*.media_comment' => 'required|integer',
+                'medias.*.media_comment' => 'required',
                 'medias.*.media_nsfw' => 'required|numeric',            
                 'medias.*.media_file' => "nullable|file|mimes:{$all_ext}|max:{$max_size}",
                 'medias.*.media_galleries' => 'nullable|array',

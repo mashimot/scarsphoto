@@ -27,7 +27,7 @@
         </div>
         <nav>
             <ul class="mtree">
-                <li v-for="(nav) in navList"  @click="mobileMenuIcon()" class="menu-item">
+                <li v-for="(nav, navIdx) in navList" :key="navIdx" @click="mobileMenuIcon()" class="menu-item">
                     <router-link :to="{ name: nav.to.name }" v-if="nav.children.length <= 0">{{ nav.name }}</router-link>
                 </li>
             </ul>
@@ -50,8 +50,8 @@
                     </div>
                     <div class="homemenu">
                         <ul class="sf-menu mtheme-left-menu">
-                            <li v-for="(nav) in navList" class="menu-item">
-                                <router-link :to="{ name: nav.to.name }" v-if="nav.children.length <= 0">{{ nav.name }}</router-link>
+                            <li v-for="(nav, navIdx) in navList" :key="navIdx" class="menu-item">
+                                <router-link :to="{ name: nav.to.name, params: nav.to.params? nav.to.params: {} }" v-if="nav.children.length <= 0">{{ nav.name }}</router-link>
                             </li>
                         </ul>
                     </div>
@@ -84,7 +84,10 @@
                     children: []
                 }, {
                     to: {
-                        name: 'portfolio.index'
+                        name: 'galleries.show',
+                        params: {
+                            id: 'all'
+                        }
                     },
                     name: 'Portfolio',
                     children: []

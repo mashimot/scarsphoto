@@ -3410,7 +3410,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       contacts: {},
       form: new form_backend_validation__WEBPACK_IMPORTED_MODULE_0___default.a(),
-      loading: true
+      loading: true,
+      message: null
     };
   },
   computed: {
@@ -3422,9 +3423,15 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     onSubmit: function onSubmit() {
+      var _this = this;
+
       this.form = new form_backend_validation__WEBPACK_IMPORTED_MODULE_0___default.a(this.contacts);
       this.form.post("".concat(Laravel._BASE_URL, "/api/contact")).then(function (response) {
         console.log(response);
+
+        if (response.success) {
+          _this.message = "Enviado com sucesso!";
+        }
       })["finally"](function () {});
     }
   }
@@ -3722,7 +3729,10 @@ __webpack_require__.r(__webpack_exports__);
         children: []
       }, {
         to: {
-          name: 'portfolio.index'
+          name: 'galleries.show',
+          params: {
+            id: 'all'
+          }
         },
         name: 'Portfolio',
         children: []
@@ -3800,7 +3810,6 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _partials_galleries_GalleriesList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../partials/galleries/GalleriesList */ "./resources/js/components/partials/galleries/GalleriesList.vue");
-//
 //
 //
 //
@@ -3967,17 +3976,35 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
-//import 'justifiedGallery';
+//import 'justifiedGallery';    
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      userGalleries: [],
       page: 1,
       itsTimeToStop: false,
       gallery_id: -1,
+      previous_gallery_id: -1,
       gallery: {},
-      images: {
+      images: {},
+      isScrolled: false,
+      loading: false
+    };
+  },
+  components: {
+    'galleries-list': _partials_galleries_GalleriesList__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  methods: {
+    galleryModel: function galleryModel() {
+      return {
+        media_url_gallery_cover: null,
+        gallery_name: null
+      };
+    },
+    imagesModel: function imagesModel() {
+      return {
         current_page: null,
         data: [],
         first_page_url: null,
@@ -3990,30 +4017,37 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         prev_page_url: null,
         to: null,
         total: null
-      },
-      isScrolled: false,
-      loading: false
-    };
-  },
-  components: {
-    'galleries-list': _partials_galleries_GalleriesList__WEBPACK_IMPORTED_MODULE_1__["default"]
-  },
-  methods: {
+      };
+    },
     getGalleries: function getGalleries() {
-      var _this2 = this;
-
       var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       var __this = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       var vm = this;
+      vm.gallery_id = vm.$route.params.id;
+
+      if (vm.gallery_id != vm.previous_gallery_id) {
+        vm.images = vm.imagesModel();
+        vm.gallery = vm.galleryModel();
+        vm.previous_gallery_id = vm.gallery_id;
+        vm.page = 1;
+      } //let url = routeParams[vm.$route.id]? routeParams[vm.$route.id]: routeParams['numeric'];
+
+
+      var url = /^\d+$/.test(vm.gallery_id) ? "".concat(Laravel._BASE_URL, "/api/portfolio/galleries/").concat(vm.gallery_id, "?page=").concat(vm.page) : "".concat(Laravel._BASE_URL, "/api/portfolio?page=").concat(this.page);
 
       if (vm.page <= vm.images.last_page) {
         if (!vm.loading) {
           vm.loading = true;
-          vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries/").concat(vm.gallery_id, "?page=").concat(vm.page)).then(function (response) {
+          vm.axios.get(url).then(function (response) {
             if (vm.page == 1) {
-              vm.gallery = response.data.gallery;
+              if (typeof response.data.gallery != 'undefined') {
+                vm.gallery = response.data.gallery;
+              } else {
+                vm.gallery = vm.galleryModel();
+                vm.gallery.gallery_name = 'Photos';
+              }
             }
 
             if (response.data.images.data.length > 0) {
@@ -4049,7 +4083,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
             vm.page++;
           })["finally"](function () {
-            _this2.loading = false;
+            vm.loading = false;
           });
         }
       } else {
@@ -4169,9 +4203,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       return (_document$body$classL = document.body.classList).remove.apply(_document$body$classL, ["page-template-template-fullpage", "page-template-template-fullpage-php"]);
     });
   },
+  watch: {
+    '$route': function $route(to, from) {
+      this.previous_gallery_id = from.params.id;
+      this.getGalleries();
+    }
+  },
   created: function created() {
-    this.gallery_id = this.$route.params.id;
-    this.getGalleries(); //this.initMagnificPopup();   
+    this.images = this.imagesModel();
+    this.getGalleries();
   },
   mounted: function mounted() {
     this.scroll();
@@ -4590,6 +4630,47 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -4597,17 +4678,27 @@ __webpack_require__.r(__webpack_exports__);
       medias: []
     };
   },
-  methods: {},
+  methods: {
+    getUserGalleries: function getUserGalleries() {
+      var vm = this;
+      vm.loading = true;
+      vm.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries")).then(function (response) {
+        vm.userGalleries = response.data;
+      });
+    }
+  },
   created: function created() {
-    var _this = this;
-
-    this.axios.get("".concat(Laravel._BASE_URL, "/api/portfolio/galleries/create")).then(function (response) {
-      _this.userGalleries = response.data.userGalleries;
-      _this.medias = response.data.medias;
-      console.log(response.data);
-      console.log(_this.userGalleries, _this.medias);
-      _this.loading = false;
-    });
+    this.getUserGalleries();
+    /*            this.axios
+                    .get(`${Laravel._BASE_URL}/api/portfolio/galleries/create`)
+                    .then(response => {
+                        
+                        this.userGalleries = response.data.userGalleries;
+                        this.medias = response.data.medias;
+                        console.log(response.data);
+                        console.log(this.userGalleries, this.medias);
+                        this.loading = false;
+                    });*/
   }
 });
 
@@ -4970,7 +5061,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 exports.i(__webpack_require__(/*! -!../../../../node_modules/css-loader??ref--7-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/justifiedGallery/dist/css/justifiedGallery.min.css */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/justifiedGallery/dist/css/justifiedGallery.min.css"), "");
 
 // module
-exports.push([module.i, "\n.hadouken[data-v-b70362da] {\r\n    min-height: 600px !important;\n}\r\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-b70362da] {\r\n    min-height: 100px !important;\n}\r\n", ""]);
 
 // exports
 
@@ -41905,9 +41996,11 @@ var render = function() {
             _vm._v(" "),
             _vm._m(1),
             _vm._v(" "),
-            _c("div", {
-              staticClass: "wpcf7-response-output wpcf7-display-none"
-            })
+            _vm.message != null
+              ? _c("div", { staticClass: "wpcf7-response-output" }, [
+                  _vm._v(_vm._s(_vm.message))
+                ])
+              : _vm._e()
           ]
         )
       ]
@@ -42569,10 +42662,11 @@ var render = function() {
           _c(
             "ul",
             { staticClass: "mtree" },
-            _vm._l(_vm.navList, function(nav) {
+            _vm._l(_vm.navList, function(nav, navIdx) {
               return _c(
                 "li",
                 {
+                  key: navIdx,
                   staticClass: "menu-item",
                   on: {
                     click: function($event) {
@@ -42657,15 +42751,22 @@ var render = function() {
               _c(
                 "ul",
                 { staticClass: "sf-menu mtheme-left-menu" },
-                _vm._l(_vm.navList, function(nav) {
+                _vm._l(_vm.navList, function(nav, navIdx) {
                   return _c(
                     "li",
-                    { staticClass: "menu-item" },
+                    { key: navIdx, staticClass: "menu-item" },
                     [
                       nav.children.length <= 0
                         ? _c(
                             "router-link",
-                            { attrs: { to: { name: nav.to.name } } },
+                            {
+                              attrs: {
+                                to: {
+                                  name: nav.to.name,
+                                  params: nav.to.params ? nav.to.params : {}
+                                }
+                              }
+                            },
                             [_vm._v(_vm._s(nav.name))]
                           )
                         : _vm._e()
@@ -42744,13 +42845,6 @@ var render = function() {
                         }
                       }),
                       _vm._v(" "),
-                      _c("div", {
-                        staticClass: "top",
-                        style: {
-                          backgroundImage: "url(" + userGallery.media_url + ")"
-                        }
-                      }),
-                      _vm._v(" "),
                       _c(
                         "div",
                         { staticClass: "bottom gallery_card_view__bottom" },
@@ -42825,9 +42919,11 @@ var render = function() {
   return _c(
     "div",
     [
-      _c("parallax", { attrs: { "section-class": "Masthead hadouken" } }, [
-        _c("img", { attrs: { src: _vm.gallery.media_url_gallery_cover } })
-      ]),
+      _vm.gallery.media_url_gallery_cover != null
+        ? _c("parallax", { attrs: { "section-class": "Masthead hadouken" } }, [
+            _c("img", { attrs: { src: _vm.gallery.media_url_gallery_cover } })
+          ])
+        : _vm._e(),
       _vm._v(" "),
       _c("galleries-list"),
       _vm._v(" "),
@@ -42896,7 +42992,7 @@ var render = function() {
                   "h1",
                   {
                     style: {
-                      color: "red",
+                      color: "black",
                       "text-align": "center",
                       "font-weight": "bold"
                     }
@@ -43395,116 +43491,80 @@ var render = function() {
   return _c("div", [
     _vm._m(0),
     _vm._v(" "),
-    _c("div", { staticClass: "container-fluid clearfix" }, [
-      _c("div", { staticClass: "page-contents-wrap" }, [
+    _c("div", { staticClass: "galleries_layout" }, [
+      _c("div", { staticClass: "profile_body" }, [
         _c(
           "div",
           {
-            staticClass: "post-5836 page type-page status-publish hentry",
-            attrs: { id: "post-5836" }
+            staticClass:
+              "galleries_body infinite_scroll_container pagination_finished single_page galleries_body--fetched"
           },
           [
             _c(
               "div",
-              { staticClass: "entry-page-wrapper entry-content clearfix" },
-              [
-                _c(
+              { staticClass: "gallery_list" },
+              _vm._l(_vm.userGalleries, function(userGallery) {
+                return _c(
                   "div",
                   {
-                    staticClass: "mtheme-pagebuilder",
-                    attrs: { id: "mtheme-pagebuilder-wrapper-5836" }
+                    key: userGallery.gallery_id,
+                    staticClass:
+                      "gallery_card_view px_card medium no_badge no_avatar"
                   },
                   [
-                    _c("div", { staticClass: "mtheme-supercell clearfix " }, [
-                      _c("div", { staticClass: "mtheme-cell-wrap" }, [
+                    _c("router-link", {
+                      staticClass: "link_wrap",
+                      attrs: {
+                        to: {
+                          name: "galleries.show",
+                          params: { id: userGallery.gallery_id }
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "bottom gallery_card_view__bottom" },
+                      [
                         _c(
                           "div",
-                          {
-                            staticClass:
-                              "mtheme-block mtheme-block-em_portfolio_grid span12 mtheme-first-cell ",
-                            attrs: { id: "mtheme-block-1", "data-width": "12" }
-                          },
+                          { staticClass: "gallery_card_view__name_wrapper " },
                           [
                             _c(
-                              "div",
-                              { staticClass: "gridblock-filter-select-wrap" },
-                              [
-                                _c(
-                                  "ul",
-                                  { attrs: { id: "gridblock-filters" } },
-                                  [
-                                    _c(
-                                      "li",
-                                      {
-                                        staticClass:
-                                          "filter-control filter-control-artwork"
-                                      },
-                                      [
-                                        _c(
-                                          "router-link",
-                                          {
-                                            staticClass: "btn btn-link",
-                                            attrs: {
-                                              to: { name: "portfolio.index" }
-                                            }
-                                          },
-                                          [
-                                            _vm._v(
-                                              "Fotos (" +
-                                                _vm._s(_vm.medias.length) +
-                                                ")"
-                                            )
-                                          ]
-                                        )
-                                      ],
-                                      1
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "li",
-                                      {
-                                        staticClass:
-                                          "filter-control filter-control-artwork"
-                                      },
-                                      [
-                                        _c(
-                                          "router-link",
-                                          {
-                                            attrs: {
-                                              to: { name: "galleries.index" }
-                                            }
-                                          },
-                                          [
-                                            _vm._v(
-                                              "Galerias (" +
-                                                _vm._s(
-                                                  _vm.userGalleries.length
-                                                ) +
-                                                ")"
-                                            )
-                                          ]
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ]
-                                )
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "clearfix" })
-                          ]
+                              "router-link",
+                              {
+                                staticClass: "name",
+                                attrs: {
+                                  to: {
+                                    name: "galleries.show",
+                                    params: { id: userGallery.gallery_id }
+                                  }
+                                }
+                              },
+                              [_vm._v(_vm._s(userGallery.gallery_name))]
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "span",
+                          {
+                            staticClass:
+                              "description gallery_card_view__photo_count gallery_card_view__description"
+                          },
+                          [_vm._v(_vm._s(userGallery.total))]
                         )
-                      ])
-                    ])
-                  ]
+                      ]
+                    )
+                  ],
+                  1
                 )
-              ]
+              }),
+              0
             )
           ]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "contentclearfix clearfix" })
+        )
       ])
     ])
   ])

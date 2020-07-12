@@ -7,7 +7,6 @@
                 <div class="gallery_list">
                     <div v-for="userGallery in userGalleries" :key="userGallery.gallery_id" class="gallery_card_view px_card medium no_badge no_avatar" ><div class="gallery_card__overlay"></div>
                     <router-link class="link_wrap" :to="{ name: 'galleries.show', params: { id: userGallery.gallery_id } }"></router-link>
-                    <div class="top" :style="{ backgroundImage: `url(${userGallery.media_url})` }"></div>
                         <div class="bottom gallery_card_view__bottom">
                             <div class="gallery_card_view__name_wrapper ">
                                 <router-link class="name" :to="{ name: 'galleries.show', params: { id: userGallery.gallery_id } }">{{ userGallery.gallery_name }}</router-link>

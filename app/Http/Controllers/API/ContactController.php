@@ -43,7 +43,6 @@ class ContactController extends Controller
     public function store(ContactRequest $request)
     {
         //
-        //dd($request->all());
         $this->contact->create([
             'contact_name' => $request->contact_name,
             'contact_email' => $request->contact_email,
@@ -52,9 +51,9 @@ class ContactController extends Controller
             'contact_message' => $request->contact_message
         ]);
 
-        /*return redirect()->route('contact.index')->with([
-            'success' => 'Success!'
-        ]);*/
+        return response()->json([
+            'success' => true
+        ]);
     }
 
     /**

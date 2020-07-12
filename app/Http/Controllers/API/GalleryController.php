@@ -57,7 +57,15 @@ class GalleryController extends Controller
             
             return $galleryUser;
         });
-        
+
+        $newGalleryUser = new GalleryUser;
+        $newGalleryUser->gallery_id = 'all';
+        $newGalleryUser->user_id = $user_id;
+        $newGalleryUser->media_url = null;
+        $newGalleryUser->gallery_name = "Photos";
+        $newGalleryUser->total = $userGalleries->sum('total');        
+        $userGalleries->push($newGalleryUser);
+
         return $userGalleries;
     }
 

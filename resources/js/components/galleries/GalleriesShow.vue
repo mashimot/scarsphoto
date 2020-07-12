@@ -11,7 +11,7 @@
         jumbotron
     ></v-parallax>
     -->
-    <parallax section-class="Masthead hadouken">
+    <parallax section-class="Masthead hadouken" v-if="gallery.media_url_gallery_cover != null">
         <img :src="gallery.media_url_gallery_cover" />
     </parallax>
     <galleries-list></galleries-list>
@@ -73,25 +73,43 @@
 					<img :src="img.media_url" :alt="img.media_title" />
 				</a>
 			</div>
-            <h1 v-if="loading" :style="{ 'color': 'red', 'text-align': 'center', 'font-weight': 'bold' }">LOADING...</h1>
+            <h1 v-if="loading" :style="{ 'color': 'black', 'text-align': 'center', 'font-weight': 'bold' }">LOADING...</h1>
 		</div>
 	</div>
 </div>
 </template>
 
 <script>
-    //import 'justifiedGallery';
+    //import 'justifiedGallery';    
     import magnificPopup from 'magnific-popup';
     import GalleriesList from './../partials/galleries/GalleriesList';
 
     export default {
         data() {
             return {
+                userGalleries: [],
                 page: 1,
                 itsTimeToStop: false,
                 gallery_id: -1,
+                previous_gallery_id: -1,
                 gallery: {},
-                images: {
+                images: {},
+                isScrolled: false,
+                loading: false
+            }
+        },
+        components: {
+            'galleries-list': GalleriesList
+        },
+        methods: {
+            galleryModel(){
+                return {
+                    media_url_gallery_cover: null,
+                    gallery_name: null
+                };
+            },
+            imagesModel(){
+                return {
                     current_page: null,
                     data: [],
                     first_page_url: null,
@@ -104,28 +122,37 @@
                     prev_page_url: null,
                     to: null,
                     total: null
-                },
-                isScrolled: false,
-                loading: false
-            }
-        },
-        components: {
-            'galleries-list': GalleriesList
-        },
-        methods: {
+                };
+            },
             getGalleries(pos = null, __this = null){
                 let vm = this;
+                vm.gallery_id = vm.$route.params.id;
+                if(vm.gallery_id != vm.previous_gallery_id){
+                    vm.images = vm.imagesModel();
+                    vm.gallery = vm.galleryModel();
+                    vm.previous_gallery_id = vm.gallery_id;
+                    vm.page = 1;
+                }
+                //let url = routeParams[vm.$route.id]? routeParams[vm.$route.id]: routeParams['numeric'];
+                let url = /^\d+$/.test(vm.gallery_id)? 
+                `${Laravel._BASE_URL}/api/portfolio/galleries/${vm.gallery_id}?page=${vm.page}`
+                : `${Laravel._BASE_URL}/api/portfolio?page=${this.page}`;
+
                 if((vm.page <= vm.images.last_page)){
                     if(!vm.loading){
                         vm.loading = true;
                         vm.axios
-                            .get(`${Laravel._BASE_URL}/api/portfolio/galleries/${vm.gallery_id}?page=${vm.page}`)
+                            .get(url)
                             .then((response) => {
                                 if(vm.page == 1){
-                                    vm.gallery = response.data.gallery;
+                                    if(typeof response.data.gallery != 'undefined'){
+                                        vm.gallery = response.data.gallery
+                                    } else {
+                                        vm.gallery = vm.galleryModel();
+                                        vm.gallery.gallery_name = 'Photos';
+                                    }
                                 }
                                 if(response.data.images.data.length > 0){
-
                                     for(let key in response.data.images){
                                         if(key != 'data'){
                                             vm.images[key] = response.data.images[key];
@@ -155,7 +182,7 @@
                                 vm.page++;                            
                             })
                             .finally(() =>{
-                                this.loading = false;
+                                vm.loading = false;
                             });
                     }
                 } else {
@@ -265,10 +292,16 @@
                 "page-template-template-fullpage-php"
             ]))
         },
+        watch: {
+            '$route' (to, from) {
+                this.previous_gallery_id = from.params.id;
+                this.getGalleries();
+            }
+        },
         created(){
-            this.gallery_id = this.$route.params.id;
+
+            this.images = this.imagesModel();
             this.getGalleries();
-            //this.initMagnificPopup();   
         },
         mounted() {            
             this.scroll();
@@ -278,6 +311,6 @@
 <style scoped>
 @import '../../../../node_modules/justifiedGallery/dist/css/justifiedGallery.min.css';
 .hadouken {
-    min-height: 600px !important;
+    min-height: 100px !important;
 }
 </style>

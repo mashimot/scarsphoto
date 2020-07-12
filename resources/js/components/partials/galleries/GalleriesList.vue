@@ -1,5 +1,6 @@
 <template>
 <div>
+    <!--
     <div class="title-container-outer-wrap"> 
         <div class="title-container-wrap-remover-aqui">
             <div class="title-container clearfix">
@@ -39,6 +40,46 @@
             <div class="contentclearfix clearfix"></div>
         </div>
     </div>
+    -->
+    <div class="title-container-outer-wrap"> 
+        <div class="title-container-wrap-remover-aqui">
+            <div class="title-container clearfix">
+                <div class="entry-title">
+                    <h1 class="entry-title">
+                        Galerias
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>    
+      <div class="galleries_layout">
+        <div class="profile_body">
+            <div class="galleries_body infinite_scroll_container pagination_finished single_page galleries_body--fetched">
+                <div class="gallery_list">
+                    <!--
+                    <div class="gallery_card_view px_card medium no_badge no_avatar" >
+                        <router-link class="link_wrap" :to="{ name: 'galleries.show', params: { id: 'all' } }" ></router-link>
+                        <div class="bottom gallery_card_view__bottom">
+                            <div class="gallery_card_view__name_wrapper ">
+                                <router-link class="name" :to="{ name: 'galleries.show', params: { id: 'all' } }" >Photos</router-link>
+                            </div>
+                            <span class="description gallery_card_view__photo_count gallery_card_view__description">{{ 12 }}</span>
+                        </div>
+                    </div>                    
+                    -->
+                    <div v-for="userGallery in userGalleries" :key="userGallery.gallery_id" class="gallery_card_view px_card medium no_badge no_avatar" >
+                        <router-link class="link_wrap" :to="{ name: 'galleries.show', params: { id: userGallery.gallery_id } }"></router-link>
+                        <div class="bottom gallery_card_view__bottom">
+                            <div class="gallery_card_view__name_wrapper ">
+                                <router-link class="name" :to="{ name: 'galleries.show', params: { id: userGallery.gallery_id } }">{{ userGallery.gallery_name }}</router-link>
+                            </div>
+                            <span class="description gallery_card_view__photo_count gallery_card_view__description">{{ userGallery.total }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>      
 </div>
 </template>
 
@@ -51,10 +92,20 @@
             }
         },
         methods: {
-       
+            getUserGalleries(){
+                let vm = this;
+                vm.loading = true;
+                vm.axios
+                    .get(`${Laravel._BASE_URL}/api/portfolio/galleries`)
+                    .then((response) => {
+                        vm.userGalleries = response.data;
+                    });
+            }
         },
         created(){
-            this.axios
+            this.getUserGalleries();
+
+/*            this.axios
                 .get(`${Laravel._BASE_URL}/api/portfolio/galleries/create`)
                 .then(response => {
                     
@@ -63,7 +114,7 @@
                     console.log(response.data);
                     console.log(this.userGalleries, this.medias);
                     this.loading = false;
-                });
+                });*/
         },
     }
 </script>

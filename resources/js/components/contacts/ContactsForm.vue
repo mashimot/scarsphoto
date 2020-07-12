@@ -42,7 +42,7 @@
                 <input type="submit" value="Send" class="wpcf7-form-control wpcf7-submit">
                 <span class="ajax-loader"></span>
             </p>
-            <div class="wpcf7-response-output wpcf7-display-none"></div>    
+            <div class="wpcf7-response-output" v-if="message != null">{{ message }}</div>    
         </form>    
     </div>
 </div>
@@ -57,7 +57,8 @@
             return {
                 contacts: {},
                 form: new Form(),
-                loading: true
+                loading: true,
+                message: null
             }
         },
         computed: {
@@ -74,7 +75,9 @@
                 this.form.post(`${Laravel._BASE_URL}/api/contact`)
                 .then((response) => {
                     console.log(response);
-
+                    if(response.success){
+                        this.message = "Enviado com sucesso!";
+                    }
                 })
                 .finally(() => {
 
