@@ -33,13 +33,15 @@ class Media extends Model
         ->where(function($query) use ($request){
             $query->where('gaus.user_id', $request->user_id)
             ->orWhere('meds.user_id', $request->user_id);
-        }); //usuários com galeria
+        }); //users with galleries
         
-        if($request->filled('gallery_id')){
-            if($request->gallery_id == '0'){
+        if($request->filled('gallery_id')){ //if the request param. gallery_id exists and has value
+            if($request->gallery_id == '0'){ //photos without galleries
                 $medias = $medias->whereNull('gaus.gallery_user_id');
+            } else if($request->gallery_id == 'all'){ //all photos with galleries
+                $medias = $medias->whereNotNull('gaus.gallery_user_id');
             } else {
-                $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->first();
+                $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->select('media_route_id')->first();
                 $medias = $medias->whereExists(function($query) use ($request){
                     $query->select(DB::raw(1))
                         ->from('medias_galleries as mga')

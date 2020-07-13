@@ -133,10 +133,8 @@
                     vm.previous_gallery_id = vm.gallery_id;
                     vm.page = 1;
                 }
-                //let url = routeParams[vm.$route.id]? routeParams[vm.$route.id]: routeParams['numeric'];
-                let url = /^\d+$/.test(vm.gallery_id)? 
-                `${Laravel._BASE_URL}/api/portfolio/galleries/${vm.gallery_id}?page=${vm.page}`
-                : `${Laravel._BASE_URL}/api/portfolio?page=${this.page}`;
+
+                let url = `${Laravel._BASE_URL}/api/portfolio/galleries/${vm.gallery_id}?page=${vm.page}`;
 
                 if((vm.page <= vm.images.last_page)){
                     if(!vm.loading){
@@ -144,11 +142,12 @@
                         vm.axios
                             .get(url)
                             .then((response) => {
+                                console.log(response);
+                                vm.gallery = vm.galleryModel();
                                 if(vm.page == 1){
-                                    if(typeof response.data.gallery != 'undefined'){
-                                        vm.gallery = response.data.gallery
+                                    if(typeof response.data.gallery != 'undefined' && response.data.gallery != null){
+                                        vm.gallery = response.data.gallery;
                                     } else {
-                                        vm.gallery = vm.galleryModel();
                                         vm.gallery.gallery_name = 'Photos';
                                     }
                                 }
@@ -299,7 +298,6 @@
             }
         },
         created(){
-
             this.images = this.imagesModel();
             this.getGalleries();
         },

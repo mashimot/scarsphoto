@@ -133,37 +133,37 @@ class GalleryController extends Controller
     public function show($id, Request $request)
     {
         //
+        $gallery = [];
         $user = User::where('email', 'like', '%scarsphoto.com.br%')->first();
-        $user_id = $user->id;
-        $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->first();
+        //$mediaRoute = MediaRoute::where('media_route_name', 'galleries')->select('media_route_id')->first();
         $request->merge([
             'gallery_id' => $id,
             //'media_route_id' => $mediaRoute->media_route_id,
-            'user_id' => $user_id
+            'user_id' => $user->id
         ]);
-        $images = Media::getMediasGalleries($request);
-        $gallery = [];
+
         if($request->page == 1){
             $gallery = GalleryUser::from('galleries_users as gaus')
-            ->where('gaus.user_id', $user_id)
+            ->where('gaus.user_id', $user->id)
             ->where('gaus.gallery_user_id', $id)
             ->select([
                 'gaus.gallery_user_id as gallery_id',
                 'gaus.gallery_user_name as gallery_name',
                 'gaus.banner_media_id'
-            ])
-            ->first();
+            ])->first();
+
             if(!is_null($gallery)){
                 $media_url = null;
-                $mediaGallery = MediaGallery::from('medias_galleries as mega')
-                ->join('medias as medi', 'medi.media_id', 'mega.media_id')
+                $mediaGallery = Media::from('medias as medi')
+                //->join('medias_galleries as mega', 'mega.media_id', 'medi.media_id')
                 ->where('medi.media_id', $gallery->banner_media_id)
                 ->select([
                     'medi.media_url'
-                ])
-                ->first();
+                ])->first();
+                //dd($mediaGallery);
+
                 if(!is_null($mediaGallery)){
-                    $path = FileHelper::getUserImagePath($user_id, 'images/users');
+                    $path = FileHelper::getUserImagePath($user->id, 'images/users');
                     $media_url = asset("storage/{$path}/{$mediaGallery->media_url}");
                 }
                 
@@ -171,6 +171,7 @@ class GalleryController extends Controller
             }
         }
 
+        $images = Media::getMediasGalleries($request);
         return response()->json(
             compact('images', 'gallery')
         );

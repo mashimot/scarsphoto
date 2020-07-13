@@ -8,7 +8,7 @@ import AdminMediasCreate from './components/admin/medias/MediasCreate.vue';
 import ContactsIndex from './components/contacts/ContactsIndex.vue';
 import GalleriesShow from './components/galleries/GalleriesShow.vue';
 import GalleriesIndex from './components/galleries/GalleriesIndex.vue';
-import PortfolioIndex from './components/portfolio/PortfolioIndex.vue';
+//import PortfolioIndex from './components/portfolio/PortfolioIndex.vue';
 import HomeIndex from './components/home/HomeIndex.vue';
 import AboutIndex from './components/about/AboutIndex.vue';
 
@@ -76,17 +76,17 @@ export const routes = [
         component: GalleriesIndex,
         meta: { title: 'Galerias' }
     },
-    {
+    /*{
         path: '/portfolio',
         name: 'portfolio.index',
         component: PortfolioIndex,
         meta: { title: 'Portfolio' }
-    },
+    },*/
     {
         path: '/',
         name: 'home.index',
         component: HomeIndex,
-        meta: { title: 'HOme' }
+        meta: { title: 'Home' }
     },
     {
         path: '/about',

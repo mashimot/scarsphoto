@@ -1,5 +1,34 @@
 <template>
 <div>
+    <ul class="nav nav-tabs nav-pills">
+        <li  v-for="(gallery, idxgallery) in galleries" :key="idxgallery" :id="`tabs-${idxgallery}`" class="nav-item">
+            <a @click.prevent="changeQuery(gallery.gallery_id)"
+                href="#" 
+                data-toggle="tab" 
+                class="nav-link small text-uppercase"
+            >{{ gallery.gallery_name }}</a>
+        </li>
+        <li class="nav-item">
+            <a @click.prevent="changeQuery(0)"
+                href="#"
+                data-toggle="tab" 
+                class="nav-link small text-uppercase"
+            >Sem Categoria</a>
+        </li>
+        <li class="nav-item">
+            <a @click.prevent="refreshPage()"
+                href="#"
+                data-toggle="tab" 
+                class="nav-link small text-uppercase active"
+            >Todas</a>
+        </li>
+        <li class="nav-item">
+            <router-link :to="{ name: 'admin.medias.create' }" data-toggle="tab" class="nav-link small text-uppercase">
+                Create
+            </router-link>
+        </li>        
+    </ul>
+    <!--
     <div class="btn-group" v-if="!loading">
         <div v-for="(gallery, idxgallery) in galleries" :key="idxgallery">
             <a
@@ -30,6 +59,7 @@
             Create
         </router-link> 
     </div>
+    -->
     <h1 v-if="loading">Loading...</h1>
     <div class="row">
         <div class="col-9" :disabled="loading">
