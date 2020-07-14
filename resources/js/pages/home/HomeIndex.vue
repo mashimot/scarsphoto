@@ -15,16 +15,16 @@
 				<a id="prevslide" class="load-item" style="display: inline;"><i class="fa fa-angle-left"></i></a>
 			</div>
 			</div>
-			
+
 			<div id="controls-wrapper" class="load-item" style="display: block;">
-				<div id="controls">		
+				<div id="controls">
 					<!--Navigation-->
 																		<a id="play-button"><i id="pauseplay" class="feather-icon-pause"></i></a>
 															</div>
 			</div>
 
 		</div>
-		
+
 	<div id="slidecaption" style="display: block;"><div class="fullscreen-slideshow-color" data-color="dark"></div></div>
 	<!--Control Bar-->
 	<!--Time Bar-->
@@ -124,7 +124,7 @@
                     pause_hover             :   0,
                     keyboard_nav            :   1,
                     performance				:	2,
-                    image_protect			:	0,			   
+                    image_protect			:	0,
                     min_width		        :   0,
                     min_height		        :   0,
                     vertical_center         :   1,
@@ -136,7 +136,7 @@
                     thumb_links				:	1,
                     thumbnail_navigation    :   0,
                     slides 					:  	[{image : 'https://imaginem.io/kinetika/wp-content/uploads/sites/20/2015/07/slideshow_1.jpg', alttext : 'Forest', 	title : '<div class="fullscreen-slideshow-color" data-color="bright"></div>', thumb : '', url : ''},{image : 'https://imaginem.io/kinetika/wp-content/uploads/sites/20/2015/07/slideshow_2.jpg', alttext : 'Architecture', title : '<div class="fullscreen-slideshow-color" data-color="bright"></div>', thumb : '', url : ''},{image : 'https://imaginem.io/kinetika/wp-content/uploads/sites/20/2015/07/slideshow_3.jpg', alttext : 'Bride', title : '<div class="fullscreen-slideshow-color" data-color="dark"></div>', thumb : '', url : ''},{image : 'https://imaginem.io/kinetika/wp-content/uploads/sites/20/2015/07/slideshow_4.jpg', alttext : 'Dancer', title : '<div class="fullscreen-slideshow-color" data-color="bright"></div>', thumb : '', url : ''}		],
-                    progress_bar			:	1,					
+                    progress_bar			:	1,
                     mouse_scrub				:	1
                 });
             });
