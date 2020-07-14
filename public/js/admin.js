@@ -2032,6 +2032,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2066,7 +2068,7 @@ __webpack_require__.r(__webpack_exports__);
             rowHeight: 500,
             margins: 6
             //lastRow: 'justify'
-        }); 
+        });
     }, 1000);*/
   }
 });
@@ -3613,7 +3615,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
-//import 'justifiedGallery';    
+//import 'justifiedGallery';
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -4113,6 +4115,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      logo: {
+        //image: 'https://imaginem.io/kinetika/wp-content/themes/kinetika/images/logo_dark.png',
+        //image: 'https://scontent-gru2-1.xx.fbcdn.net/v/t31.0-8/10496912_681050645304553_3938813785562781883_o.jpg?_nc_cat=107&_nc_sid=09cbfe&_nc_eui2=AeGtIfFZ6by5bEOWJaZcstsPfKZPx_rQMQF8pk_H-tAxAQsHPSXkS0iV4YE0BInAKBw&_nc_ohc=ayEexYgtzAkAX_8pysO&_nc_ht=scontent-gru2-1.xx&oh=7c65cb462f2caaee26d90a5e156d8875&oe=5F32EA37'
+        image: 'https://i.imgur.com/8jb2aK9.png'
+      },
       about: {
         info: 'Curabitur massa. Donec eleifend, libero at sagittis mollis, tellus est malesuada tellus, at luctus turpis elit sit amet quam. Vivamus pretium ornare est.'
       },
@@ -8719,7 +8726,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.hadouken[data-v-f487101c] {\r\n    min-height: 600px !important;\n}\r\n\r\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-f487101c] {\n    min-height: 400px !important;\n}\n.d-block[data-v-f487101c] {\n    height: 250px;\n    background: transparent no-repeat center;\n    background-size: cover;\n}\n", ""]);
 
 // exports
 
@@ -8738,7 +8745,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.hadouken[data-v-5f3d3dee] {\r\n    min-height: 600px !important;\n}\r\n\r\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-5f3d3dee] {\n    min-height: 400px !important;\n}\n\n", ""]);
 
 // exports
 
@@ -8757,7 +8764,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 exports.i(__webpack_require__(/*! -!../../../../node_modules/css-loader??ref--7-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/justifiedGallery/dist/css/justifiedGallery.min.css */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/justifiedGallery/dist/css/justifiedGallery.min.css"), "");
 
 // module
-exports.push([module.i, "\n.hadouken[data-v-b70362da] {\r\n    min-height: 100px !important;\n}\r\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-b70362da] {\n    min-height: 400px !important;\n}\n", ""]);
 
 // exports
 
@@ -43895,7 +43902,49 @@ var render = function() {
                         [
                           _vm._m(0),
                           _vm._v(" "),
-                          _vm._m(1),
+                          _c(
+                            "div",
+                            { staticClass: "mtheme-supercell clearfix " },
+                            [
+                              _c("div", { staticClass: "mtheme-cell-wrap" }, [
+                                _c(
+                                  "div",
+                                  {
+                                    staticClass:
+                                      "mtheme-block mtheme-block-em_singleimage span12 mtheme-first-cell ",
+                                    attrs: {
+                                      id: "mtheme-block-7",
+                                      "data-width": "12"
+                                    }
+                                  },
+                                  [
+                                    _c(
+                                      "div",
+                                      {
+                                        staticClass: "single-image-block none",
+                                        staticStyle: {
+                                          "padding-top": "0",
+                                          "padding-bottom": "0",
+                                          "text-align": "center"
+                                        }
+                                      },
+                                      [
+                                        _c("img", {
+                                          staticClass: "d-block",
+                                          style: { "border-radius": "50%" },
+                                          attrs: {
+                                            src:
+                                              "https://scontent-gru2-1.xx.fbcdn.net/v/t1.0-9/106030841_3311450318916634_4811250531292708170_n.jpg?_nc_cat=109&_nc_sid=09cbfe&_nc_eui2=AeGVPliFFAgwC_tr28TK4PmgUAfbHQw9215QB9sdDD3bXhm2kAI3D6HQsw80T_Dzda4&_nc_ohc=BDX7gqKZrN8AX-08Hd8&_nc_ht=scontent-gru2-1.xx&oh=b2653b96390fec4beaff7d0e463e0024&oe=5F32A776",
+                                            alt: ""
+                                          }
+                                        })
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ])
+                            ]
+                          ),
                           _vm._v(" "),
                           _c(
                             "div",
@@ -43950,7 +43999,7 @@ var render = function() {
                                           staticClass: "section-end"
                                         }),
                                         _vm._v(" "),
-                                        _vm._m(2)
+                                        _vm._m(1)
                                       ]
                                     )
                                   ]
@@ -44222,45 +44271,6 @@ var staticRenderFns = [
         )
       ]
     )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "mtheme-supercell clearfix " }, [
-      _c("div", { staticClass: "mtheme-cell-wrap" }, [
-        _c(
-          "div",
-          {
-            staticClass:
-              "mtheme-block mtheme-block-em_singleimage span12 mtheme-first-cell ",
-            attrs: { id: "mtheme-block-7", "data-width": "12" }
-          },
-          [
-            _c(
-              "div",
-              {
-                staticClass: "single-image-block none",
-                staticStyle: {
-                  "padding-top": "0",
-                  "padding-bottom": "0",
-                  "text-align": "center"
-                }
-              },
-              [
-                _c("img", {
-                  attrs: {
-                    src:
-                      "https://imaginem.io/kinetika/wp-content/uploads/sites/20/2015/02/about_me1.png",
-                    alt: ""
-                  }
-                })
-              ]
-            )
-          ]
-        )
-      ])
-    ])
   },
   function() {
     var _vm = this
@@ -46706,15 +46716,15 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("p", { staticStyle: { "text-align": "center" } }, [
       _vm._v(
-        "198  West 21th Street, Suite 721\r\n                                                                                    "
+        "198  West 21th Street, Suite 721\n                                                                                    "
       ),
       _c("br"),
       _vm._v(
-        "\r\n                                                                                    New York, NY 10010\r\n                                                                                    "
+        "\n                                                                                    New York, NY 10010\n                                                                                    "
       ),
       _c("br"),
       _vm._v(
-        "\r\n                                                                                    Email: \r\n                                                                                    "
+        "\n                                                                                    Email:\n                                                                                    "
       ),
       _c(
         "a",
@@ -46730,11 +46740,11 @@ var staticRenderFns = [
       _vm._v(" "),
       _c("br"),
       _vm._v(
-        "\r\n                                                                                    Phone: +88 (0) 101 0000 000\r\n                                                                                    "
+        "\n                                                                                    Phone: +88 (0) 101 0000 000\n                                                                                    "
       ),
       _c("br"),
       _vm._v(
-        "\r\n                                                                                    Fax: +88 (0) 202 0000 001\r\n                                                                                "
+        "\n                                                                                    Fax: +88 (0) 202 0000 001\n                                                                                "
       )
     ])
   },
@@ -47243,7 +47253,21 @@ var render = function() {
           },
           [
             _c("div", { staticClass: "footer-column" }, [
-              _vm._m(1),
+              _c("div", { staticClass: "sidebar-widget" }, [
+                _c(
+                  "aside",
+                  {
+                    staticClass: "widget widget_mtheme_image_widget",
+                    attrs: { id: "mtheme_image_widget-1" }
+                  },
+                  [
+                    _c("img", {
+                      staticClass: "footer-mtheme-image",
+                      attrs: { width: "260", src: _vm.logo.image, alt: "logo" }
+                    })
+                  ]
+                )
+              ]),
               _vm._v(" "),
               _c("div", { staticClass: "sidebar-widget" }, [
                 _c(
@@ -47343,31 +47367,6 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("div", { attrs: { id: "goto-top", title: "top of page" } }, [
       _c("i", { staticClass: "fa fa-chevron-up" })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "sidebar-widget" }, [
-      _c(
-        "aside",
-        {
-          staticClass: "widget widget_mtheme_image_widget",
-          attrs: { id: "mtheme_image_widget-1" }
-        },
-        [
-          _c("img", {
-            staticClass: "footer-mtheme-image",
-            attrs: {
-              width: "260",
-              src:
-                "https://imaginem.io/kinetika/wp-content/themes/kinetika/images/logo_dark.png",
-              alt: "logo"
-            }
-          })
-        ]
-      )
     ])
   }
 ]
@@ -63970,7 +63969,7 @@ var routes = [].concat(_toConsumableArray(routesWithPrefix('/admin', [{
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\js\admin.js */"./resources/js/admin.js");
+module.exports = __webpack_require__(/*! C:\dev\www\scarsphoto\resources\js\admin.js */"./resources/js/admin.js");
 
 
 /***/ })

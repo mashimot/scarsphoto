@@ -23,13 +23,19 @@ class AboutController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function create()
     {
         //
+        return 'ABOUT';
+        User::create([
+            'name' => 'Fabio',
+            'email' => 'fabioh@scarsphoto.com.br',
+            'password' => Hash::make('fabio')
+        ]);
         MediaType::create([
             'media_type_short_name' => 'im',
             'media_type_name' => 'images'
-        ]);        
+        ]);
         MediaRoute::create([
             'media_route_name' => 'galleries',
             'media_route_has_galleries' => 1,
@@ -102,24 +108,24 @@ class AboutController extends Controller
                         $ext = pathinfo($path, PATHINFO_EXTENSION);
                         $currentFileName = pathinfo($path, PATHINFO_FILENAME);
                         $copyThis = "{$directory}/{$currentFileName}.{$ext}";
-                        $copyTo =  "{$path_basic}/{$random_name}.{$ext}"; 
-    
+                        $copyTo =  "{$path_basic}/{$random_name}.{$ext}";
+
                         $mediaCreate = Media::create([
                             'media_title' => 'Titulo',
                             'media_comment' => 'Comentário',
                             'media_url' => "{$random_name}.{$ext}",
                             'media_nsfw' => 0,
                             'media_type_id' => MediaType::first()->media_type_id,
-                            'user_id' => $user_id                
-                        ]); 
-    
+                            'user_id' => $user_id
+                        ]);
+
                         //$newGallery = Gallery::where('gallery_id', $lastDirectoryName)->find();
                         $last_media_gallery_pos = GalleryUser::from('galleries_users as gaus')
                         ->join('medias_galleries as mega', 'mega.gallery_user_id', 'gaus.gallery_user_id')
                         ->where('gaus.user_id', $user_id)
                         ->where('gaus.gallery_user_id', $galleryUser->gallery_user_id)
                         ->max('mega.media_gallery_pos');
-    
+
                         $mediaGalleryCreate = MediaGallery::create([
                             'media_id' => $mediaCreate->media_id,
                             //'gallery_id' => $gallery->gallery_id,
@@ -134,12 +140,12 @@ class AboutController extends Controller
                     }
                 }
             }
-            
+
             DB::commit();
-        } catch(\Exception $e){       
+        } catch(\Exception $e){
             dd($e);
             DB::rollback();
-        }        
+        }
 
 
     }
@@ -149,7 +155,7 @@ class AboutController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function index()
     {
         //
     }

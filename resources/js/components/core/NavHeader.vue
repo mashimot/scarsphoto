@@ -7,7 +7,7 @@
         <div class="mobile-menu-toggle">
             <div class="logo-mobile">
                 <router-link :to="{ name: home.to.name }">
-                    <img class="logoimage" src="https://imaginem.io/kinetika/wp-content/themes/kinetika/images/logo_dark.png" alt="logo">
+                    <img class="logoimage" :src="logo.image" alt="logo">
                 </router-link>
             </div>
         </div>
@@ -44,7 +44,7 @@
                     <div class="header-logo-section">
                         <div class="logo">
                             <router-link :to="{ name: home.to.name }">
-                                <img class="logoimage" src="https://imaginem.io/kinetika/wp-content/themes/kinetika/images/logo_dark.png" alt="logo">
+                                <img class="" :src="logo.image" alt="logo">
                             </router-link>
                         </div>
                     </div>
@@ -69,6 +69,11 @@
             return {
                 isMobileMenuOpen: false,
                 fullScreenToggleOn: false,
+                logo: {
+                    //image: 'https://imaginem.io/kinetika/wp-content/themes/kinetika/images/logo_dark.png',
+                    //image: 'https://scontent-gru2-1.xx.fbcdn.net/v/t31.0-8/10496912_681050645304553_3938813785562781883_o.jpg?_nc_cat=107&_nc_sid=09cbfe&_nc_eui2=AeGtIfFZ6by5bEOWJaZcstsPfKZPx_rQMQF8pk_H-tAxAQsHPSXkS0iV4YE0BInAKBw&_nc_ohc=ayEexYgtzAkAX_8pysO&_nc_ht=scontent-gru2-1.xx&oh=7c65cb462f2caaee26d90a5e156d8875&oe=5F32EA37'
+                    image: 'https://i.imgur.com/8jb2aK9.png'
+                },
                 home: {
                     to: {
                         name: 'home.index'
@@ -105,7 +110,6 @@
                     children: []
                 }]
             }
-            
         },
         created(){
             $(window).scroll(() => {
@@ -117,12 +121,12 @@
                 var stickyNavTop = 10;
 	            var stickyzone = '.stickymenu-zone';
                 var scrollTop = $(window).scrollTop();
-                    
-                if (scrollTop > stickyNavTop) { 
-                    $(stickyzone).addClass('sticky-menu-activate');
+
+                if (scrollTop > stickyNavTop) {
+                    //$(stickyzone).addClass('sticky-menu-activate');
                     //$('body').addClass('sticky-menu-on');
                 } else {
-                    $(stickyzone).removeClass('sticky-menu-activate'); 
+                    //$(stickyzone).removeClass('sticky-menu-activate');
                     //$('body').removeClass('sticky-menu-on');
                 }
             },
