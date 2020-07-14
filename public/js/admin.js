@@ -2216,10 +2216,10 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       contacts: {},
-      loading: true
+      loading: false
     };
   },
-  created: function created() {
+  mounted: function mounted() {
     this.getContacts();
   },
   methods: {
@@ -2227,29 +2227,25 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-      this.axios.get("".concat(Laravel._BASE_URL, "/admin/contacts/create"), {
-        params: {
-          page: page
-        }
-      }).then(function (response) {
-        console.log(response);
+      this.axios.get("".concat(Laravel._BASE_URL, "/admin/contacts/create?page=").concat(page)) //.get(`${Laravel._BASE_URL}/admin/huehuehue?page=${2}`)
+      .then(function (response) {
         _this.contacts = response.data;
-      })["finally"](function () {
-        _this.loading = false;
       });
     },
     deleteContact: function deleteContact(id) {
       var _this2 = this;
 
       this.axios["delete"]("".concat(Laravel._BASE_URL, "/admin/contacts/").concat(id)).then(function (response) {
-        console.log(response.data);
+        if (response.status == 200) {
+          var i = _this2.contacts.data.map(function (item) {
+            return item.contact_id;
+          }).indexOf(id); // find index of your object
 
-        var i = _this2.contacts.map(function (item) {
-          return item.contact_id;
-        }).indexOf(id); // find index of your object
 
+          _this2.contacts.data.splice(i, 1);
 
-        _this2.contacts.splice(i, 1);
+          _this2.$toasted.global.on_delete();
+        }
       });
     }
   }
@@ -3029,30 +3025,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }));
       });
       this.media.media_galleries = _objectSpread({}, media_galleries);
-      /*this.galleries.map(gallery => {
-          gallery.is_checked = false;
-          return gallery;
-      });
-      this.galleries.forEach(gallery => {
-          gallery.is_checked = false;
-          this.media.media_galleries.forEach((mG, idx) => {
-              if(mG.gallery_id == gallery.gallery_id){
-                  gallery.is_checked = true;
-                  //this.media.media_galleries[idx].is_checked = true;
-                  this.$set(this.media.media_galleries[idx], 'is_checked', true)
-               }
-          });
-          if(!gallery.is_checked){
-              //this.media.media_galleries.push(...gallery);
-          }
-      });*/
-      //this.media.media_galleries = joeys;
     },
     onSubmit: function onSubmit() {
       var _this2 = this;
 
-      this.form = new form_backend_validation__WEBPACK_IMPORTED_MODULE_0___default.a(this.media); //alert(this.media.media_id);
-
+      this.form = new form_backend_validation__WEBPACK_IMPORTED_MODULE_0___default.a(this.media);
       this.form.put("".concat(Laravel._BASE_URL, "/admin/medias/").concat(this.media.media_id, "/galleries"))
       /*this.axios.put(`${Laravel._BASE_URL}/admin/medias/${this.media.media_id}/galleries`, {
           data: this.media.media_galleries
@@ -62672,15 +62649,25 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_toasted__WEBPACK_IMPORTED_MOD
 
 var options = [{
   type: 'success',
-  theme: "toasted-primary",
+  theme: "outline",
   position: "top-center",
+  fullWidth: true,
   //icon : 'error_outline',
   duration: 5000,
   message: 'Data has been saved successfully'
 }, {
-  type: 'error',
-  theme: "toasted-primary",
+  type: 'delete',
+  theme: "outline",
   position: "top-center",
+  fullWidth: true,
+  //icon : 'error_outline',
+  duration: 5000,
+  message: 'Data has been deleted successfully'
+}, {
+  type: 'error',
+  theme: "outline",
+  position: "top-center",
+  fullWidth: true,
   //icon : 'error_outline',
   duration: 5000,
   message: 'Oops.. Something Went Wrong...'

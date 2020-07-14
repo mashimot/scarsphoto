@@ -83,10 +83,7 @@ Route::group([
     Route::put('medias/{media}/galleries', 'MediaGalleryController@update', [
         'as' => 'admin'
     ]);
-    /*Route::resource('medias/{media}/galleries', 'MediaGalleryController', [
-        'as' => 'admin',
-        'except' => ['index', 'edit', 'show']
-    ]);    */
+
     Route::resource('medias', 'MediaController', [
         'as' => 'admin',
         'except' => ['index', 'edit', 'show']

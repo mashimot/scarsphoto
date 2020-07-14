@@ -32,7 +32,7 @@
             </tr>
         </tbody>
     </table>
-    <pagination :data="contacts" @pagination-change-page="getContacts"></pagination>
+     <pagination :data="contacts" @pagination-change-page="getContacts"></pagination>
 </div>
 
 </template>
@@ -42,35 +42,30 @@
         data() {
             return {
                 contacts: {},
-                loading: true
+                loading: false
             }
         },
-        created() {
+        mounted() {
             this.getContacts();
         },
         methods: {
             getContacts(page = 1){
                 this.axios
-                    .get(`${Laravel._BASE_URL}/admin/contacts/create`, {
-                        params: {
-                            page: page
-                        }
-                    })
+                    .get(`${Laravel._BASE_URL}/admin/contacts/create?page=${page}`)
+                    //.get(`${Laravel._BASE_URL}/admin/huehuehue?page=${2}`)
                     .then(response => {
-                        console.log(response);
                         this.contacts = response.data;
-                    })
-                    .finally(() => {
-                        this.loading = false;
                     });
             },
             deleteContact(id) {
                 this.axios
                 .delete(`${Laravel._BASE_URL}/admin/contacts/${id}`)
                 .then(response => {
-                    console.log(response.data);
-                    let i = this.contacts.map(item => item.contact_id).indexOf(id); // find index of your object
-                    this.contacts.splice(i, 1)
+                    if(response.status == 200){
+                        let i = this.contacts.data.map(item => item.contact_id).indexOf(id); // find index of your object
+                        this.contacts.data.splice(i, 1);
+                        this.$toasted.global.on_delete();
+                    }
                 })
             }
         }

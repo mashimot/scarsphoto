@@ -193,29 +193,9 @@
                     media_galleries.push({...gallery, is_checked: is_checked});
                 });
                 this.media.media_galleries = {...media_galleries};
-                /*this.galleries.map(gallery => {
-                    gallery.is_checked = false;
-                    return gallery;
-                });
-                this.galleries.forEach(gallery => {
-                    gallery.is_checked = false;
-                    this.media.media_galleries.forEach((mG, idx) => {
-                        if(mG.gallery_id == gallery.gallery_id){
-                            gallery.is_checked = true;
-                            //this.media.media_galleries[idx].is_checked = true;
-                            this.$set(this.media.media_galleries[idx], 'is_checked', true)
-
-                        }
-                    });
-                    if(!gallery.is_checked){
-                        //this.media.media_galleries.push(...gallery);
-                    }
-                });*/
-                //this.media.media_galleries = joeys;
             },
             onSubmit() {
                 this.form = new Form(this.media);
-                //alert(this.media.media_id);
                 this.form.put(`${Laravel._BASE_URL}/admin/medias/${this.media.media_id}/galleries`)
                 /*this.axios.put(`${Laravel._BASE_URL}/admin/medias/${this.media.media_id}/galleries`, {
                     data: this.media.media_galleries

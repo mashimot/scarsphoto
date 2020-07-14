@@ -34,16 +34,26 @@ Vue.use(Toasted)
 // options to the toast
 var options = [{
     type : 'success',
-    theme: "toasted-primary", 
+    theme: "outline", 
     position: "top-center", 
+    fullWidth: true,
     //icon : 'error_outline',
     duration : 5000,
     message: 'Data has been saved successfully'
+},{
+    type : 'delete',
+    theme: "outline", 
+    position: "top-center", 
+    fullWidth: true,
+    //icon : 'error_outline',
+    duration : 5000,
+    message: 'Data has been deleted successfully'
 },
 {
     type: 'error',
-    theme: "toasted-primary", 
+    theme: "outline", 
     position: "top-center", 
+    fullWidth: true,
     //icon : 'error_outline',
     duration : 5000,
     message: 'Oops.. Something Went Wrong...'

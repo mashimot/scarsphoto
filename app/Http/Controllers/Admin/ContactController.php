@@ -28,10 +28,10 @@ class ContactController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         //
-        return $this->contact->paginate();
+        return $this->contact->paginate(20);
     }
 
     /**
