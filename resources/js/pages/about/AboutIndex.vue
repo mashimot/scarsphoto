@@ -1,7 +1,7 @@
 <template>
 <div>
 <!--
-    <v-parallax 
+    <v-parallax
         dark
         src="https://i.pinimg.com/originals/e7/6e/f4/e76ef45a6dd8a81a4d3b4b433270af3e.jpg"
         height="600"
@@ -12,12 +12,12 @@
             <h3 style="" class="section-subtitle" :style="{ color: 'white' }">Freelance Designer, Developer &amp; Traveller</h3>
         </div>
 
-    </v-parallax>   
+    </v-parallax>
     <section class="" :style="{ 'height': '500px' }">
         <parallax>
             <img src="https://i.pinimg.com/originals/e7/6e/f4/e76ef45a6dd8a81a4d3b4b433270af3e.jpg" />
         </parallax>
-    </section>    
+    </section>
     <section class="min">
         <img src="https://i.pinimg.com/originals/e7/6e/f4/e76ef45a6dd8a81a4d3b4b433270af3e.jpg" v-parallax="{ direction: 'up', start: 0.1, end: 0.1  }"/>
     </section>
@@ -27,7 +27,7 @@
         <div class="text-xs-center">
             <h1 style="" class="section-title" :style="{ color: 'white' }">About me</h1>
             <h3 style="" class="section-subtitle" :style="{ color: 'white' }">Freelance Designer, Developer &amp; Traveller</h3>
-        </div>    
+        </div>
     </parallax>
     <div id="home" class="container-wrapper container-fullwidth" style="">
         <div class="container clearfix" style="">
@@ -91,7 +91,9 @@
                             <div class="mtheme-supercell clearfix ">
                                 <div class="mtheme-cell-wrap">
                                     <div id="mtheme-block-7" class="mtheme-block mtheme-block-em_singleimage span12 mtheme-first-cell " data-width="12">
-                                    <div class="single-image-block none" style="padding-top:0;padding-bottom:0;text-align:center;"><img src="https://imaginem.io/kinetika/wp-content/uploads/sites/20/2015/02/about_me1.png" alt=""></div>
+                                        <div class="single-image-block none" style="padding-top:0;padding-bottom:0;text-align:center;">
+                                            <img src="https://scontent-gru2-1.xx.fbcdn.net/v/t1.0-9/106030841_3311450318916634_4811250531292708170_n.jpg?_nc_cat=109&_nc_sid=09cbfe&_nc_eui2=AeGVPliFFAgwC_tr28TK4PmgUAfbHQw9215QB9sdDD3bXhm2kAI3D6HQsw80T_Dzda4&_nc_ohc=BDX7gqKZrN8AX-08Hd8&_nc_ht=scontent-gru2-1.xx&oh=b2653b96390fec4beaff7d0e463e0024&oe=5F32A776" alt="" :style="{ 'border-radius': '50%' }" class="d-block">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +137,7 @@
         },
         computed: {
             styleParallax(){
-                return { 
+                return {
                     transform: 'translate3d(0px, 0px, 0px) !important',
                     top: '50% !important'
                 };
@@ -157,14 +159,18 @@
                     rowHeight: 500,
                     margins: 6
                     //lastRow: 'justify'
-                }); 
+                });
             }, 1000);*/
         }
     }
 </script>
 <style scoped>
 .hadouken {
-    min-height: 600px !important;
+    min-height: 400px !important;
 }
-
+.d-block {
+    height: 250px;
+    background: transparent no-repeat center;
+    background-size: cover;
+}
 </style>

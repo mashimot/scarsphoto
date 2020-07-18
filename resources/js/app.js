@@ -13,9 +13,9 @@ import parallax from '@allardyce/parallax';
 import Parallax from 'vue-parallaxy';
 import axios from 'axios';
 import { routes } from './routes.js';
-import SocialMediaList from './components/partials/SocialMediaList';
-import StickyFooter from './components/partials/StickyFooter';
-import NavHeader from './components/core/NavHeader';
+import SocialMediaList from './pages/partials/SocialMediaList';
+import StickyFooter from './pages/partials/StickyFooter';
+import NavHeader from './pages/core/NavHeader';
 
 
 //import Vuetify from 'vuetify/lib/framework';
@@ -43,7 +43,7 @@ Vue.component('sticky-footer', StickyFooter);
 Vue.component('nav-header', NavHeader);
 
 /*Vue.use(Vuetify, {
-    components: { 
+    components: {
         VParallax
     },
 });
@@ -69,6 +69,7 @@ var common = [
     "body-dashboard-push",
     "footer-is-on",
     "rightsidebar",
+    'page-is-fullscreen'
 ];
 var _contact = [
     "page-template-default",
@@ -118,7 +119,7 @@ var _about = [
 ];
 router.beforeEach((to, from, next) => {
     document.title = to.meta.title || 'Scarsphoto';
-    document.body.className = '';   
+    document.body.className = '';
     if(to.name == 'contacts.index'){
         document.body.classList.add(..._contact);
     } else if(to.name == 'about.index'){
@@ -129,7 +130,7 @@ router.beforeEach((to, from, next) => {
     next();
 });
 const opts = {}
-const app = new Vue({ 
+const app = new Vue({
     'router': router
     //'vuetify': new Vuetify({})
  })

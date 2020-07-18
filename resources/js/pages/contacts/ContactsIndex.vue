@@ -13,7 +13,7 @@
     </section>
 
 
-    <v-parallax 
+    <v-parallax
         dark
         src="https://imaginem.cloud/kinatrix/wp-content/uploads/sites/30/2018/03/header-7.jpg"
         height="600"
@@ -26,7 +26,7 @@
         </parallax>
         <section class="min">
             <img src="https://imaginem.cloud/kinatrix/wp-content/uploads/sites/30/2018/03/header-7.jpg" v-parallax />
-        </section>         
+        </section>
     -->
         <parallax section-class="Masthead hadouken">
             <img src="https://imaginem.cloud/kinatrix/wp-content/uploads/sites/30/2018/03/header-7.jpg" />
@@ -50,7 +50,7 @@
                                                                         <div class="mtheme-cell-inner">
                                                                             <div class="multi-headlines-outer" style="margin-bottom:38px;">
                                                                                 <div class="multi-headlines-wrap">
-                                                                                    <div id="hadouken" class="multi-headlines animation-multiheadline-standby animated fadeInUpMulti" :class="{ 'animation-action': is_animation_action_active }"> 
+                                                                                    <div id="hadouken" class="multi-headlines animation-multiheadline-standby animated fadeInUpMulti" :class="{ 'animation-action': is_animation_action_active }">
                                                                                         <h1 style="text-align: center;">Contact us</h1>
                                                                                     </div>
                                                                                 </div>
@@ -73,7 +73,7 @@
                                                                                     <br />
                                                                                     New York, NY 10010
                                                                                     <br />
-                                                                                    Email: 
+                                                                                    Email:
                                                                                     <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c5bcaab0b7a0a8a4aca985bcaab0b7a1aaa8a4acabeba6aaa8">[email&#160;protected]</a>
                                                                                     <br />
                                                                                     Phone: +88 (0) 101 0000 000
@@ -184,7 +184,7 @@
 
 <style scoped>
 .hadouken {
-    min-height: 600px !important;
+    min-height: 400px !important;
 }
 
 </style>

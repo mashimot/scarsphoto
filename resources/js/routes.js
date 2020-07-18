@@ -1,22 +1,22 @@
-import AdminGalleriesIndex from './components/admin/galleries/GalleriesIndex.vue';
-import AdminGalleriesEdit from './components/admin/galleries/GalleriesEdit.vue';
-import AdminGalleriesCreate from './components/admin/galleries/GalleriesCreate.vue';
-import AdminContactsIndex from './components/admin/contacts/ContactsIndex.vue';
-import AdminContactsEdit from './components/admin/contacts/ContactsEdit.vue';
-import AdminMediasIndex from './components/admin/medias/MediasIndex.vue';
-import AdminMediasCreate from './components/admin/medias/MediasCreate.vue';
-import ContactsIndex from './components/contacts/ContactsIndex.vue';
-import GalleriesShow from './components/galleries/GalleriesShow.vue';
-import GalleriesIndex from './components/galleries/GalleriesIndex.vue';
-//import PortfolioIndex from './components/portfolio/PortfolioIndex.vue';
-import HomeIndex from './components/home/HomeIndex.vue';
-import AboutIndex from './components/about/AboutIndex.vue';
+import AdminGalleriesIndex from './pages/admin/galleries/GalleriesIndex.vue';
+import AdminGalleriesEdit from './pages/admin/galleries/GalleriesEdit.vue';
+import AdminGalleriesCreate from './pages/admin/galleries/GalleriesCreate.vue';
+import AdminContactsIndex from './pages/admin/contacts/ContactsIndex.vue';
+import AdminContactsEdit from './pages/admin/contacts/ContactsEdit.vue';
+import AdminMediasIndex from './pages/admin/medias/MediasIndex.vue';
+import AdminMediasCreate from './pages/admin/medias/MediasCreate.vue';
+import ContactsIndex from './pages/contacts/ContactsIndex.vue';
+import GalleriesShow from './pages/galleries/GalleriesShow.vue';
+import GalleriesIndex from './pages/galleries/GalleriesIndex.vue';
+//import PortfolioIndex from './pages/portfolio/PortfolioIndex.vue';
+import HomeIndex from './pages/home/HomeIndex.vue';
+import AboutIndex from './pages/about/AboutIndex.vue';
 
 
 const routesWithPrefix = (prefix, routes) => {
     return routes.map(route => {
         route.path = `${prefix}${route.path}`;
-  
+
         return route;
     });
 }

@@ -4,7 +4,7 @@
     <section class="min" :style="{ 'min-height': '30rem' }">
         <img :src="gallery.media_url_gallery_cover" v-parallax="{ start: 0.0, end: 0.1 }" />
     </section>
-    <v-parallax 
+    <v-parallax
         dark
         :src="gallery.media_url_gallery_cover"
         height="600"
@@ -38,7 +38,7 @@
                     </div>
                     <p class="gallery_details__text"></p>
                     <p class="gallery_details__text curator">
-                
+
                         <span class="light">Fotos de</span> <a href=""></a>
                     </p>
                     <div class="avatar_wrapper">
@@ -69,7 +69,7 @@
 		</div>
 		<div class="profile-body" :style="{ 'margin-bottom': '100px' }">
 			<div class="full-aspect-ratio-photo-grid photos_body infinite-scroll photos_body--fetched my-gallery demo-gallery" ref="infinite_scroll">
-            	<a v-for="(img, key) in images.data" :key="key" :title="img.media_title" :href="img.media_url" class="image-link" ref="image_link"> 
+            	<a v-for="(img, key) in images.data" :key="key" :title="img.media_title" :href="img.media_url" class="image-link" ref="image_link">
 					<img :src="img.media_url" :alt="img.media_title" />
 				</a>
 			</div>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-    //import 'justifiedGallery';    
+    //import 'justifiedGallery';
     import magnificPopup from 'magnific-popup';
     import GalleriesList from './../partials/galleries/GalleriesList';
 
@@ -167,7 +167,7 @@
                                         rowHeight: 500,
                                         margins: 6
                                         //lastRow: 'justify'
-                                    }); 
+                                    });
                                 } else {
                                     $(vm.$refs.infinite_scroll).justifiedGallery('norewind');
                                 }
@@ -175,10 +175,10 @@
 
                                 console.log('pos: ' + pos);
                                 if(pos != null){
-                                    $(vm.$refs.image_link).magnificPopup('open', pos);		
+                                    $(vm.$refs.image_link).magnificPopup('open', pos);
                                     $.magnificPopup.proto.next.call(__this);
                                 }
-                                vm.page++;                            
+                                vm.page++;
                             })
                             .finally(() =>{
                                 vm.loading = false;
@@ -251,7 +251,7 @@
 
                                 return false;
                             });
-                    
+
                             var _this = this;
                             $.magnificPopup.instance.next = function() {
                                 var __this = this;
@@ -271,13 +271,13 @@
                                 var __this = this;
                                 __this.wrap.removeClass('mfp-image-loaded');
                                 setTimeout(function() { $.magnificPopup.proto.prev.call(__this); }, 120);
-                            }					
+                            }
                         },
                         beforeClose: function() {
                             this.wrap.off('click.pinhandler');
                         },
-                        imageLoadComplete: function() 
-                        {	
+                        imageLoadComplete: function()
+                        {
                             var self = this;
                             setTimeout(function() { self.wrap.addClass('mfp-image-loaded'); }, 16);
                         }
@@ -301,7 +301,7 @@
             this.images = this.imagesModel();
             this.getGalleries();
         },
-        mounted() {            
+        mounted() {
             this.scroll();
         }
     }
@@ -309,6 +309,6 @@
 <style scoped>
 @import '../../../../node_modules/justifiedGallery/dist/css/justifiedGallery.min.css';
 .hadouken {
-    min-height: 100px !important;
+    min-height: 400px !important;
 }
 </style>
