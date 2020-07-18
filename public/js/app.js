@@ -58388,9 +58388,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _routes_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./routes.js */ "./resources/js/routes.js");
+<<<<<<< HEAD
 /* harmony import */ var _pages_partials_SocialMediaList__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./pages/partials/SocialMediaList */ "./resources/js/pages/partials/SocialMediaList.vue");
 /* harmony import */ var _pages_partials_StickyFooter__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./pages/partials/StickyFooter */ "./resources/js/pages/partials/StickyFooter.vue");
 /* harmony import */ var _pages_core_NavHeader__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./pages/core/NavHeader */ "./resources/js/pages/core/NavHeader.vue");
+=======
+/* harmony import */ var _pages_partials_SocialMediaList__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./pages/partials/SocialMediaList */ "./resources/js/pages/partials/SocialMediaList.vue");
+/* harmony import */ var _pages_partials_StickyFooter__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./pages/partials/StickyFooter */ "./resources/js/pages/partials/StickyFooter.vue");
+/* harmony import */ var _pages_core_NavHeader__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./pages/core/NavHeader */ "./resources/js/pages/core/NavHeader.vue");
+>>>>>>> 12d75164ea9bf70ac41fdb4b0747a4bac91fa8fe
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -58426,9 +58432,15 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(_allardyce_parallax__WEBPACK_IMPO
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_axios__WEBPACK_IMPORTED_MODULE_2___default.a, axios__WEBPACK_IMPORTED_MODULE_5___default.a);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('parallax', vue_parallaxy__WEBPACK_IMPORTED_MODULE_4___default.a);
+<<<<<<< HEAD
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('social-media-list', _pages_partials_SocialMediaList__WEBPACK_IMPORTED_MODULE_8__["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('sticky-footer', _pages_partials_StickyFooter__WEBPACK_IMPORTED_MODULE_9__["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('nav-header', _pages_core_NavHeader__WEBPACK_IMPORTED_MODULE_10__["default"]);
+=======
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('social-media-list', _pages_partials_SocialMediaList__WEBPACK_IMPORTED_MODULE_7__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('sticky-footer', _pages_partials_StickyFooter__WEBPACK_IMPORTED_MODULE_8__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('nav-header', _pages_core_NavHeader__WEBPACK_IMPORTED_MODULE_9__["default"]);
+>>>>>>> 12d75164ea9bf70ac41fdb4b0747a4bac91fa8fe
 /*Vue.use(Vuetify, {
     components: {
         VParallax
@@ -59987,9 +59999,9 @@ var routes = [].concat(_toConsumableArray(routesWithPrefix('/admin', [{
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\js\app.js */"./resources/js/app.js");
-__webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\sass\app.scss */"./resources/sass/app.scss");
-module.exports = __webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\sass\admin.scss */"./resources/sass/admin.scss");
+__webpack_require__(/*! C:\dev\www\scarsphoto\resources\js\app.js */"./resources/js/app.js");
+__webpack_require__(/*! C:\dev\www\scarsphoto\resources\sass\app.scss */"./resources/sass/app.scss");
+module.exports = __webpack_require__(/*! C:\dev\www\scarsphoto\resources\sass\admin.scss */"./resources/sass/admin.scss");
 
 
 /***/ })

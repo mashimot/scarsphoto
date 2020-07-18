@@ -63967,7 +63967,7 @@ var routes = [].concat(_toConsumableArray(routesWithPrefix('/admin', [{
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\js\admin.js */"./resources/js/admin.js");
+module.exports = __webpack_require__(/*! C:\dev\www\scarsphoto\resources\js\admin.js */"./resources/js/admin.js");
 
 
 /***/ })
