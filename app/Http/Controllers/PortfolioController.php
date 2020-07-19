@@ -19,7 +19,7 @@ class PortfolioController extends Controller
      */
     public function index(Request $request)
     {
-        $user = User::where('email', 'like', '%scarsphoto.com.br%')->first();
+        $user = User::where("email", env('ADMIN_MAIL'))->first();
         $request->merge([
             'user_id' => $user->id
         ]);

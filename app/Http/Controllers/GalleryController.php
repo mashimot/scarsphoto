@@ -26,7 +26,7 @@ class GalleryController extends Controller
     public function create(Request $request)
     {
         //Galerias do usuário
-        $user = User::where('email', 'like', '%scarsphoto.com.br%')->first();
+        $user = User::where("email", env('ADMIN_MAIL'))->first();
         $user_id = $user->id;
         $userGalleries = GalleryUser::from('galleries_users as gaus')
         ->join('medias_galleries as mega', 'mega.gallery_user_id', 'gaus.gallery_user_id')
@@ -92,7 +92,7 @@ class GalleryController extends Controller
     public function show($id, Request $request)
     {
         //
-        $user = User::where('email', 'like', '%scarsphoto.com.br%')->first();
+        $user = User::where("email", env('ADMIN_MAIL'))->first();
         $user_id = $user->id;
         $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->first();
         $request->merge([

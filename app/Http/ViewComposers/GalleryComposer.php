@@ -12,7 +12,7 @@ class GalleryComposer
 {
     public function compose($view)
     {
-        $user = User::where('email', 'like', '%scarsphoto.com.br%')->first();
+        $user = User::where("email", env('ADMIN_MAIL'))->first();
         
         $userGalleries = GalleryUser::from('galleries_users as gaus')
         ->where('gaus.user_id', $user->id)

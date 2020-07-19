@@ -28,7 +28,7 @@
         <nav>
             <ul class="mtree">
                 <li v-for="(nav, navIdx) in navList" :key="navIdx" @click="mobileMenuIcon()" class="menu-item">
-                    <router-link :to="{ name: nav.to.name }" v-if="nav.children.length <= 0">{{ nav.name }}</router-link>
+                    <router-link :to="{ name: nav.to.name, params: nav.to.params? nav.to.params: {} }" v-if="nav.children.length <= 0">{{ nav.name }}</router-link>
                 </li>
             </ul>
         </nav>

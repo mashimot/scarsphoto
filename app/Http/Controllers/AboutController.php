@@ -26,21 +26,30 @@ class AboutController extends Controller
     public function create()
     {
         //
-        return 'ABOUT';
-        User::create([
-            'name' => 'Fabio',
-            'email' => 'fabioh@scarsphoto.com.br',
-            'password' => Hash::make('fabio')
-        ]);
-        MediaType::create([
-            'media_type_short_name' => 'im',
-            'media_type_name' => 'images'
-        ]);
-        MediaRoute::create([
-            'media_route_name' => 'galleries',
-            'media_route_has_galleries' => 1,
-            'media_route_description' => 'Galeria de Imagens'
-        ]);
+        $user = User::where("email", env('ADMIN_MAIL'))->first();
+        $users = User::all();
+        if(is_null($user)){
+            User::create([
+                'name' => 'Fabio Hashimoto',
+                'email' => env('ADMIN_MAIL'),
+                'password' => Hash::make('fabio')
+            ]);
+        } 
+        $mediaType = MediaType::where("media_type_short_name", 'im')->first();
+        if(is_null($mediaType)){
+            MediaType::create([
+                'media_type_short_name' => 'im',
+                'media_type_name' => 'images'
+            ]);
+        }
+        $mediaRoute = MediaRoute::where("media_route_name", 'galleries')->first();
+        if(is_null($mediaRoute)){
+            MediaRoute::create([
+                'media_route_name' => 'galleries',
+                'media_route_has_galleries' => 1,
+                'media_route_description' => 'Galeria de Imagens'
+            ]);
+        }
         return 'ABOUT';
         $directories = Storage::disk('public')->directories('fabio');
         try {
@@ -52,7 +61,7 @@ class AboutController extends Controller
             ]);
             DB::commit();
             return 1;
-            $user = User::where('email', 'like', '%scarsphoto.com.br%')->first();
+            $user = User::where("email", env('ADMIN_MAIL'))->first();
             $user_id = $user->id;
             MediaType::create([
                 'media_type_short_name' => 'im',
