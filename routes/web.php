@@ -67,6 +67,7 @@ Route::group([
         'auth'
     ],
 ], function(){
+    Route::put('galleries/{media_id}/update_gallery_cover', 'GalleryController@updateBackgroundCover');
     Route::resource('galleries', 'GalleryController', [
         'as' => 'admin',
         'except' => ['index', 'edit']

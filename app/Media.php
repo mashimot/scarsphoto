@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Helpers\FileHelper;
 use App\MediaRoute;
+use App\GalleryUser;
 use DB;
 
 class Media extends Model
@@ -55,7 +56,7 @@ class Media extends Model
         }
 
         $medias = $medias
-        //->whereIn('meds.media_id', [56, 48])
+        //->whereIn('meds.media_id', [188])
         ->distinct([
             'meds.media_id',
             'meds.media_title',
@@ -97,7 +98,7 @@ class Media extends Model
                     $newMedia->media_nsfw = $media->media_nsfw;
                     $newMedia->user_id = $media->user_id;
                     $newMedia->owner_media_name = $media->owner_media_name;
-                    $newMedia->created_at = $media->created_at;
+                    $newMedia->created_at = $media->created_at;                    
                     $newMedia->is_owner_media = $media->user_id == $request->user_id? true: false;
                     $newMedia->media_galleries = MediaGallery::from('medias_galleries as mega')
                     ->join('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
@@ -106,8 +107,16 @@ class Media extends Model
                     ->select([
                         'gaus.gallery_user_id as gallery_id',
                         'gaus.gallery_user_name as gallery_name',
-                    ])
-                    ->get();
+                    ])->get();
+
+                    $newMedia->banner_galleries = GalleryUser::where('user_id', $request->user_id)
+                    ->where('banner_media_id', $media->media_id)
+                    ->whereNotNull('banner_media_id')
+                    ->select([
+                        'gallery_user_id as gallery_id',
+                        'gallery_user_name as gallery_name'
+                    ])->get();
+
                     $newMedias[] = $newMedia;
                 }
                 

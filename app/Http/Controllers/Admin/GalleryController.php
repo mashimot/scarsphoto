@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\GalleryRequest;
 use App\MediaGallery;
-use App\Gallery;
 use App\GalleryUser;
 use DB;
 use Auth;
@@ -39,7 +38,8 @@ class GalleryController extends Controller
         $user = Auth::user();
         return $this->galleryUser->where('user_id', $user->id)->get([
             'gallery_user_id as gallery_id',
-            'gallery_user_name as gallery_name'
+            'gallery_user_name as gallery_name',
+            'banner_media_id'
         ]);
     }
 
@@ -75,7 +75,8 @@ class GalleryController extends Controller
             $id, 
             [
                 'gallery_user_name as gallery_name', 
-                'gallery_user_id as gallery_id'
+                'gallery_user_id as gallery_id',
+                'banner_media_id'
             ]
         );
     }
@@ -107,6 +108,31 @@ class GalleryController extends Controller
 
         $this->galleryUser->find($id)->update([
             'gallery_user_name' => $request->gallery_name
+        ]);
+    }
+
+    public function updateBackgroundCover(Request $request, $media_id)
+    {
+        //
+        foreach($request->galleries_covers as $galleryCover){
+            $galleryCover = (object) $galleryCover;
+            $galleryUser = GalleryUser::where('gallery_user_id', $galleryCover->gallery_id);
+            if(!is_null($galleryUser->first())){
+                if($galleryCover->is_checked){
+                    $galleryUser->update([
+                        'banner_media_id' => $media_id
+                    ]);
+                } else {
+                    $galleryUser->where('banner_media_id', $media_id)
+                    ->update([
+                        'banner_media_id' => null
+                    ]);
+                }
+            }
+        }
+        
+        return response()->json([
+            'success' => true
         ]);
     }
 

@@ -12,6 +12,7 @@ import VueAxios from 'vue-axios';
 import axios from 'axios';
 import { routes } from './routes.js';
 import Toasted from 'vue-toasted';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
 
 /**
@@ -29,9 +30,10 @@ Vue.prototype.$http = axios;
 Vue.component('pagination', require('laravel-vue-pagination'));
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
-Vue.use(Toasted)
+Vue.use(Toasted);
+Vue.use(BootstrapVue);
+Vue.use(IconsPlugin);
 
-// options to the toast
 var options = [{
     type : 'success',
     theme: "outline", 
