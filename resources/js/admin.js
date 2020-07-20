@@ -36,16 +36,16 @@ Vue.use(IconsPlugin);
 
 var options = [{
     type : 'success',
-    theme: "outline", 
-    position: "top-center", 
+    theme: "outline",
+    position: "top-center",
     fullWidth: true,
     //icon : 'error_outline',
     duration : 5000,
     message: 'Data has been saved successfully'
 },{
     type : 'delete',
-    theme: "outline", 
-    position: "top-center", 
+    theme: "outline",
+    position: "top-center",
     fullWidth: true,
     //icon : 'error_outline',
     duration : 5000,
@@ -53,8 +53,8 @@ var options = [{
 },
 {
     type: 'error',
-    theme: "outline", 
-    position: "top-center", 
+    theme: "outline",
+    position: "top-center",
     fullWidth: true,
     //icon : 'error_outline',
     duration : 5000,
@@ -67,7 +67,7 @@ var options = [{
             if(! payload.message) {
                 return option.message;
             }
-            
+
             // if there is a message show it with the message
             return payload.message;
         },
@@ -81,7 +81,7 @@ const router = new VueRouter({
     mode: 'history',
     routes: routes
 });
-const app = new Vue({ 
+const app = new Vue({
     'router': router
  })
 .$mount('#app');

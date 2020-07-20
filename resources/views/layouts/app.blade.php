@@ -18,12 +18,12 @@
         'apiToken' => $currentUser->api_token ?? null,
         '_BASE_URL' => URL::to('/')
     ]) !!};
-    </script>  
+    </script>
     <script src="{{ asset('js/admin.js') }}" defer></script>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-    
+
     <!-- Styles -->
     <style>
     .card-img-top {
@@ -63,42 +63,34 @@
                             <router-link :to="{ name: 'admin.contacts.index' }" class="nav-link">
                                 Contatos
                             </router-link>
-                        </li>                                                
+                        </li>
                     </ul>
                     @endauth
-
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ml-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                            </li>
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }} <span class="caret"></span>
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
+                    <b-nav class="navbar-nav ml-auto" pills>
+                    @guest
+                        <b-nav-item href="{{ route('login') }}">
+                            {{ __('Login') }}
+                        </b-nav-item>
+                        @if (Route::has('register'))
+                            <b-nav-item href="{{ route('register') }}">
+                                {{ __('Register') }}
+                            </b-nav-item>
+                        @endif
+                    @else
+                        <b-nav-item-dropdown id="dropdown-1" text="{{ Auth::user()->name }}" class="m-md-2">
+                            <b-dropdown-item
+                                href="{{ route('logout') }}"
+                                onclick="event.preventDefault();
+                                document.getElementById('logout-form').submit();"
+                            >
+                                {{ __('Logout') }}
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            </b-dropdown-item>
+                        </b-nav-item-dropdown>
+                    @endguest
+                    </b-nav>
                 </div>
             </div>
         </nav>

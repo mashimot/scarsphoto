@@ -4,35 +4,41 @@
         <ul class="nav nav-tabs nav-pills">
             <li  v-for="(gallery, idxgallery) in galleries" :key="idxgallery" :id="`tabs-${idxgallery}`" class="nav-item">
                 <a @click.prevent="changeQuery(gallery.gallery_id)"
-                    href="#" 
-                    data-toggle="tab" 
+                    href="#"
+                    data-toggle="tab"
                     class="nav-link small text-uppercase"
+                    :class="{ 'active': $route.query.gallery_id == gallery.gallery_id }"
                 >{{ gallery.gallery_name }}</a>
             </li>
             <li class="nav-item">
                 <a @click.prevent="changeQuery(0)"
                     href="#"
-                    data-toggle="tab" 
+                    data-toggle="tab"
                     class="nav-link small text-uppercase"
+                    :class="{ 'active': $route.query.gallery_id == 0 }"
                 >Sem Categoria</a>
             </li>
             <li class="nav-item">
                 <a @click.prevent="refreshPage()"
                     href="#"
-                    data-toggle="tab" 
-                    class="nav-link small text-uppercase active"
+                    data-toggle="tab"
+                    class="nav-link small text-uppercase"
+                    :class="{ 'active': typeof $route.query.gallery_id == 'undefined' }"
                 >Todas</a>
             </li>
             <li class="nav-item">
-                <router-link :to="{ name: 'admin.medias.create' }" data-toggle="tab" class="nav-link small text-uppercase">
+                <router-link
+                    :to="{ name: 'admin.medias.create' }"
+                    data-toggle="tab" class="nav-link small text-uppercase"
+                >
                     Create
                 </router-link>
-            </li>        
+            </li>
         </ul>
     </section>
 
     <h1 v-if="loading">Loading...</h1>
-    <b-modal id="modal-1" title="Definir Imagem de Fundo" hide-footer> 
+    <b-modal id="modal-1" title="Definir Imagem de Fundo" hide-footer>
         <form @submit.prevent="onSubmitGalleryCover()">
             <div class="form-group">
                 <label for="galleries_covers">Definir Imagem de Fundo</label>
@@ -49,18 +55,18 @@
             </div>
             <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
         </form>
-    </b-modal>     
+    </b-modal>
     <div class="row">
         <div class="col-9" :disabled="loading">
             <div class="row no-gutters">
                 <div v-for="(m, idxmedia) in medias.data" :key="idxmedia" class="col-md-2 mb-2">
-                    <div 
+                    <div
                         class="card h-100"
-                        :class="{ 
+                        :class="{
                             'border border-dark': media.media_id == m.media_id,
                             'bg-primary text-white': m.banner_galleries && m.banner_galleries.length > 0
-                        }" 
-                        @click="editFile(m)" 
+                        }"
+                        @click="editFile(m)"
                         style="cursor: pointer;"
                     >
                         <div class="card-header">
@@ -70,7 +76,7 @@
                             <p>Owner: {{ m.owner_media_name }}</p>
                             <b-button @click="setImageToBackgroundCover(m.media_id)" class="btn-sm">Definir Imagem de Fundo</b-button>
 
-                            <div class="form-group">         
+                            <div class="form-group">
                                 <h6 v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
                                     <span class="badge badge-primary">{{ media_gallery.gallery_name }}</span>
                                 </h6>
@@ -124,9 +130,9 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group" v-if="media.is_owner_media">
-                        <label for="media_nsfw">Conteúdo Adulto?</label>   
+                        <label for="media_nsfw">Conteúdo Adulto?</label>
                         <div class="custom-control custom-radio">
                             <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
                             <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
@@ -138,14 +144,14 @@
                         </div>
                     </div>
                     <div class="mt-2">
-                        <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>                        
+                        <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
                     </div>
                     <div class="mt-2">
                         <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
                     </div>
                 </fieldset>
-            </form>            
-        </div>                       
+            </form>
+        </div>
     </div>
     <pagination :data="medias" @pagination-change-page="getAll"></pagination>
  </div>
@@ -207,7 +213,12 @@
                 this.formGalleryCover.put(`${Laravel._BASE_URL}/admin/galleries/${this.media_id}/update_gallery_cover`)
                 .then(r => {
                     if(r.success){
-                        this.$bvModal.hide();
+                        this.$bvModal.hide('modal-1');
+                        let page = 1;
+                        if(typeof this.$route.query.page != 'undefined'){
+                            page = this.$route.query.page;
+                        }
+                        this.getAll(page);
                     }
                 });
             },
@@ -273,7 +284,7 @@
                     this.axios.spread((galleries, medias) => {
                         console.log(medias);
                         this.medias = medias;
-                        this.galleries = galleries;                
+                        this.galleries = galleries;
                     })
                 )
                 .finally(() => {
@@ -283,7 +294,7 @@
             getMedias(page){
                 let query = Object.assign({}, this.$route.query);
                 let url = `${Laravel._BASE_URL}/admin/medias/galleries`;
-                
+
                 if(typeof page == 'undefined'){
                     if(typeof this.$route.query.page != 'undefined'){
                         query.page = this.$route.query.page;
@@ -295,7 +306,7 @@
                 if(typeof this.$route.query.gallery_id != 'undefined'){
                     url = `${Laravel._BASE_URL}/admin/medias/galleries/${this.$route.query.gallery_id}`;
                 }
-            
+
                 //this.$router.push({ query: Object.assign({}, this.$route.query, queryParams) });
                 //this.$router.push({ path : '/admin/medias', query : queryParams });
                 //this.loading = true;
