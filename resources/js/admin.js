@@ -13,7 +13,7 @@ import axios from 'axios';
 import { routes } from './routes.js';
 import Toasted from 'vue-toasted';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-
+import { SelfBuildingSquareSpinner } from 'epic-spinners';
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -28,11 +28,14 @@ axios.defaults.headers.common = {
 };
 Vue.prototype.$http = axios;
 Vue.component('pagination', require('laravel-vue-pagination'));
+Vue.component('self-building-square-spinner', SelfBuildingSquareSpinner);
 Vue.use(VueRouter);
 Vue.use(VueAxios, axios);
 Vue.use(Toasted);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
+//Vue.use(AtomSpinner);
+
 
 var options = [{
     type : 'success',

@@ -1,7 +1,7 @@
 <template>
 <div>
     <section id="nav-galleries">
-        <ul class="nav nav-tabs nav-pills">
+        <ul class="nav nav-tabs navbar-dark">
             <li  v-for="(gallery, idxgallery) in galleries" :key="idxgallery" :id="`tabs-${idxgallery}`" class="nav-item">
                 <a @click.prevent="changeQuery(gallery.gallery_id)"
                     href="#"
@@ -36,8 +36,6 @@
             </li>
         </ul>
     </section>
-
-    <h1 v-if="loading">Loading...</h1>
     <b-modal id="modal-1" title="Definir Imagem de Fundo" hide-footer>
         <form @submit.prevent="onSubmitGalleryCover()">
             <div class="form-group">
@@ -56,109 +54,119 @@
             <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
         </form>
     </b-modal>
-    <div class="row">
-        <div class="col-9" :disabled="loading">
-            <div class="row no-gutters">
-                <div v-for="(m, idxmedia) in medias.data" :key="idxmedia" class="col-md-2 mb-2">
-                    <div
-                        class="card h-100"
-                        :class="{
-                            'border border-dark': media.media_id == m.media_id,
-                            'bg-primary text-white': m.banner_galleries && m.banner_galleries.length > 0
-                        }"
-                        @click="editFile(m)"
-                        style="cursor: pointer;"
-                    >
-                        <div class="card-header">
-                            <p>#{{ m.media_id }}</p>
-
-                            <p>Title: {{ m.media_title }}</p>
-                            <p>Owner: {{ m.owner_media_name }}</p>
-                            <b-button @click="setImageToBackgroundCover(m.media_id)" class="btn-sm">Definir Imagem de Fundo</b-button>
-
-                            <div class="form-group">
-                                <h6 v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
-                                    <span class="badge badge-primary">{{ media_gallery.gallery_name }}</span>
-                                </h6>
-                            </div>
-                            <div class="btn-group" role="group">
-                                <!--
-                                <router-link :to="{ name: 'admin.medias_galleries.edit', params: { id: m.media_id } }" class="btn btn-outline-primary">
-                                    Edit Galleries
-                                </router-link>
-                                <router-link :to="{ name: 'admin.medias.edit', params: { id: m.media_id } }" v-if="m.is_owner_media" class="btn btn-outline-success">
-                                    Edit
-                                </router-link>
-                                -->
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <img v-bind:src="`${m.media_url}`" alt="" class="card-img-top img-fluid">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="card"  v-if="media.media_id == null">
-                <div class="card-body">
-                    Seleciona uma Imagem
-                </div>
-            </div>
-            <form @submit.prevent="onSubmitMedia" v-if="media.media_id != null">
-                <fieldset :disabled="loading">
-                    <div class="form-group" v-if="media.is_owner_media">
-                        <label for="media_title">Título</label>
-                        <input id="media_title" type="text" class="form-control" v-model="media.media_title" :class="{ 'is-invalid': formMedia.errors.has('media_title') }">
-                        <div v-if="formMedia.errors.has('media_title')" v-text="formMedia.errors.first('media_title')" class="invalid-feedback"></div>
-                    </div>
-                    <div class="form-group" v-if="media.is_owner_media">
-                        <label for="media_comment">Comentários</label>
-                        <input id="media_comment" type="text" class="form-control" v-model="media.media_comment" :class="{ 'is-invalid': formMedia.errors.has('media_comment') }">
-                        <div v-if="formMedia.errors.has('media_comment')" v-text="formMedia.errors.first('media_comment')" class="invalid-feedback"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="media_galleries">Galerias</label>
-                        <div v-for="(gallery, gallery_idx) in media.media_galleries" :key="`media_gallery-${gallery_idx}`">
-                            <div class="form-check">
-                                <label class="form-check-label">
-                                    <input type="checkbox"
-                                        v-on:change="toggle(gallery)"
-                                        v-bind:checked="gallery.is_checked"
-                                    > {{ gallery.gallery_name }}
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" v-if="media.is_owner_media">
-                        <label for="media_nsfw">Conteúdo Adulto?</label>
-                        <div class="custom-control custom-radio">
-                            <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
-                            <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
-                        </div>
-                        <div class="custom-control custom-radio">
-                            <input type="radio" id="media_nsfw-nao" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`" :value="0" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
-                            <label class="custom-control-label" for="media_nsfw-nao">Não</label>
-                            <div v-if="formMedia.errors.has('media_nsfw')" v-text="formMedia.errors.first('media_nsfw')" class="invalid-feedback"></div>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
-                    </div>
-                    <div class="mt-2">
-                        <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+    <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
+        <self-building-square-spinner
+            :animation-duration="2000"
+            :size="60"
+            color="#ff1d5e"
+        >
+        </self-building-square-spinner>
+        Loading...
     </div>
-    <pagination :data="medias" @pagination-change-page="getAll"></pagination>
+    <main class="main-content" :style="{ 'opacity': loading? '0.3': '1'}">
+        <div class="row no-gutters">
+            <div class="col-9" :disabled="loading">
+                <div class="row no-gutters">
+                    <div v-for="(m, idxmedia) in medias.data" :key="idxmedia" class="col-md-3 mb-2">
+                        <div
+                            class="card h-100"
+                            :class="{
+                                'border border-dark': media.media_id == m.media_id,
+                                'bg-light': media.media_id == m.media_id,
+                            }"
+                            :style="{
+                                'cursor': 'pointer',
+                                //'opacity': media.media_id == m.media_id? '1': '0.8'
+                            }"
+                            @click="editFile(m)"
+                        >
+                            <a href="#/" class="position-relative">
+                                <img class="card-img-top" v-bind:src="`${m.media_url}`" alt="Card image cap">
+                                <div class="card-img-overlay" v-if="m.banner_galleries && m.banner_galleries.length > 0">
+                                    <b-icon icon="asterisk" font-scale="2" class="border rounded p-2 text-warning"></b-icon>
+                                </div>
+                            </a>
+                            <div 
+                                class="card-body"
+                                :class="{
+                                    //'bg-warning': (m.banner_galleries && m.banner_galleries.length > 0)
+                                }"
+                            >
+                                <b-button @click="setImageToBackgroundCover(m.media_id)" class="btn-sm">Definir como Imagem de Fundo</b-button>
+                                <p class="card-text">Title: {{ m.media_title }}</p>
+                                <p class="card-text">Owner: {{ m.owner_media_name }}</p>
+                                <div v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
+                                    <span class="badge badge-primary">{{ media_gallery.gallery_name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="card sticky-top">
+                    <div class="card-body">
+                        <div class="alert alert-danger" v-if="media.media_id == null">
+                            Seleciona uma Imagem
+                        </div>
+                        <form @submit.prevent="onSubmitMedia" v-if="media.media_id != null">
+                            <fieldset :disabled="loading">
+                                <div class="form-group" v-if="media.is_owner_media">
+                                    <label for="media_title">Título</label>
+                                    <input id="media_title" type="text" class="form-control" v-model="media.media_title" :class="{ 'is-invalid': formMedia.errors.has('media_title') }">
+                                    <div v-if="formMedia.errors.has('media_title')" v-text="formMedia.errors.first('media_title')" class="invalid-feedback"></div>
+                                </div>
+                                <div class="form-group" v-if="media.is_owner_media">
+                                    <label for="media_comment">Comentários</label>
+                                    <input id="media_comment" type="text" class="form-control" v-model="media.media_comment" :class="{ 'is-invalid': formMedia.errors.has('media_comment') }">
+                                    <div v-if="formMedia.errors.has('media_comment')" v-text="formMedia.errors.first('media_comment')" class="invalid-feedback"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="media_galleries">Galerias</label>
+                                    <div v-for="(gallery, gallery_idx) in media.media_galleries" :key="`media_gallery-${gallery_idx}`">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox"
+                                                    v-on:change="toggle(gallery)"
+                                                    v-bind:checked="gallery.is_checked"
+                                                > {{ gallery.gallery_name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" v-if="media.is_owner_media">
+                                    <label for="media_nsfw">Conteúdo Adulto?</label>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
+                                        <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="media_nsfw-nao" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`" :value="0" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
+                                        <label class="custom-control-label" for="media_nsfw-nao">Não</label>
+                                        <div v-if="formMedia.errors.has('media_nsfw')" v-text="formMedia.errors.first('media_nsfw')" class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <pagination :data="medias" @pagination-change-page="getAll"></pagination>
+    </main>
  </div>
 </template>
 
 <script>
     import Form from 'form-backend-validation';
+//    import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 
     export default {
         data() {
@@ -193,17 +201,23 @@
                 //this.axios.get(`${Laravel._BASE_URL}/admin/medias/${this.media.media_id}/galleries`)
                 this.media_id = media_id;
                 this.galleries_covers = [];
-                this.getGalleries()
-                .then(galleries => {
-                    galleries.forEach((gallery, gIdx) => {
-                        let is_checked = false;
-                        if(this.media_id == gallery.banner_media_id){
-                            is_checked = true;
-                        }
-                        this.galleries_covers.push({...gallery, is_checked: is_checked});
+                if(!this.loading){
+                    this.loading = true;
+                    this.getGalleries()
+                    .then(galleries => {
+                        galleries.forEach((gallery, gIdx) => {
+                            let is_checked = false;
+                            if(this.media_id == gallery.banner_media_id){
+                                is_checked = true;
+                            }
+                            this.galleries_covers.push({...gallery, is_checked: is_checked});
+                        });
+                        this.$bvModal.show('modal-1');
+                    })
+                    .finally(() =>{
+                        this.loading = false;
                     });
-                    this.$bvModal.show('modal-1');
-                });
+                }
                 console.log(this.galleries_covers);
             },
             onSubmitGalleryCover(){
@@ -275,6 +289,7 @@
                 this.getAll();
             },
             getAll(page = 1){
+                this.media = {};
                 this.loading = true;
                 this.axios.all([
                     this.getGalleries(),

@@ -39,7 +39,7 @@
     </div>
     <div class="stickymenu-zone outer-wrap">
         <div class="outer-header-wrap clearfix">
-            <nav>
+    <nav>
                 <div class="mainmenu-navigation">
                     <div class="header-logo-section">
                         <div class="logo">
