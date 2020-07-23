@@ -1,6 +1,14 @@
 <template>
 <div>
-    <h1 v-if="loading">Loading...</h1>
+    <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
+        <self-building-square-spinner
+            :animation-duration="2000"
+            :size="30"
+            color="#ff1d5e"
+        >
+        </self-building-square-spinner>
+        Loading...
+    </div>
     <div class="row">
         <div class="col-md-9">
             <div class="form-group">
@@ -14,12 +22,12 @@
                             type="file"
                             multiple
                             accept="image/jpeg"
-                            class="custom-file-input" 
+                            class="custom-file-input"
                             @change="processFile($event)"
                         />
                         <label class="custom-file-label" for="custom-file-input" v-text="attachment.name">Choose file...</label>
                         <div v-if="form.errors.has('file')" v-text="form.errors.first('file')" class="invalid-feedback"></div>
-                    </div>            
+                    </div>
                 </label>
             </div>
             <div class="row no-gutters">
@@ -36,7 +44,7 @@
                                 </svg>
                                 <b>Corrigir o erro</b>
                             </div>
-                            <p>Titulo: {{ m.media_title }}</p>  
+                            <p>Titulo: {{ m.media_title }}</p>
                             <img class="preview card-img-top img-fluid" :ref="'media_files'" />
 
                         </div>
@@ -46,7 +54,7 @@
         </div>
         <div class="col-md-3">
             <div class="alert alert-danger" v-if="media.errors && objectLen(media.errors) > 0">
-                <div v-for="error in media.errors">
+                <div v-for="(error, errorIdx) in media.errors"  :key="`error-${errorIdx}`">
                     {{ error }}
                 </div>
             </div>
@@ -75,7 +83,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="media_nsfw">Conteúdo Adulto?</label>   
+                    <label for="media_nsfw">Conteúdo Adulto?</label>
                     <div class="custom-control custom-radio">
                         <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': form.errors.has('media_nsfw') }"/>
                         <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
@@ -92,7 +100,7 @@
             </form>
         </div>
     </div>
-</div>    
+</div>
 </template>
 
 <script>
@@ -107,7 +115,7 @@
                 medias: [],
                 media: {
                     media_id: null,
-                    media_title: '', 
+                    media_title: '',
                     media_comment: '',
                     media_url: '',
                     media_nsfw: 0,
@@ -121,7 +129,7 @@
                 loading: false
             }
         },
-        created() {            
+        created() {
             this.getGalleries();
         },
         methods: {
@@ -141,7 +149,7 @@
                 this.axios.get(`${Laravel._BASE_URL}/admin/galleries/create`)
                     .then(response => {
                         this.galleries = response.data;
-                    });      
+                    });
             },
             onSubmit() {
                 this.loading = true;
@@ -169,15 +177,15 @@
                                     errors[key] = _errors[key];
                                 }
                             }
-                            this.medias[media_index] = {...media, 
+                            this.medias[media_index] = {...media,
                                 errors: errors
                             };
-                            
+
                             if(this.media.media_id == media_index){
                                 this.media = this.medias[media_index];
                             }
                         });
-                        
+
                     })
                     .finally(() => {
                         this.loading = false;
@@ -186,7 +194,7 @@
             deleteFile(index){
                 let media = {
                     media_id: null,
-                    media_title: '', 
+                    media_title: '',
                     media_comment: '',
                     media_url: '',
                     media_nsfw: 0,
@@ -215,7 +223,7 @@
                 /*this.medias.push({
                     ...{
                         media_id: null,
-                        media_title: '', 
+                        media_title: '',
                         media_comment: '',
                         media_url: '',
                         media_nsfw: 0,
@@ -235,12 +243,12 @@
             uploadImage(e) {
                 let vm = this;
                 var files = e.target.files;
-             
+
                 for (let i = 0; i < files.length; i++) {
                     console.log(files[i]);
                     this.medias.push({
                         media_id: null,
-                        media_title: files[i].name, 
+                        media_title: files[i].name,
                         media_comment: 'cm1',
                         media_url: '',
                         media_nsfw: 0,
@@ -271,7 +279,7 @@
                         let file = files[i];
                         this.medias.push({
                             media_id: null,
-                            media_title: file.name, 
+                            media_title: file.name,
                             media_comment: 'cm1',
                             media_url: '',
                             media_nsfw: 0,

@@ -39,6 +39,20 @@
     <b-modal id="modal-1" title="Definir Imagem de Fundo" hide-footer>
         <form @submit.prevent="onSubmitGalleryCover()">
             <div class="form-group">
+                <label for="bg_pages">Imagem Fundo Páginas</label>
+                <pre>{{ bg_pages_choices }}</pre>
+                <div v-for="(bg_page, bg_page_idx) in bg_pages" :key="`bg_page-${bg_page_idx}`">
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="checkbox"
+                                :value="bg_page"
+                                v-model="bg_pages_choices"
+                            > {{ bg_page }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="galleries_covers">Definir Imagem de Fundo</label>
                 <div v-for="(gallery_cover, gallery_cover_idx) in galleries_covers" :key="`media_gallery_cover-${gallery_cover_idx}`">
                     <div class="form-check">
@@ -57,7 +71,7 @@
     <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
         <self-building-square-spinner
             :animation-duration="2000"
-            :size="60"
+            :size="30"
             color="#ff1d5e"
         >
         </self-building-square-spinner>
@@ -83,21 +97,40 @@
                             <a href="#/" class="position-relative">
                                 <img class="card-img-top" v-bind:src="`${m.media_url}`" alt="Card image cap">
                                 <div class="card-img-overlay" v-if="m.banner_galleries && m.banner_galleries.length > 0">
-                                    <b-icon icon="asterisk" font-scale="2" class="border rounded p-2 text-warning"></b-icon>
+                                    <b-icon icon="asterisk" font-scale="2.5" class="rounded-circle bg-warning text-warning"></b-icon>
                                 </div>
                             </a>
-                            <div 
+                            <div
                                 class="card-body"
                                 :class="{
                                     //'bg-warning': (m.banner_galleries && m.banner_galleries.length > 0)
                                 }"
                             >
-                                <b-button @click="setImageToBackgroundCover(m.media_id)" class="btn-sm">Definir como Imagem de Fundo</b-button>
-                                <p class="card-text">Title: {{ m.media_title }}</p>
-                                <p class="card-text">Owner: {{ m.owner_media_name }}</p>
-                                <div v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
-                                    <span class="badge badge-primary">{{ media_gallery.gallery_name }}</span>
-                                </div>
+                                <p>
+                                    <kbd v-if="m.media_nsfw == 1" class="col-md-12">
+                                        <span class="text-danger">18+</span>
+                                    </kbd>
+                                </p>
+                                <p class="card-text">
+                                    Title: {{ m.media_title }}<br/>
+                                    Owner: {{ m.owner_media_name }}
+                                </p>
+                                <b-list-group>
+                                    <b-list-group-item v-if="m.banner_galleries && m.banner_galleries.length > 0">
+                                        <h5 class="card-title">Imagem de Fundo</h5>
+
+                                        <span v-for="(banner_gallery, banner_gallery_idx) in m.banner_galleries" :key="`banner_gallery-${banner_gallery_idx}`" class="text-danger">
+                                            <span class="badge badge-warning mr-1">{{ banner_gallery.gallery_name }}</span>
+                                        </span>
+                                    </b-list-group-item>
+                                    <b-list-group-item v-if="m.media_galleries && m.media_galleries.length > 0">
+                                        <h5 class="card-title">Galerias</h5>
+
+                                        <span v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
+                                            <span class="badge badge-primary mr-1">{{ media_gallery.gallery_name }}</span>
+                                        </span>
+                                    </b-list-group-item>
+                                </b-list-group>
                             </div>
                         </div>
                     </div>
@@ -109,52 +142,57 @@
                         <div class="alert alert-danger" v-if="media.media_id == null">
                             Seleciona uma Imagem
                         </div>
-                        <form @submit.prevent="onSubmitMedia" v-if="media.media_id != null">
-                            <fieldset :disabled="loading">
-                                <div class="form-group" v-if="media.is_owner_media">
-                                    <label for="media_title">Título</label>
-                                    <input id="media_title" type="text" class="form-control" v-model="media.media_title" :class="{ 'is-invalid': formMedia.errors.has('media_title') }">
-                                    <div v-if="formMedia.errors.has('media_title')" v-text="formMedia.errors.first('media_title')" class="invalid-feedback"></div>
-                                </div>
-                                <div class="form-group" v-if="media.is_owner_media">
-                                    <label for="media_comment">Comentários</label>
-                                    <input id="media_comment" type="text" class="form-control" v-model="media.media_comment" :class="{ 'is-invalid': formMedia.errors.has('media_comment') }">
-                                    <div v-if="formMedia.errors.has('media_comment')" v-text="formMedia.errors.first('media_comment')" class="invalid-feedback"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="media_galleries">Galerias</label>
-                                    <div v-for="(gallery, gallery_idx) in media.media_galleries" :key="`media_gallery-${gallery_idx}`">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input type="checkbox"
-                                                    v-on:change="toggle(gallery)"
-                                                    v-bind:checked="gallery.is_checked"
-                                                > {{ gallery.gallery_name }}
-                                            </label>
+                        <div v-if="media.media_id != null">
+                            <div class="mb-2">
+                                <b-button @click="setImageToBackgroundCover(media.media_id)" squared block variant="primary">Definir como Imagem de Fundo</b-button>
+                            </div>
+                            <form @submit.prevent="onSubmitMedia">
+                                <fieldset :disabled="loading">
+                                    <div class="form-group" v-if="media.is_owner_media">
+                                        <label for="media_title">Título</label>
+                                        <input id="media_title" type="text" class="form-control" v-model="media.media_title" :class="{ 'is-invalid': formMedia.errors.has('media_title') }">
+                                        <div v-if="formMedia.errors.has('media_title')" v-text="formMedia.errors.first('media_title')" class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="form-group" v-if="media.is_owner_media">
+                                        <label for="media_comment">Comentários</label>
+                                        <input id="media_comment" type="text" class="form-control" v-model="media.media_comment" :class="{ 'is-invalid': formMedia.errors.has('media_comment') }">
+                                        <div v-if="formMedia.errors.has('media_comment')" v-text="formMedia.errors.first('media_comment')" class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="media_galleries">Galerias</label>
+                                        <div v-for="(gallery, gallery_idx) in media.media_galleries" :key="`media_gallery-${gallery_idx}`">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input type="checkbox"
+                                                        v-on:change="toggle(gallery)"
+                                                        v-bind:checked="gallery.is_checked"
+                                                    > {{ gallery.gallery_name }}
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="form-group" v-if="media.is_owner_media">
-                                    <label for="media_nsfw">Conteúdo Adulto?</label>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
-                                        <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
+                                    <div class="form-group" v-if="media.is_owner_media">
+                                        <label for="media_nsfw">Conteúdo Adulto?</label>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
+                                            <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
+                                        </div>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="media_nsfw-nao" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`" :value="0" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
+                                            <label class="custom-control-label" for="media_nsfw-nao">Não</label>
+                                            <div v-if="formMedia.errors.has('media_nsfw')" v-text="formMedia.errors.first('media_nsfw')" class="invalid-feedback"></div>
+                                        </div>
                                     </div>
-                                    <div class="custom-control custom-radio">
-                                        <input type="radio" id="media_nsfw-nao" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`" :value="0" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
-                                        <label class="custom-control-label" for="media_nsfw-nao">Não</label>
-                                        <div v-if="formMedia.errors.has('media_nsfw')" v-text="formMedia.errors.first('media_nsfw')" class="invalid-feedback"></div>
+                                    <div class="mt-2">
+                                        <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
                                     </div>
-                                </div>
-                                <div class="mt-2">
-                                    <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
-                                </div>
-                                <div class="mt-2">
-                                    <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
-                                </div>
-                            </fieldset>
-                        </form>
+                                    <div class="mt-2">
+                                        <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -183,6 +221,8 @@
                 },
                 loading: true,
                 galleries: [],
+                bg_pages: ['about', 'contact'],
+                bg_pages_choices: [],
                 galleries_covers: [],
                 current_gallery_id: -1,
                 media_id: null
@@ -197,32 +237,46 @@
         },
         methods: {
             setImageToBackgroundCover(media_id){
-                //alert(media_id);
-                //this.axios.get(`${Laravel._BASE_URL}/admin/medias/${this.media.media_id}/galleries`)
-                this.media_id = media_id;
-                this.galleries_covers = [];
-                if(!this.loading){
-                    this.loading = true;
-                    this.getGalleries()
+                let vm = this;
+                vm.media_id = media_id;
+                vm.galleries_covers = [];
+                vm.bg_pages_choices = [];
+                if(!vm.loading){
+                    vm.loading = true;
+                    vm.axios.get(`${Laravel._BASE_URL}/storage/bg-pages.json`)
+                    .then(result => {
+                        if(typeof result.data != 'undefined'){
+                            for(let key in result.data){
+                                let r = result.data[key];
+                                console.log(key, r, media_id);
+
+                                if(r == media_id){
+                                    vm.bg_pages_choices.push(key);
+                                }
+                            }
+                        }
+                    });
+
+                    vm.getGalleries()
                     .then(galleries => {
                         galleries.forEach((gallery, gIdx) => {
                             let is_checked = false;
-                            if(this.media_id == gallery.banner_media_id){
+                            if(vm.media_id == gallery.banner_media_id){
                                 is_checked = true;
                             }
-                            this.galleries_covers.push({...gallery, is_checked: is_checked});
+                            vm.galleries_covers.push({...gallery, is_checked: is_checked});
                         });
-                        this.$bvModal.show('modal-1');
+                        vm.$bvModal.show('modal-1');
                     })
                     .finally(() =>{
-                        this.loading = false;
+                        vm.loading = false;
                     });
                 }
-                console.log(this.galleries_covers);
             },
             onSubmitGalleryCover(){
                 this.formGalleryCover = new Form({
-                    galleries_covers: this.galleries_covers
+                    galleries_covers: this.galleries_covers,
+                    bg_pages_choices: this.bg_pages_choices
                 });
                 this.formGalleryCover.put(`${Laravel._BASE_URL}/admin/galleries/${this.media_id}/update_gallery_cover`)
                 .then(r => {

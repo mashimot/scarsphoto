@@ -34,7 +34,7 @@ class AboutController extends Controller
                 'email' => env('ADMIN_MAIL'),
                 'password' => Hash::make('fabio')
             ]);
-        } 
+        }
         $mediaType = MediaType::where("media_type_short_name", 'im')->first();
         if(is_null($mediaType)){
             MediaType::create([

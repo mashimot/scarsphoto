@@ -1,7 +1,14 @@
 <template>
 <div>
-    <h1 v-if="loading">Loading..</h1>
- 
+    <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
+        <self-building-square-spinner
+            :animation-duration="2000"
+            :size="30"
+            color="#ff1d5e"
+        >
+        </self-building-square-spinner>
+        Loading...
+    </div>
     <div class="row" v-if="!loading">
         <div class="col-md-4 mb-2">
             <div class="card h-100 justify-content-center align-items-center">
@@ -20,7 +27,7 @@
                     <div class="btn-group" role="group">
                         <router-link :to="{ name: 'admin.galleries.edit', params: { id: gallery.gallery_id } }" class="btn btn-primary">
                             Edit
-                        </router-link>                               
+                        </router-link>
                         <button class="btn btn-danger" @click="deleteGallery(gallery.gallery_id)">Delete</button>
                     </div>
                 </div>

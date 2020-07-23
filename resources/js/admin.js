@@ -39,7 +39,7 @@ Vue.use(IconsPlugin);
 
 var options = [{
     type : 'success',
-    theme: "outline",
+    //theme: "outline",
     position: "top-center",
     fullWidth: true,
     //icon : 'error_outline',
@@ -47,7 +47,7 @@ var options = [{
     message: 'Data has been saved successfully'
 },{
     type : 'delete',
-    theme: "outline",
+    //theme: "outline",
     position: "top-center",
     fullWidth: true,
     //icon : 'error_outline',
@@ -56,7 +56,7 @@ var options = [{
 },
 {
     type: 'error',
-    theme: "outline",
+    //theme: "outline",
     position: "top-center",
     fullWidth: true,
     //icon : 'error_outline',

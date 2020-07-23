@@ -10,8 +10,16 @@
             <button type="submit" class="btn btn-primary">Update</button>
         </fieldset>
     </form>
-    <h1 v-if="loading">Loading...</h1>
-</div>    
+    <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
+        <self-building-square-spinner
+            :animation-duration="2000"
+            :size="30"
+            color="#ff1d5e"
+        >
+        </self-building-square-spinner>
+        Loading...
+    </div>
+</div>
 </template>
 
 <script>
@@ -51,7 +59,7 @@
                 })
                 .finally(() => {
                     this.loading = false;
-                });                
+                });
             }
         }
     }

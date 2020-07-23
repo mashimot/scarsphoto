@@ -10,6 +10,8 @@ use App\MediaGallery;
 use App\GalleryUser;
 use DB;
 use Auth;
+use Storage;
+
 class GalleryController extends Controller
 {
     public function __construct(GalleryUser $galleryUser){
@@ -72,9 +74,9 @@ class GalleryController extends Controller
     {
         //
         return $this->galleryUser->find(
-            $id, 
+            $id,
             [
-                'gallery_user_name as gallery_name', 
+                'gallery_user_name as gallery_name',
                 'gallery_user_id as gallery_id',
                 'banner_media_id'
             ]
@@ -114,6 +116,17 @@ class GalleryController extends Controller
     public function updateBackgroundCover(Request $request, $media_id)
     {
         //
+        $pages = [
+            'about' => null,
+            'contact' => null
+        ];
+        if($request->filled('bg_pages_choices')){
+            foreach($pages as $bg_page){
+                $request->bg_pages_choices[$bg_page] = $media_id;
+            }
+            Storage::disk('public')->put('bg-pages.json', json_encode($pages));
+        }
+
         foreach($request->galleries_covers as $galleryCover){
             $galleryCover = (object) $galleryCover;
             $galleryUser = GalleryUser::where('gallery_user_id', $galleryCover->gallery_id);
@@ -130,7 +143,7 @@ class GalleryController extends Controller
                 }
             }
         }
-        
+
         return response()->json([
             'success' => true
         ]);
