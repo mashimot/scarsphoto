@@ -23,7 +23,7 @@
     </section>
 -->
     <parallax section-class="Masthead hadouken">
-        <img src="https://i.pinimg.com/originals/e7/6e/f4/e76ef45a6dd8a81a4d3b4b433270af3e.jpg" />
+        <img :src="media_url" />
         <div class="text-xs-center">
             <h1 style="" class="section-title" :style="{ color: 'white' }">About me</h1>
             <h3 style="" class="section-subtitle" :style="{ color: 'white' }">Freelance Designer, Developer &amp; Traveller</h3>
@@ -129,7 +129,8 @@
         data() {
             return {
                 loading: true,
-                is_animation_action_active: false
+                is_animation_action_active: false,
+                media_url: null
             }
         },
         components: {
@@ -144,14 +145,22 @@
             }
         },
         methods: {
+            getBackgroundImage(){
+                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image/about`)
+                .then(response =>{
+                    console.log(response);
+                    this.media_url = response.data;
+                });
+            }
         },
         created(){
             let vm = this;
-            this.$nextTick().then(() => {
+            vm.$nextTick().then(() => {
                 setTimeout(() => {
                     vm.is_animation_action_active = true;
                 }, 1000)
             });
+            vm.getBackgroundImage();
         },
         mounted() {
             /* window.setTimeout(function() {

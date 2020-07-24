@@ -25,6 +25,7 @@ Route::group([
     Route::get('about', 'AboutController@index')->name('about.index');
     Route::get('intro', 'IntroController@index');
     Route::resource('blog', 'BlogController');*/
+    Route::get('page-background-image/{pageName}', 'PageBackgroundImageController@getBackgroundImage');
     Route::apiResource('contact', 'ContactController');
     Route::get('portfolio/galleries/create', 'GalleryController@create');
     Route::apiResource('portfolio/galleries', 'GalleryController');

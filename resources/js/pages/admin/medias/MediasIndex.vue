@@ -41,13 +41,13 @@
             <div class="form-group">
                 <label for="bg_pages">Imagem Fundo Páginas</label>
                 <pre>{{ bg_pages_choices }}</pre>
-                <div v-for="(bg_page, bg_page_idx) in bg_pages" :key="`bg_page-${bg_page_idx}`">
+                <div v-for="(bg_page_choice, bg_page_choice_idx) in bg_pages_choices" :key="`bg_page-${bg_page_choice_idx}`">
                     <div class="form-check">
                         <label class="form-check-label">
                             <input type="checkbox"
-                                :value="bg_page"
-                                v-model="bg_pages_choices"
-                            > {{ bg_page }}
+                                v-on:change="toggle(bg_page_choice)"
+                                v-bind:checked="bg_page_choice.is_checked"
+                            > {{ bg_page_choice.page }}
                         </label>
                     </div>
                 </div>
@@ -243,17 +243,18 @@
                 vm.bg_pages_choices = [];
                 if(!vm.loading){
                     vm.loading = true;
-                    vm.axios.get(`${Laravel._BASE_URL}/storage/bg-pages.json`)
+                    vm.axios.get(`${Laravel._BASE_URL}/admin/medias/get_background_image`)
                     .then(result => {
                         if(typeof result.data != 'undefined'){
-                            for(let key in result.data){
-                                let r = result.data[key];
-                                console.log(key, r, media_id);
-
-                                if(r == media_id){
-                                    vm.bg_pages_choices.push(key);
+                            result.data.forEach((data, idx) => {
+                                let is_checked = false;
+                                if(data.media_id == media_id){
+                                    is_checked =  true;
                                 }
-                            }
+                                vm.bg_pages_choices.push({
+                                    ...data, is_checked: is_checked
+                                });
+                            });
                         }
                     });
 
@@ -280,6 +281,7 @@
                 });
                 this.formGalleryCover.put(`${Laravel._BASE_URL}/admin/galleries/${this.media_id}/update_gallery_cover`)
                 .then(r => {
+                    console.log(r);
                     if(r.success){
                         this.$bvModal.hide('modal-1');
                         let page = 1;

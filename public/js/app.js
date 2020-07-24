@@ -2244,7 +2244,8 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       loading: true,
-      is_animation_action_active: false
+      is_animation_action_active: false,
+      media_url: null
     };
   },
   components: {
@@ -2258,14 +2259,24 @@ __webpack_require__.r(__webpack_exports__);
       };
     }
   },
-  methods: {},
+  methods: {
+    getBackgroundImage: function getBackgroundImage() {
+      var _this = this;
+
+      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image/about")).then(function (response) {
+        console.log(response);
+        _this.media_url = response.data;
+      });
+    }
+  },
   created: function created() {
     var vm = this;
-    this.$nextTick().then(function () {
+    vm.$nextTick().then(function () {
       setTimeout(function () {
         vm.is_animation_action_active = true;
       }, 1000);
     });
+    vm.getBackgroundImage();
   },
   mounted: function mounted() {
     /* window.setTimeout(function() {
@@ -3308,16 +3319,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       if (!vm.loading) {
         vm.loading = true;
-        vm.axios.get("".concat(Laravel._BASE_URL, "/storage/bg-pages.json")).then(function (result) {
+        vm.axios.get("".concat(Laravel._BASE_URL, "/admin/medias/get_background_image")).then(function (result) {
           if (typeof result.data != 'undefined') {
-            for (var key in result.data) {
-              var r = result.data[key];
-              console.log(key, r, media_id);
+            result.data.forEach(function (data, idx) {
+              var is_checked = false;
 
-              if (r == media_id) {
-                vm.bg_pages_choices.push(key);
+              if (data.media_id == media_id) {
+                is_checked = true;
               }
-            }
+
+              vm.bg_pages_choices.push(_objectSpread({}, data, {
+                is_checked: is_checked
+              }));
+            });
           }
         });
         vm.getGalleries().then(function (galleries) {
@@ -3346,6 +3360,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         bg_pages_choices: this.bg_pages_choices
       });
       this.formGalleryCover.put("".concat(Laravel._BASE_URL, "/admin/galleries/").concat(this.media_id, "/update_gallery_cover")).then(function (r) {
+        console.log(r);
+
         if (r.success) {
           _this.$bvModal.hide('modal-1');
 
@@ -3753,7 +3769,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       contacts: {},
       is_animation_action_active: false,
-      loading: true
+      loading: true,
+      media_url: null
     };
   },
   components: {
@@ -3772,25 +3789,23 @@ __webpack_require__.r(__webpack_exports__);
   },
   created: function created() {
     var vm = this;
-    this.$nextTick().then(function () {
+    vm.$nextTick().then(function () {
       setTimeout(function () {
         vm.is_animation_action_active = true;
       }, 1000);
-      /*$('.animation-multiheadline-standby').each(function(m) {
-          new Waypoint({
-              //element: document.getElementsByClassName('animation-multiheadline-standby'),
-              //element: document.getElementById('home'),
-              handler: () => {
-                  var animationElement = $(this);
-                  setTimeout(function() {
-                      animationElement.addClass('animation-action');
-                  }, 350 + 60 * 1 );
-              }
-          });
-      });*/
     });
+    vm.getBackgroundImage();
   },
-  methods: {}
+  methods: {
+    getBackgroundImage: function getBackgroundImage() {
+      var _this = this;
+
+      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image/contact")).then(function (response) {
+        console.log(response);
+        _this.media_url = response.data;
+      });
+    }
+  }
 });
 
 /***/ }),
@@ -39495,12 +39510,7 @@ var render = function() {
     "div",
     [
       _c("parallax", { attrs: { "section-class": "Masthead hadouken" } }, [
-        _c("img", {
-          attrs: {
-            src:
-              "https://i.pinimg.com/originals/e7/6e/f4/e76ef45a6dd8a81a4d3b4b433270af3e.jpg"
-          }
-        }),
+        _c("img", { attrs: { src: _vm.media_url } }),
         _vm._v(" "),
         _c("div", { staticClass: "text-xs-center" }, [
           _c(
@@ -40251,7 +40261,7 @@ var render = function() {
                           },
                           [
                             _vm._v(
-                              "\r\n                            Edit\r\n                        "
+                              "\n                            Edit\n                        "
                             )
                           ]
                         ),
@@ -41254,51 +41264,26 @@ var render = function() {
                   _vm._v(" "),
                   _c("pre", [_vm._v(_vm._s(_vm.bg_pages_choices))]),
                   _vm._v(" "),
-                  _vm._l(_vm.bg_pages, function(bg_page, bg_page_idx) {
-                    return _c("div", { key: "bg_page-" + bg_page_idx }, [
+                  _vm._l(_vm.bg_pages_choices, function(
+                    bg_page_choice,
+                    bg_page_choice_idx
+                  ) {
+                    return _c("div", { key: "bg_page-" + bg_page_choice_idx }, [
                       _c("div", { staticClass: "form-check" }, [
                         _c("label", { staticClass: "form-check-label" }, [
                           _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.bg_pages_choices,
-                                expression: "bg_pages_choices"
-                              }
-                            ],
                             attrs: { type: "checkbox" },
-                            domProps: {
-                              value: bg_page,
-                              checked: Array.isArray(_vm.bg_pages_choices)
-                                ? _vm._i(_vm.bg_pages_choices, bg_page) > -1
-                                : _vm.bg_pages_choices
-                            },
+                            domProps: { checked: bg_page_choice.is_checked },
                             on: {
                               change: function($event) {
-                                var $$a = _vm.bg_pages_choices,
-                                  $$el = $event.target,
-                                  $$c = $$el.checked ? true : false
-                                if (Array.isArray($$a)) {
-                                  var $$v = bg_page,
-                                    $$i = _vm._i($$a, $$v)
-                                  if ($$el.checked) {
-                                    $$i < 0 &&
-                                      (_vm.bg_pages_choices = $$a.concat([$$v]))
-                                  } else {
-                                    $$i > -1 &&
-                                      (_vm.bg_pages_choices = $$a
-                                        .slice(0, $$i)
-                                        .concat($$a.slice($$i + 1)))
-                                  }
-                                } else {
-                                  _vm.bg_pages_choices = $$c
-                                }
+                                return _vm.toggle(bg_page_choice)
                               }
                             }
                           }),
                           _vm._v(
-                            " " + _vm._s(bg_page) + "\n                        "
+                            " " +
+                              _vm._s(bg_page_choice.page) +
+                              "\n                        "
                           )
                         ])
                       ])
@@ -42426,12 +42411,7 @@ var render = function() {
     "div",
     [
       _c("parallax", { attrs: { "section-class": "Masthead hadouken" } }, [
-        _c("img", {
-          attrs: {
-            src:
-              "https://imaginem.cloud/kinatrix/wp-content/uploads/sites/30/2018/03/header-7.jpg"
-          }
-        })
+        _c("img", { attrs: { src: _vm.media_url } })
       ]),
       _vm._v(" "),
       _c(
@@ -43935,9 +43915,7 @@ var staticRenderFns = [
         _c("div", { staticClass: "title-container clearfix" }, [
           _c("div", { staticClass: "entry-title" }, [
             _c("h1", { staticClass: "entry-title" }, [
-              _vm._v(
-                "\r\n                        Galerias\r\n                    "
-              )
+              _vm._v("\n                        Galerias\n                    ")
             ])
           ])
         ])
@@ -60675,9 +60653,9 @@ var routes = [].concat(_toConsumableArray(routesWithPrefix('/admin', [{
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\dev\www\scarsphoto\resources\js\app.js */"./resources/js/app.js");
-__webpack_require__(/*! C:\dev\www\scarsphoto\resources\sass\app.scss */"./resources/sass/app.scss");
-module.exports = __webpack_require__(/*! C:\dev\www\scarsphoto\resources\sass\admin.scss */"./resources/sass/admin.scss");
+__webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\js\app.js */"./resources/js/app.js");
+__webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\sass\app.scss */"./resources/sass/app.scss");
+module.exports = __webpack_require__(/*! C:\xampp2\htdocs\scarsphoto\resources\sass\admin.scss */"./resources/sass/admin.scss");
 
 
 /***/ })

@@ -87,7 +87,9 @@ class Media extends Model
             foreach($medias->getCollection() as $media){
                 $newMedia = new \stdClass;
                 $path = FileHelper::getUserImagePath($media->user_id, 'images/users');
-                $media_url = asset("storage/{$path}/{$media->media_url}");
+                $file = "{$path}/{$media->media_url}";
+                //$media_url = asset("storage/{$path}/{$media->media_url}");
+                $media_url = FileHelper::getUrlFile($file);
 
                 if($previous_media_id != $media->media_id){
                     $newMedia->media_id = $media->media_id;

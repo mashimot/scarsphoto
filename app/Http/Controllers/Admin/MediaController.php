@@ -220,4 +220,13 @@ class MediaController extends Controller
             return json_encode($e);
         }
     }
+
+    public function getBackgroundImage(){
+        $user = Auth::user();
+        $file_name = 'page-background.json';
+        $path = "images/pages/{$user->id}";        
+        $file = "{$path}/{$file_name}";
+
+        return FileHelper::createPageBackgroundImage($file);
+    }
 }

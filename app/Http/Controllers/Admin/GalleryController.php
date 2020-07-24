@@ -11,6 +11,7 @@ use App\GalleryUser;
 use DB;
 use Auth;
 use Storage;
+use App\Helpers\FileHelper;
 
 class GalleryController extends Controller
 {
@@ -116,15 +117,30 @@ class GalleryController extends Controller
     public function updateBackgroundCover(Request $request, $media_id)
     {
         //
-        $pages = [
-            'about' => null,
-            'contact' => null
-        ];
+        $user = Auth::user();
+        $file_name = 'page-background.json';
+        $path = "images/pages/{$user->id}";        
+        $file = "{$path}/{$file_name}";
+        $dataJson = FileHelper::createPageBackgroundImage($file);
+
         if($request->filled('bg_pages_choices')){
-            foreach($pages as $bg_page){
-                $request->bg_pages_choices[$bg_page] = $media_id;
+            $dataJson = json_decode($dataJson);
+            foreach($dataJson as $k => $data){
+                foreach($request->bg_pages_choices as $bg_page){
+                    $bg_page = (object) $bg_page;
+                    if($data->page == $bg_page->page){
+                        if($bg_page->is_checked){
+                            $dataJson[$k]->media_id = $media_id;
+                        } else {
+                            if($data->media_id == $media_id && !is_null($data->media_id)){
+                                $dataJson[$k]->media_id = null;
+                            }
+                        }
+                    }
+                }
             }
-            Storage::disk('public')->put('bg-pages.json', json_encode($pages));
+            Storage::disk('public')
+            ->put($file, json_encode($dataJson));            
         }
 
         foreach($request->galleries_covers as $galleryCover){

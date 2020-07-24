@@ -1,7 +1,11 @@
 <?php
 namespace App\Helpers;
 
+use Storage;
+use Auth;
+
 class FileHelper {
+    public static $diskName = 'public'; // default
 
     public static function getUserImagePath(
         $user_id = null, $user_root_raw = "images/users"/*, $padding_length = 16, 
@@ -25,5 +29,65 @@ class FileHelper {
         $user_image_path = "{$user_root}/{$username_first_letter}/{$username_first_two_letters}"; //build final path
     
         return $user_image_path;
+    }
+
+    public static function createPageBackgroundImage($file){
+        $newPages = collect([
+            [
+                'page' => 'about',
+                'media_id' => null
+            ],
+            [
+                'page' => 'contact',
+                'media_id' => null
+            ],
+            [
+                'page' => 'profile',
+                'media_id' => null
+            ]
+        ]);        
+
+        if(!Storage::disk(self::$diskName)->exists($file)){
+            Storage::disk(self::$diskName)->put($file, $newPages->toJson());   
+        } else {
+            $pages = json_decode(self::getFileContent($file));
+            foreach($newPages as $newPage){
+                $newPage = (object) $newPage;
+                $pageExists = false;
+                foreach($pages as $page){
+                    $page = (object) $page;
+                    if($page->page == $newPage->page){
+                        $pageExists = true;
+                    }
+                }
+                if(!$pageExists){
+                    $pages[] = $newPage;
+                }
+            }
+            Storage::disk(self::$diskName)->put($file, collect($pages)->toJson());   
+        }
+
+        return self::getFileContent($file);
+    }
+
+    public static function getUrlFile($file){
+        if(Storage::disk(self::$diskName)->exists($file)){
+            return Storage::disk(self::$diskName)->url($file);
+        }
+
+        return null;
+    }
+
+    public static function getFileContent($file){
+        if(Storage::disk(self::$diskName)->exists($file)){
+            return Storage::disk(self::$diskName)->get($file);
+        }
+
+        return null;
+    }
+    
+
+    public static function setDiskName($diskName){
+        self::$diskName = $diskName;
     }
 }

@@ -29,7 +29,7 @@
         </section>
     -->
         <parallax section-class="Masthead hadouken">
-            <img src="https://imaginem.cloud/kinatrix/wp-content/uploads/sites/30/2018/03/header-7.jpg" />
+            <img :src="media_url" />
         </parallax>
         <div class="horizontal-menu-body-container">
             <div class="container clearfix">
@@ -143,7 +143,8 @@
             return {
                 contacts: {},
                 is_animation_action_active: false,
-                loading: true
+                loading: true,
+                media_url: null
             }
         },
         components: {
@@ -159,25 +160,21 @@
         },
         created() {
             let vm = this;
-            this.$nextTick().then(() => {
+            vm.$nextTick().then(() => {
                 setTimeout(() => {
                     vm.is_animation_action_active = true;
                 }, 1000)
-                /*$('.animation-multiheadline-standby').each(function(m) {
-                    new Waypoint({
-                        //element: document.getElementsByClassName('animation-multiheadline-standby'),
-                        //element: document.getElementById('home'),
-                        handler: () => {
-                            var animationElement = $(this);
-                            setTimeout(function() {
-                                animationElement.addClass('animation-action');
-                            }, 350 + 60 * 1 );
-                        }
-                    });
-                });*/
             });
+            vm.getBackgroundImage();
         },
         methods: {
+            getBackgroundImage(){
+                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image/contact`)
+                .then(response =>{
+                    console.log(response);
+                    this.media_url = response.data;
+                });
+            }
         }
     }
 </script>
