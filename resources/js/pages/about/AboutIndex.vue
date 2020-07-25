@@ -23,7 +23,7 @@
     </section>
 -->
     <parallax section-class="Masthead hadouken">
-        <img :src="media_url" />
+        <img :src="images.background" />
         <div class="text-xs-center">
             <h1 style="" class="section-title" :style="{ color: 'white' }">About me</h1>
             <h3 style="" class="section-subtitle" :style="{ color: 'white' }">Freelance Designer, Developer &amp; Traveller</h3>
@@ -92,7 +92,9 @@
                                 <div class="mtheme-cell-wrap">
                                     <div id="mtheme-block-7" class="mtheme-block mtheme-block-em_singleimage span12 mtheme-first-cell " data-width="12">
                                         <div class="single-image-block none" style="padding-top:0;padding-bottom:0;text-align:center;">
-                                            <img src="https://scontent-gru2-1.xx.fbcdn.net/v/t1.0-9/106030841_3311450318916634_4811250531292708170_n.jpg?_nc_cat=109&_nc_sid=09cbfe&_nc_eui2=AeGVPliFFAgwC_tr28TK4PmgUAfbHQw9215QB9sdDD3bXhm2kAI3D6HQsw80T_Dzda4&_nc_ohc=BDX7gqKZrN8AX-08Hd8&_nc_ht=scontent-gru2-1.xx&oh=b2653b96390fec4beaff7d0e463e0024&oe=5F32A776" alt="" :style="{ 'border-radius': '50%' }" class="d-block">
+                                            <div class="image-cropper">
+                                                <img :src="images.profile" class="rounded" />
+                                            </div>                                            
                                         </div>
                                     </div>
                                 </div>
@@ -130,7 +132,10 @@
             return {
                 loading: true,
                 is_animation_action_active: false,
-                media_url: null
+                images: {
+                    profile: null,
+                    background: null
+                }
             }
         },
         components: {
@@ -146,10 +151,12 @@
         },
         methods: {
             getBackgroundImage(){
-                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image/about`)
+                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image`)
                 .then(response =>{
-                    console.log(response);
-                    this.media_url = response.data;
+                    if(typeof response.data != 'undefined'){
+                        this.images.background = response.data['about'];
+                        this.images.profile = response.data['profile'];
+                    }
                 });
             }
         },
@@ -181,5 +188,12 @@
     height: 250px;
     background: transparent no-repeat center;
     background-size: cover;
+}
+
+.rounded{
+    object-fit: cover;
+    border-radius: 50%;
+    height: 300px;
+    width: 300px;
 }
 </style>

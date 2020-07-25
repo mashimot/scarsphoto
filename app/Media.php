@@ -29,18 +29,21 @@ class Media extends Model
         //$user_id = $request->user_id;
         $medias = DB::table('medias')->from('medias as meds')
         ->leftJoin('users as user', 'user.id', 'meds.user_id')
-        ->leftJoin('medias_galleries as mega', 'meds.media_id', 'mega.media_id')
-        ->leftJoin('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
-        ->where(function($query) use ($request){
-            $query->where('gaus.user_id', $request->user_id)
-            ->orWhere('meds.user_id', $request->user_id);
-        }); //users with galleries
+        /*->leftJoin('medias_galleries as mega', 'meds.media_id', 'mega.media_id')
+        ->leftJoin('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id');*/
+        ->leftJoin('galleries_users as gaus', 'gaus.user_id', 'user.id')
+        ->leftJoin('medias_galleries as mega', 'meds.media_id', 'mega.media_id');
         
+        if($request->filled('media_id')){
+            $medias = $medias->where('meds.media_id', $request->media_id);
+        }
         if($request->filled('gallery_id')){ //if the request param. gallery_id exists and has value
             if($request->gallery_id == '0'){ //photos without galleries
-                $medias = $medias->whereNull('gaus.gallery_user_id');
+                $medias = $medias->whereNull('mega.gallery_user_id');
             } else if($request->gallery_id == 'all'){ //all photos with galleries
-                $medias = $medias->whereNotNull('gaus.gallery_user_id');
+                $medias = $medias->whereNotNull('mega.gallery_user_id');
+            } else if($request->gallery_id == 'bg_covers'){ //all photos with galleries
+                $medias = $medias->whereRaw('meds.media_id = gaus.banner_media_id');
             } else {
                 $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->select('media_route_id')->first();
                 $medias = $medias->whereExists(function($query) use ($request){
@@ -55,8 +58,10 @@ class Media extends Model
             }
         }
 
-        $medias = $medias
-        //->whereIn('meds.media_id', [188])
+        $medias = $medias->where(function($query) use ($request){ //users with galleries
+            $query->where('gaus.user_id', $request->user_id)
+            ->orWhere('meds.user_id', $request->user_id);
+        })
         ->distinct([
             'meds.media_id',
             'meds.media_title',
@@ -77,18 +82,16 @@ class Media extends Model
             'user.id as user_id',
             'user.name as owner_media_name'
         ])
-        ->orderBy('meds.created_at', 'ASC')
-        ->paginate(20);
+        ->orderBy('meds.created_at', 'DESC')
+        ->paginate(24);
 
         $newMedias = [];
         if(count($medias) > 0){
-            $previous_media_id = -1;
-            //$user_id = Auth::user()->id ?? 1;
-            foreach($medias->getCollection() as $media){
+            /*$previous_media_id = -1;
+            foreach($medias->getCollection() as $media){            
                 $newMedia = new \stdClass;
                 $path = FileHelper::getUserImagePath($media->user_id, 'images/users');
                 $file = "{$path}/{$media->media_url}";
-                //$media_url = asset("storage/{$path}/{$media->media_url}");
                 $media_url = FileHelper::getUrlFile($file);
 
                 if($previous_media_id != $media->media_id){
@@ -124,6 +127,37 @@ class Media extends Model
                 
                 $previous_media_id = $media->media_id;
             }
+            //$medias->setCollection(collect($newMedias));
+            */
+            $newMedias = $medias->getCollection()->map(function($media) use ($request){
+                $path = FileHelper::getUserImagePath($media->user_id, 'images/users');
+                $file = "{$path}/{$media->media_url}";
+                $full_url = FileHelper::getUrlFile($file);
+
+                $media->media_url = $full_url;
+                $media->media_thumb_url = $full_url;
+                $media->user_id = $media->user_id;
+                $media->owner_media_name = $media->owner_media_name;
+                $media->is_owner_media = $media->user_id == $request->user_id? true: false;
+                $media->media_galleries = MediaGallery::from('medias_galleries as mega')
+                ->join('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
+                ->where('mega.media_id', $media->media_id)
+                ->where('gaus.user_id', $request->user_id)
+                ->select([
+                    'gaus.gallery_user_id as gallery_id',
+                    'gaus.gallery_user_name as gallery_name',
+                ])->get();
+
+                $media->banner_galleries = GalleryUser::where('user_id', $request->user_id)
+                ->where('banner_media_id', $media->media_id)
+                ->whereNotNull('banner_media_id')
+                ->select([
+                    'gallery_user_id as gallery_id',
+                    'gallery_user_name as gallery_name'
+                ])->get();
+
+                return $media;
+            });
         }
      
         $medias->setCollection(collect($newMedias));

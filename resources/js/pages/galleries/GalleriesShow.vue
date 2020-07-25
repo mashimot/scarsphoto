@@ -43,7 +43,7 @@
                     </p>
                     <div class="avatar_wrapper">
                         <a href="">
-                            <img class="avatar" src="https://drscdn.500px.org/user_avatar/2032631/q%3D85_w%3D30_h%3D30/v2?webp=true&amp;v=5&amp;sig=aeaaefbf8f24a5e0514943c39f5471fe01889de5c5abd4b8d34e1b08f514b1c7" title="Fabio Hashimoto">
+                            <img class="avatar" :src="image.profile" title="Fabio Hashimoto">
                         </a>
                     </div>
                 </div>
@@ -93,6 +93,9 @@
                 gallery_id: -1,
                 previous_gallery_id: -1,
                 gallery: {},
+                image: {
+                    profile: null
+                },
                 images: {},
                 isScrolled: false,
                 loading: false
@@ -123,6 +126,14 @@
                     to: null,
                     total: null
                 };
+            },
+            getBackgroundImage(){
+                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image`)
+                .then(response =>{
+                    if(typeof response.data != 'undefined'){
+                        this.image.profile = response.data['profile'];
+                    }
+                });
             },
             getGalleries(pos = null, __this = null){
                 let vm = this;
@@ -300,6 +311,7 @@
         created(){
             this.images = this.imagesModel();
             this.getGalleries();
+            this.getBackgroundImage();
         },
         mounted() {
             this.scroll();

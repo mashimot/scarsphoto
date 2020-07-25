@@ -16,7 +16,7 @@ class PageBackgroundImageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getBackgroundImage($pageName)
+    public function getBackgroundImage()
     {
         //
         $user = User::where('email', env('ADMIN_MAIL'))->first();
@@ -25,14 +25,14 @@ class PageBackgroundImageController extends Controller
 
             if(!is_null($fileContent)){
                 $fileContent = json_decode($fileContent);
-                foreach($fileContent as $content){
+                foreach($fileContent as $key => $content){
                     $content = (object)$content;
-                    if($content->page == $pageName){
-                        $path = FileHelper::getUserImagePath($user->id, 'images/users');
-                        $media = Media::find($content->media_id);
-                        return FileHelper::getUrlFile("{$path}/{$media->media_url}");
-                    }
+                    $path = FileHelper::getUserImagePath($user->id, 'images/users');
+                    $media = Media::find($content->media_id);
+                    $fileContent[$key]->media_url = FileHelper::getUrlFile("{$path}/{$media->media_url}");
                 }
+
+                return collect($fileContent)->pluck('media_url', 'page');
             }
         }
 

@@ -29,7 +29,7 @@
         </section>
     -->
         <parallax section-class="Masthead hadouken">
-            <img :src="media_url" />
+            <img :src="images.background" />
         </parallax>
         <div class="horizontal-menu-body-container">
             <div class="container clearfix">
@@ -144,7 +144,9 @@
                 contacts: {},
                 is_animation_action_active: false,
                 loading: true,
-                media_url: null
+                images: {
+                    background: null
+                }
             }
         },
         components: {
@@ -169,10 +171,11 @@
         },
         methods: {
             getBackgroundImage(){
-                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image/contact`)
+                this.axios.get(`${Laravel._BASE_URL}/api/page-background-image`)
                 .then(response =>{
-                    console.log(response);
-                    this.media_url = response.data;
+                    if(typeof response.data != 'undefined'){
+                        this.images.background = response.data['contact'];
+                    }
                 });
             }
         }

@@ -2239,13 +2239,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       loading: true,
       is_animation_action_active: false,
-      media_url: null
+      images: {
+        profile: null,
+        background: null
+      }
     };
   },
   components: {
@@ -2263,9 +2268,11 @@ __webpack_require__.r(__webpack_exports__);
     getBackgroundImage: function getBackgroundImage() {
       var _this = this;
 
-      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image/about")).then(function (response) {
-        console.log(response);
-        _this.media_url = response.data;
+      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image")).then(function (response) {
+        if (typeof response.data != 'undefined') {
+          _this.images.background = response.data['about'];
+          _this.images.profile = response.data['profile'];
+        }
       });
     }
   },
@@ -3280,6 +3287,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
  //    import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3381,23 +3398,50 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     editFile: function editFile(media) {
       var _this2 = this;
 
+      this.loading = true;
+      /*
+      //click event without 
       media = Object.assign({}, media);
       this.media = media;
-      var media_galleries = [];
-      this.galleries.forEach(function (gallery) {
-        var is_checked = false;
+      let media_galleries = [];
+      this.galleries.forEach(gallery => {
+          let is_checked = false;
+          this.media.media_galleries.forEach((mG, i) => {
+              if(mG.gallery_id == gallery.gallery_id){
+                  is_checked = true;
+              }
+          })
+          media_galleries.push({...gallery, is_checked: is_checked});
+      });
+      this.media.media_galleries = {...media_galleries};*/
 
-        _this2.media.media_galleries.forEach(function (mG, i) {
-          if (mG.gallery_id == gallery.gallery_id) {
-            is_checked = true;
-          }
+      var url = "".concat(Laravel._BASE_URL, "/admin/medias/galleries");
+      this.axios.get(url, {
+        params: {
+          media_id: media.media_id
+        }
+      }).then(function (response) {
+        _this2.media = response.data.data[0];
+        var media_galleries = [];
+
+        _this2.galleries.forEach(function (gallery) {
+          var is_checked = false;
+
+          _this2.media.media_galleries.forEach(function (mG, i) {
+            if (mG.gallery_id == gallery.gallery_id) {
+              is_checked = true;
+            }
+          });
+
+          media_galleries.push(_objectSpread({}, gallery, {
+            is_checked: is_checked
+          }));
         });
 
-        media_galleries.push(_objectSpread({}, gallery, {
-          is_checked: is_checked
-        }));
+        _this2.media.media_galleries = _objectSpread({}, media_galleries);
+      })["finally"](function (response) {
+        _this2.loading = false;
       });
-      this.media.media_galleries = _objectSpread({}, media_galleries);
     },
     onSubmitMedia: function onSubmitMedia() {
       var _this3 = this;
@@ -3770,7 +3814,9 @@ __webpack_require__.r(__webpack_exports__);
       contacts: {},
       is_animation_action_active: false,
       loading: true,
-      media_url: null
+      images: {
+        background: null
+      }
     };
   },
   components: {
@@ -3800,9 +3846,10 @@ __webpack_require__.r(__webpack_exports__);
     getBackgroundImage: function getBackgroundImage() {
       var _this = this;
 
-      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image/contact")).then(function (response) {
-        console.log(response);
-        _this.media_url = response.data;
+      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image")).then(function (response) {
+        if (typeof response.data != 'undefined') {
+          _this.images.background = response.data['contact'];
+        }
       });
     }
   }
@@ -4168,6 +4215,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       gallery_id: -1,
       previous_gallery_id: -1,
       gallery: {},
+      image: {
+        profile: null
+      },
       images: {},
       isScrolled: false,
       loading: false
@@ -4198,6 +4248,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         to: null,
         total: null
       };
+    },
+    getBackgroundImage: function getBackgroundImage() {
+      var _this2 = this;
+
+      this.axios.get("".concat(Laravel._BASE_URL, "/api/page-background-image")).then(function (response) {
+        if (typeof response.data != 'undefined') {
+          _this2.image.profile = response.data['profile'];
+        }
+      });
     },
     getGalleries: function getGalleries() {
       var pos = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -4393,6 +4452,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   created: function created() {
     this.images = this.imagesModel();
     this.getGalleries();
+    this.getBackgroundImage();
   },
   mounted: function mounted() {
     this.scroll();
@@ -4959,7 +5019,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.hadouken[data-v-7c3d21e0] {\n    min-height: 400px !important;\n}\n.d-block[data-v-7c3d21e0] {\n    height: 250px;\n    background: transparent no-repeat center;\n    background-size: cover;\n}\n", ""]);
+exports.push([module.i, "\n.hadouken[data-v-7c3d21e0] {\n    min-height: 400px !important;\n}\n.d-block[data-v-7c3d21e0] {\n    height: 250px;\n    background: transparent no-repeat center;\n    background-size: cover;\n}\n.rounded[data-v-7c3d21e0]{\n    -o-object-fit: cover;\n       object-fit: cover;\n    border-radius: 50%;\n    height: 300px;\n    width: 300px;\n}\n", ""]);
 
 // exports
 
@@ -39510,7 +39570,7 @@ var render = function() {
     "div",
     [
       _c("parallax", { attrs: { "section-class": "Masthead hadouken" } }, [
-        _c("img", { attrs: { src: _vm.media_url } }),
+        _c("img", { attrs: { src: _vm.images.background } }),
         _vm._v(" "),
         _c("div", { staticClass: "text-xs-center" }, [
           _c(
@@ -39585,15 +39645,16 @@ var render = function() {
                                         }
                                       },
                                       [
-                                        _c("img", {
-                                          staticClass: "d-block",
-                                          style: { "border-radius": "50%" },
-                                          attrs: {
-                                            src:
-                                              "https://scontent-gru2-1.xx.fbcdn.net/v/t1.0-9/106030841_3311450318916634_4811250531292708170_n.jpg?_nc_cat=109&_nc_sid=09cbfe&_nc_eui2=AeGVPliFFAgwC_tr28TK4PmgUAfbHQw9215QB9sdDD3bXhm2kAI3D6HQsw80T_Dzda4&_nc_ohc=BDX7gqKZrN8AX-08Hd8&_nc_ht=scontent-gru2-1.xx&oh=b2653b96390fec4beaff7d0e463e0024&oe=5F32A776",
-                                            alt: ""
-                                          }
-                                        })
+                                        _c(
+                                          "div",
+                                          { staticClass: "image-cropper" },
+                                          [
+                                            _c("img", {
+                                              staticClass: "rounded",
+                                              attrs: { src: _vm.images.profile }
+                                            })
+                                          ]
+                                        )
                                       ]
                                     )
                                   ]
@@ -41137,6 +41198,27 @@ var render = function() {
     "div",
     [
       _c("section", { attrs: { id: "nav-galleries" } }, [
+        _vm.loading
+          ? _c(
+              "div",
+              {
+                staticClass:
+                  "p-2 align-items-center justify-content-center h-100"
+              },
+              [
+                _c("self-building-square-spinner", {
+                  attrs: {
+                    "animation-duration": 2000,
+                    size: 30,
+                    color: "#ff1d5e"
+                  }
+                }),
+                _vm._v("\n            Loading...\n        ")
+              ],
+              1
+            )
+          : _vm._e(),
+        _vm._v(" "),
         _c(
           "ul",
           { staticClass: "nav nav-tabs navbar-dark" },
@@ -41210,6 +41292,24 @@ var render = function() {
               )
             ]),
             _vm._v(" "),
+            _c("li", { staticClass: "nav-item" }, [
+              _c(
+                "a",
+                {
+                  staticClass: "nav-link small text-uppercase",
+                  class: { active: _vm.$route.query.gallery_id == "bg_covers" },
+                  attrs: { href: "#", "data-toggle": "tab" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.changeQuery("bg_covers")
+                    }
+                  }
+                },
+                [_vm._v("Imagem de Fundo das Galerias")]
+              )
+            ]),
+            _vm._v(" "),
             _c(
               "li",
               { staticClass: "nav-item" },
@@ -41261,8 +41361,6 @@ var render = function() {
                   _c("label", { attrs: { for: "bg_pages" } }, [
                     _vm._v("Imagem Fundo Páginas")
                   ]),
-                  _vm._v(" "),
-                  _c("pre", [_vm._v(_vm._s(_vm.bg_pages_choices))]),
                   _vm._v(" "),
                   _vm._l(_vm.bg_pages_choices, function(
                     bg_page_choice,
@@ -41346,26 +41444,6 @@ var render = function() {
           )
         ]
       ),
-      _vm._v(" "),
-      _vm.loading
-        ? _c(
-            "div",
-            {
-              staticClass: "p-2 align-items-center justify-content-center h-100"
-            },
-            [
-              _c("self-building-square-spinner", {
-                attrs: {
-                  "animation-duration": 2000,
-                  size: 30,
-                  color: "#ff1d5e"
-                }
-              }),
-              _vm._v("\n        Loading...\n    ")
-            ],
-            1
-          )
-        : _vm._e(),
       _vm._v(" "),
       _c(
         "main",
@@ -41455,11 +41533,7 @@ var render = function() {
                                 _c("p", [
                                   m.media_nsfw == 1
                                     ? _c("kbd", { staticClass: "col-md-12" }, [
-                                        _c(
-                                          "span",
-                                          { staticClass: "text-danger" },
-                                          [_vm._v("18+")]
-                                        )
+                                        _c("span", [_vm._v("18+")])
                                       ])
                                     : _vm._e()
                                 ]),
@@ -42411,7 +42485,7 @@ var render = function() {
     "div",
     [
       _c("parallax", { attrs: { "section-class": "Masthead hadouken" } }, [
-        _c("img", { attrs: { src: _vm.media_url } })
+        _c("img", { attrs: { src: _vm.images.background } })
       ]),
       _vm._v(" "),
       _c(
@@ -43274,7 +43348,17 @@ var render = function() {
                   _vm._v(" "),
                   _vm._m(0),
                   _vm._v(" "),
-                  _vm._m(1)
+                  _c("div", { staticClass: "avatar_wrapper" }, [
+                    _c("a", { attrs: { href: "" } }, [
+                      _c("img", {
+                        staticClass: "avatar",
+                        attrs: {
+                          src: _vm.image.profile,
+                          title: "Fabio Hashimoto"
+                        }
+                      })
+                    ])
+                  ])
                 ]
               )
             ]
@@ -43341,23 +43425,6 @@ var staticRenderFns = [
       _c("span", { staticClass: "light" }, [_vm._v("Fotos de")]),
       _vm._v(" "),
       _c("a", { attrs: { href: "" } })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "avatar_wrapper" }, [
-      _c("a", { attrs: { href: "" } }, [
-        _c("img", {
-          staticClass: "avatar",
-          attrs: {
-            src:
-              "https://drscdn.500px.org/user_avatar/2032631/q%3D85_w%3D30_h%3D30/v2?webp=true&v=5&sig=aeaaefbf8f24a5e0514943c39f5471fe01889de5c5abd4b8d34e1b08f514b1c7",
-            title: "Fabio Hashimoto"
-          }
-        })
-      ])
     ])
   }
 ]

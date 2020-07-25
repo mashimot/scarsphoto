@@ -1,6 +1,15 @@
 <template>
 <div>
     <section id="nav-galleries">
+        <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
+            <self-building-square-spinner
+                :animation-duration="2000"
+                :size="30"
+                color="#ff1d5e"
+            >
+            </self-building-square-spinner>
+            Loading...
+        </div>
         <ul class="nav nav-tabs navbar-dark">
             <li  v-for="(gallery, idxgallery) in galleries" :key="idxgallery" :id="`tabs-${idxgallery}`" class="nav-item">
                 <a @click.prevent="changeQuery(gallery.gallery_id)"
@@ -27,6 +36,14 @@
                 >Todas</a>
             </li>
             <li class="nav-item">
+                <a @click.prevent="changeQuery('bg_covers')"
+                    href="#"
+                    data-toggle="tab"
+                    class="nav-link small text-uppercase"
+                    :class="{ 'active': $route.query.gallery_id == 'bg_covers' }"
+                >Imagem de Fundo das Galerias</a>
+            </li>            
+            <li class="nav-item">
                 <router-link
                     :to="{ name: 'admin.medias.create' }"
                     data-toggle="tab" class="nav-link small text-uppercase"
@@ -40,7 +57,9 @@
         <form @submit.prevent="onSubmitGalleryCover()">
             <div class="form-group">
                 <label for="bg_pages">Imagem Fundo Páginas</label>
+                <!--
                 <pre>{{ bg_pages_choices }}</pre>
+                -->
                 <div v-for="(bg_page_choice, bg_page_choice_idx) in bg_pages_choices" :key="`bg_page-${bg_page_choice_idx}`">
                     <div class="form-check">
                         <label class="form-check-label">
@@ -68,15 +87,6 @@
             <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
         </form>
     </b-modal>
-    <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
-        <self-building-square-spinner
-            :animation-duration="2000"
-            :size="30"
-            color="#ff1d5e"
-        >
-        </self-building-square-spinner>
-        Loading...
-    </div>
     <main class="main-content" :style="{ 'opacity': loading? '0.3': '1'}">
         <div class="row no-gutters">
             <div class="col-9" :disabled="loading">
@@ -108,7 +118,7 @@
                             >
                                 <p>
                                     <kbd v-if="m.media_nsfw == 1" class="col-md-12">
-                                        <span class="text-danger">18+</span>
+                                        <span>18+</span>
                                     </kbd>
                                 </p>
                                 <p class="card-text">
@@ -296,6 +306,9 @@
                 gallery.is_checked = !gallery.is_checked
             },
             editFile(media){
+                this.loading = true;
+                /*
+                //click event without 
                 media = Object.assign({}, media);
                 this.media = media;
                 let media_galleries = [];
@@ -308,7 +321,31 @@
                     })
                     media_galleries.push({...gallery, is_checked: is_checked});
                 });
-                this.media.media_galleries = {...media_galleries};
+                this.media.media_galleries = {...media_galleries};*/
+                let url = `${Laravel._BASE_URL}/admin/medias/galleries`;
+                this.axios
+                    .get(url, {
+                        params: {
+                            media_id: media.media_id
+                        }
+                    })
+                    .then(response => {
+                        this.media = response.data.data[0];
+                        let media_galleries = [];
+                        this.galleries.forEach(gallery => {
+                            let is_checked = false;
+                            this.media.media_galleries.forEach((mG, i) => {
+                                if(mG.gallery_id == gallery.gallery_id){
+                                    is_checked = true;
+                                }
+                            })
+                            media_galleries.push({...gallery, is_checked: is_checked});
+                        });
+                        this.media.media_galleries = {...media_galleries};
+                    })
+                    .finally(response => {
+                        this.loading = false;
+                    });
             },
             onSubmitMedia() {
                 this.formMedia = new Form(this.media);

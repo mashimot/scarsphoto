@@ -80,9 +80,21 @@ var options = [{
 // register the toast with the custom message
 
 
+
 const router = new VueRouter({
     mode: 'history',
     routes: routes
+});
+
+axios.interceptors.response.use(function (response) {
+    return response;
+}, function (error) {
+    console.log('error', error.response)
+    if (error.response.status == 401) {
+        window.location.href = "login";
+    }
+
+    return Promise.reject(error);
 });
 const app = new Vue({
     'router': router
