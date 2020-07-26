@@ -29,7 +29,9 @@ class PageBackgroundImageController extends Controller
                     $content = (object)$content;
                     $path = FileHelper::getUserImagePath($user->id, 'images/users');
                     $media = Media::find($content->media_id);
-                    $fileContent[$key]->media_url = FileHelper::getUrlFile("{$path}/{$media->media_url}");
+                    if(!is_null($media)){
+                        $fileContent[$key]->media_url = FileHelper::getUrlFile("{$path}/{$media->media_url}");
+                    }
                 }
 
                 return collect($fileContent)->pluck('media_url', 'page');
