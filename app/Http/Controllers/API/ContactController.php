@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\ContactRequest;
 use App\Contact;
+use App\User;
+use App\Mail\SendMailContact;
+use Mail;
 
 class ContactController extends Controller
 {
@@ -43,7 +46,7 @@ class ContactController extends Controller
     public function store(ContactRequest $request)
     {
         //
-        $this->contact->create([
+        $contact= $this->contact->create([
             'contact_name' => $request->contact_name,
             'contact_email' => $request->contact_email,
             'contact_phone' => $request->contact_phone,
@@ -51,8 +54,18 @@ class ContactController extends Controller
             'contact_message' => $request->contact_message
         ]);
 
+
+        //$user = User::where('email', env)->first();
+        if($contact->exists){
+            Mail::to(env('ADMIN_MAIL'))->send(new SendMailContact($contact));
+
+            return response()->json([
+                'success' => true
+            ]);
+        }
+
         return response()->json([
-            'success' => true
+            'success' => false
         ]);
     }
 
