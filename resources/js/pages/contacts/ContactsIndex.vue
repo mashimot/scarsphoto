@@ -173,6 +173,7 @@
             getBackgroundImage(){
                 this.axios.get(`${Laravel._BASE_URL}/api/page-background-image`)
                 .then(response =>{
+                    console.log(response.data);
                     if(typeof response.data != 'undefined'){
                         this.images.background = response.data['contact'];
                     }

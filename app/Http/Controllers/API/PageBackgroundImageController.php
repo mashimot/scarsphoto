@@ -40,4 +40,30 @@ class PageBackgroundImageController extends Controller
 
         return null;
     }
+
+
+    public function getBackgroundImage2()
+    {
+        //
+        $user = User::where('email', env('ADMIN_MAIL'))->first();
+        if(!is_null($user)){
+            $fileContent = FileHelper::getFileContent("images/pages/{$user->id}/page-background.json");
+
+            if(!is_null($fileContent)){
+                $fileContent = json_decode($fileContent);
+                foreach($fileContent as $key => $content){
+                    $content = (object)$content;
+                    $path = FileHelper::getUserImagePath($user->id, 'images/users');
+                    $media = Media::find($content->media_id);
+                    if(!is_null($media)){
+                        $fileContent[$key]->media_url = FileHelper::getUrlFile("{$path}/{$media->media_url}");
+                    }
+                }
+
+                return collect($fileContent)->pluck('media_url', 'page');
+            }
+        }
+
+        return null;
+    }
 }

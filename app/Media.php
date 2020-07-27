@@ -9,6 +9,7 @@ use App\Helpers\FileHelper;
 use App\MediaRoute;
 use App\GalleryUser;
 use DB;
+use Carbon\Carbon;
 
 class Media extends Model
 {
@@ -80,7 +81,7 @@ class Media extends Model
             'meds.media_url',
             'meds.created_at',
             'user.id as user_id',
-            'user.name as owner_media_name'
+            'user.name as media_owner_name'
         ])
         ->orderBy('meds.created_at', 'DESC')
         ->paginate(24);
@@ -102,9 +103,9 @@ class Media extends Model
                     $newMedia->media_thumb_url = $media->media_url;
                     $newMedia->media_nsfw = $media->media_nsfw;
                     $newMedia->user_id = $media->user_id;
-                    $newMedia->owner_media_name = $media->owner_media_name;
+                    $newMedia->media_owner_name = $media->media_owner_name;
                     $newMedia->created_at = $media->created_at;                    
-                    $newMedia->is_owner_media = $media->user_id == $request->user_id? true: false;
+                    $newMedia->is_media_owner = $media->user_id == $request->user_id? true: false;
                     $newMedia->media_galleries = MediaGallery::from('medias_galleries as mega')
                     ->join('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
                     ->where('mega.media_id', $media->media_id)
@@ -131,14 +132,13 @@ class Media extends Model
             */
             $newMedias = $medias->getCollection()->map(function($media) use ($request){
                 $path = FileHelper::getUserImagePath($media->user_id, 'images/users');
-                $file = "{$path}/{$media->media_url}";
-                $full_url = FileHelper::getUrlFile($file);
+                $full_url = FileHelper::getUrlFile("{$path}/{$media->media_url}");
 
                 $media->media_url = $full_url;
                 $media->media_thumb_url = $full_url;
                 $media->user_id = $media->user_id;
-                $media->owner_media_name = $media->owner_media_name;
-                $media->is_owner_media = $media->user_id == $request->user_id? true: false;
+                $media->media_owner_name = $media->media_owner_name;
+                $media->is_media_owner = $media->user_id == $request->user_id? true: false;
                 $media->media_galleries = MediaGallery::from('medias_galleries as mega')
                 ->join('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
                 ->where('mega.media_id', $media->media_id)
@@ -147,14 +147,38 @@ class Media extends Model
                     'gaus.gallery_user_id as gallery_id',
                     'gaus.gallery_user_name as gallery_name',
                 ])->get();
-
+                
+                //background images of galleries
                 $media->banner_galleries = GalleryUser::where('user_id', $request->user_id)
                 ->where('banner_media_id', $media->media_id)
                 ->whereNotNull('banner_media_id')
                 ->select([
                     'gallery_user_id as gallery_id',
-                    'gallery_user_name as gallery_name'
+                    'gallery_user_name as gallery_name',
+                    'banner_media_id',
                 ])->get();
+
+                //background images of pages
+                $media->background_pages = [];
+                $fileContent = FileHelper::getFileContent("images/pages/{$request->user_id}/page-background.json");
+                if(!is_null($fileContent)){
+                    $fileContent = json_decode($fileContent);
+                    foreach($fileContent as $key => $content){
+                        $content = (object)$content;
+                        //$fileContent[$key]->is_checked = false;
+                        if($media->media_id == $content->media_id){
+                            $contentMedia = Media::find($content->media_id);
+                            //$fileContent[$key]->media_url = FileHelper::getUrlFile("{$path}/{$contentMedia->media_url}");
+                            //$fileContent[$key]->is_checked = true;
+                            $media->background_pages[] = $fileContent[$key];
+                        }
+                    }
+                    //$media->background_pages = $fileContent;
+                    /*$media->joeys = collect($fileContent)->mapToGroups(function ($item, $key) {
+                        return [$item->media_id => $item->page];
+                    });*/
+                }
+
 
                 return $media;
             });

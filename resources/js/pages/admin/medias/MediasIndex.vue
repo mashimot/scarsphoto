@@ -1,58 +1,5 @@
 <template>
 <div>
-    <section id="nav-galleries">
-        <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
-            <self-building-square-spinner
-                :animation-duration="2000"
-                :size="30"
-                color="#ff1d5e"
-            >
-            </self-building-square-spinner>
-            Loading...
-        </div>
-        <ul class="nav nav-tabs navbar-dark">
-            <li  v-for="(gallery, idxgallery) in galleries" :key="idxgallery" :id="`tabs-${idxgallery}`" class="nav-item">
-                <a @click.prevent="changeQuery(gallery.gallery_id)"
-                    href="#"
-                    data-toggle="tab"
-                    class="nav-link small text-uppercase"
-                    :class="{ 'active': $route.query.gallery_id == gallery.gallery_id }"
-                >{{ gallery.gallery_name }}</a>
-            </li>
-            <li class="nav-item">
-                <a @click.prevent="changeQuery(0)"
-                    href="#"
-                    data-toggle="tab"
-                    class="nav-link small text-uppercase"
-                    :class="{ 'active': $route.query.gallery_id == 0 }"
-                >Sem Categoria</a>
-            </li>
-            <li class="nav-item">
-                <a @click.prevent="refreshPage()"
-                    href="#"
-                    data-toggle="tab"
-                    class="nav-link small text-uppercase"
-                    :class="{ 'active': typeof $route.query.gallery_id == 'undefined' }"
-                >Todas</a>
-            </li>
-            <li class="nav-item">
-                <a @click.prevent="changeQuery('bg_covers')"
-                    href="#"
-                    data-toggle="tab"
-                    class="nav-link small text-uppercase"
-                    :class="{ 'active': $route.query.gallery_id == 'bg_covers' }"
-                >Imagem de Fundo das Galerias</a>
-            </li>            
-            <li class="nav-item">
-                <router-link
-                    :to="{ name: 'admin.medias.create' }"
-                    data-toggle="tab" class="nav-link small text-uppercase"
-                >
-                    Create
-                </router-link>
-            </li>
-        </ul>
-    </section>
     <b-modal id="modal-1" title="Definir Imagem de Fundo" hide-footer>
         <form @submit.prevent="onSubmitGalleryCover()">
             <div class="form-group">
@@ -87,128 +34,250 @@
             <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
         </form>
     </b-modal>
-    <main class="main-content" :style="{ 'opacity': loading? '0.3': '1'}">
-        <div class="row no-gutters">
-            <div class="col-9" :disabled="loading">
-                <div class="row no-gutters">
-                    <div v-for="(m, idxmedia) in medias.data" :key="idxmedia" class="col-md-3 mb-2">
-                        <div
-                            class="card h-100"
-                            :class="{
-                                'border border-dark': media.media_id == m.media_id,
-                                'bg-light': media.media_id == m.media_id,
-                            }"
-                            :style="{
-                                'cursor': 'pointer',
-                                //'opacity': media.media_id == m.media_id? '1': '0.8'
-                            }"
-                            @click="editFile(m)"
-                        >
-                            <a href="#/" class="position-relative">
-                                <img class="card-img-top" v-bind:src="`${m.media_url}`" alt="Card image cap">
-                                <div class="card-img-overlay" v-if="m.banner_galleries && m.banner_galleries.length > 0">
-                                    <b-icon icon="asterisk" font-scale="2.5" class="rounded-circle bg-warning text-warning"></b-icon>
-                                </div>
-                            </a>
+    <div class="card">
+        <section class="card-header">
+            <!--
+            <pre>{{ backgroundPages }}</pre>
+            -->
+            <div class="p-2 align-items-center justify-content-center h-100" v-if="loading">
+                <self-building-square-spinner
+                    :animation-duration="2000"
+                    :size="30"
+                    color="#ff1d5e"
+                >
+                </self-building-square-spinner>
+                Loading...
+            </div>
+            <ul class="nav nav-tabs navbar-dark">
+                <li  v-for="(gallery, idxgallery) in galleries" :key="idxgallery" :id="`tabs-${idxgallery}`" class="nav-item">
+                    <a @click.prevent="changeQuery(gallery.gallery_id)"
+                        href="#"
+                        data-toggle="tab"
+                        class="nav-link small text-uppercase"
+                        :class="{ 'active': $route.query.gallery_id == gallery.gallery_id }"
+                    >{{ gallery.gallery_name }}</a>
+                </li>
+                <li class="nav-item">
+                    <a @click.prevent="changeQuery(0)"
+                        href="#"
+                        data-toggle="tab"
+                        class="nav-link small text-uppercase"
+                        :class="{ 'active': $route.query.gallery_id == 0 }"
+                    >Sem Categoria</a>
+                </li>
+                <li class="nav-item">
+                    <a @click.prevent="refreshPage()"
+                        href="#"
+                        data-toggle="tab"
+                        class="nav-link small text-uppercase"
+                        :class="{ 'active': typeof $route.query.gallery_id == 'undefined' }"
+                    >Todas</a>
+                </li>
+                <li class="nav-item">
+                    <a @click.prevent="changeQuery('bg_covers')"
+                        href="#"
+                        data-toggle="tab"
+                        class="nav-link small text-uppercase"
+                        :class="{ 'active': $route.query.gallery_id == 'bg_covers' }"
+                    >Imagem de Fundo das Galerias</a>
+                </li>            
+                <li class="nav-item">
+                    <router-link
+                        :to="{ name: 'admin.medias.create' }"
+                        data-toggle="tab" class="nav-link small text-uppercase"
+                    >
+                        Create
+                    </router-link>
+                </li>
+            </ul>
+        </section>
+        <main class="main-content" :style="{ 'opacity': loading? '0.3': '1'}">
+            <div class="row no-gutters">
+                <div class="col-9" :disabled="loading">
+                    <div class="row no-gutters">
+                        <div v-for="(m, idxmedia) in medias.data" :key="idxmedia" class="col-md-3 mb-2">
                             <div
-                                class="card-body"
+                                class="card h-100"
                                 :class="{
-                                    //'bg-warning': (m.banner_galleries && m.banner_galleries.length > 0)
+                                    'border border-dark': media.media_id == m.media_id,
+                                    'bg-light': media.media_id == m.media_id,
                                 }"
+                                :style="{
+                                    'cursor': 'pointer',
+                                    //'opacity': media.media_id == m.media_id? '1': '0.8'
+                                }"
+                                @click="editFile(m)"
                             >
-                                <p>
-                                    <kbd v-if="m.media_nsfw == 1" class="col-md-12">
-                                        <span>18+</span>
-                                    </kbd>
-                                </p>
-                                <p class="card-text">
-                                    Title: {{ m.media_title }}<br/>
-                                    Owner: {{ m.owner_media_name }}
-                                </p>
-                                <b-list-group>
-                                    <b-list-group-item v-if="m.banner_galleries && m.banner_galleries.length > 0">
-                                        <h5 class="card-title">Imagem de Fundo</h5>
+                                <a href="#/" class="position-relative">
+                                    <img class="card-img-top" v-bind:src="`${m.media_url}`" alt="Card image cap">
+                                    <div class="card-img-overlay" v-if="m.banner_galleries && m.banner_galleries.length > 0">
+                                        <b-icon icon="asterisk" font-scale="2.5" class="rounded-circle bg-warning text-warning"></b-icon>
+                                    </div>
+                                </a>
+                                <div
+                                    class="card-body"
+                                    :class="{
+                                        //'bg-warning': (m.banner_galleries && m.banner_galleries.length > 0)
+                                    }"
+                                >
+                                    <p>
+                                        <kbd v-if="m.media_nsfw == 1" class="col-md-12">
+                                            <span>18+</span>
+                                        </kbd>
+                                    </p>
+                                    <p class="card-text">
+                                        Title: {{ m.media_title }}<br/>
+                                        Owner: {{ m.media_owner_name }}
+                                    </p>
+                                    <b-list-group>
+                                 
+                                        <b-list-group-item v-if="m.banner_galleries && m.banner_galleries.length > 0">
+                                            <h5 class="card-title">Imagem de Fundo</h5>
 
-                                        <span v-for="(banner_gallery, banner_gallery_idx) in m.banner_galleries" :key="`banner_gallery-${banner_gallery_idx}`" class="text-danger">
-                                            <span class="badge badge-warning mr-1">{{ banner_gallery.gallery_name }}</span>
-                                        </span>
-                                    </b-list-group-item>
-                                    <b-list-group-item v-if="m.media_galleries && m.media_galleries.length > 0">
-                                        <h5 class="card-title">Galerias</h5>
+                                            <span v-for="(banner_gallery, banner_gallery_idx) in m.banner_galleries" :key="`banner_gallery-${banner_gallery_idx}`" class="text-danger">
+                                                <span class="badge badge-warning mr-1">{{ banner_gallery.gallery_name }}</span>
+                                            </span>
+                                        </b-list-group-item>
+                                        <b-list-group-item v-if="m.media_galleries && m.media_galleries.length > 0">
+                                            <h5 class="card-title">Galerias</h5>
 
-                                        <span v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
-                                            <span class="badge badge-primary mr-1">{{ media_gallery.gallery_name }}</span>
-                                        </span>
-                                    </b-list-group-item>
-                                </b-list-group>
+                                            <span v-for="(media_gallery, media_gallery_idx) in m.media_galleries" :key="`gallery-${idxmedia}-${media_gallery_idx}`" class="text-danger">
+                                                <span class="badge badge-primary mr-1">{{ media_gallery.gallery_name }}</span>
+                                            </span>
+                                        </b-list-group-item>
+                                    </b-list-group>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-3">
-                <div class="card sticky-top">
-                    <div class="card-body">
-                        <div class="alert alert-danger" v-if="media.media_id == null">
-                            Seleciona uma Imagem
-                        </div>
-                        <div v-if="media.media_id != null">
-                            <div class="mb-2">
-                                <b-button @click="setImageToBackgroundCover(media.media_id)" squared block variant="primary">Definir como Imagem de Fundo</b-button>
+                <div class="col-3">
+                    <div class="card sticky-top">
+                        <div class="card-body">
+                            <div class="alert alert-danger" v-if="media.media_id == null">
+                                Seleciona uma Imagem
                             </div>
-                            <form @submit.prevent="onSubmitMedia">
-                                <fieldset :disabled="loading">
-                                    <div class="form-group" v-if="media.is_owner_media">
-                                        <label for="media_title">Título</label>
-                                        <input id="media_title" type="text" class="form-control" v-model="media.media_title" :class="{ 'is-invalid': formMedia.errors.has('media_title') }">
-                                        <div v-if="formMedia.errors.has('media_title')" v-text="formMedia.errors.first('media_title')" class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="form-group" v-if="media.is_owner_media">
-                                        <label for="media_comment">Comentários</label>
-                                        <input id="media_comment" type="text" class="form-control" v-model="media.media_comment" :class="{ 'is-invalid': formMedia.errors.has('media_comment') }">
-                                        <div v-if="formMedia.errors.has('media_comment')" v-text="formMedia.errors.first('media_comment')" class="invalid-feedback"></div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="media_galleries">Galerias</label>
-                                        <div v-for="(gallery, gallery_idx) in media.media_galleries" :key="`media_gallery-${gallery_idx}`">
-                                            <div class="form-check">
-                                                <label class="form-check-label">
-                                                    <input type="checkbox"
-                                                        v-on:change="toggle(gallery)"
-                                                        v-bind:checked="gallery.is_checked"
-                                                    > {{ gallery.gallery_name }}
-                                                </label>
+                            <div v-if="media.media_id != null">
+                                <div class="mb-2">
+                                    <b-button @click="setImageToBackgroundCover(media.media_id)" squared block variant="primary">Definir como Imagem de Fundo</b-button>
+                                </div>
+                                <form @submit.prevent="onSubmitMedia">
+                                    <fieldset :disabled="loading">
+                                        <div class="form-group" v-if="media.is_media_owner">
+                                            <label for="media_title">Título</label>
+                                            <input id="media_title" type="text" class="form-control" v-model="media.media_title" :class="{ 'is-invalid': formMedia.errors.has('media_title') }">
+                                            <div v-if="formMedia.errors.has('media_title')" v-text="formMedia.errors.first('media_title')" class="invalid-feedback"></div>
+                                        </div>
+                                        <div class="form-group" v-if="media.is_media_owner">
+                                            <label for="media_comment">Comentários</label>
+                                            <input id="media_comment" type="text" class="form-control" v-model="media.media_comment" :class="{ 'is-invalid': formMedia.errors.has('media_comment') }">
+                                            <div v-if="formMedia.errors.has('media_comment')" v-text="formMedia.errors.first('media_comment')" class="invalid-feedback"></div>
+                                        </div>
+                                        <!--
+                                        <div class="form-group">
+                                            <label for="media_galleries">Pertence na(s) Galeria(s):</label>
+                                            <div v-for="(gallery, gallery_idx) in media.media_galleries" :key="`media_gallery-${gallery_idx}`">
+                                                <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox"
+                                                            v-on:change="toggle(gallery)"
+                                                            v-bind:checked="gallery.is_checked"
+                                                        > {{ gallery.gallery_name }}
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                        <div class="form-group">
+                                            <label for="galleries_covers">Plano de Fundo da(s) Galeria(s):</label>
+                                            <div v-for="(gallery_cover, gallery_cover_idx) in media.banner_galleries" :key="`media_gallery_cover-${gallery_cover_idx}`">
+                                                <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox"
+                                                            v-on:change="toggle(gallery_cover)"
+                                                            v-bind:checked="gallery_cover.is_checked"
+                                                        > {{ gallery_cover.gallery_name }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+                                        -->
+                                        <b-form-group label="Pertence na(s) Galeria(s)">
+                                            <b-form-checkbox
+                                                v-for="(media_gallery, media_gallery_idx) in media.media_galleries"
+                                                v-on:change="toggle(media_gallery)"
+                                                :key="`media_gallery-${media_gallery_idx}`"
+                                                v-bind:checked="media_gallery.is_checked"
+                                                switch 
+                                            >
+                                            {{ media_gallery.gallery_name }}
+                                            </b-form-checkbox>
+                                        </b-form-group>                                        
+                                        <b-form-group label="Plano de Fundo da(s) Galeria(s)">
+                                            <b-form-checkbox
+                                                v-for="(banner_gallery, banner_gallery_idx) in media.banner_galleries"
+                                                v-on:change="toggle(banner_gallery)"
+                                                :key="`bg_page-${banner_gallery_idx}`"
+                                                v-bind:checked="banner_gallery.is_checked"
+                                                switch 
+                                            >
+                                            {{ banner_gallery.gallery_name }}
+                                            </b-form-checkbox>
+                                        </b-form-group>                                    
+                                        <b-form-group label="Plano de Fundo da(s) Página(s)">
+                                            <b-form-checkbox
+                                                v-for="(bg_page_choice, bg_page_choice_idx) in media.background_pages"
+                                                v-on:change="toggle(bg_page_choice)"
+                                                :key="`bg_page-${bg_page_choice_idx}`"
+                                                v-bind:checked="bg_page_choice.is_checked"
+                                                switch 
+                                            >
+                                            {{ bg_page_choice.page }}
+                                            </b-form-checkbox>
+                                        </b-form-group>
+                                        <div class="form-group bg-default p-2">
+                                                <!--
+                                            <div v-for="(bg_page_choice, bg_page_choice_idx) in media.background_pages" :key="`bg_page-${bg_page_choice_idx}`">
+                                                <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox"
+                                                            v-on:change="toggle(bg_page_choice)"
+                                                            v-bind:checked="bg_page_choice.is_checked"
+                                                        > {{ bg_page_choice.page }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            -->
+                                        </div>
 
-                                    <div class="form-group" v-if="media.is_owner_media">
-                                        <label for="media_nsfw">Conteúdo Adulto?</label>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
-                                            <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
+                                        <div class="form-group" v-if="media.is_media_owner">
+                                            <label for="media_nsfw">Conteúdo Adulto?</label>
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="media_nsfw-sim" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`"  :value="1" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
+                                                <label class="custom-control-label" for="media_nsfw-sim">Sim</label>
+                                            </div>
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="media_nsfw-nao" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`" :value="0" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
+                                                <label class="custom-control-label" for="media_nsfw-nao">Não</label>
+                                                <div v-if="formMedia.errors.has('media_nsfw')" v-text="formMedia.errors.first('media_nsfw')" class="invalid-feedback"></div>
+                                            </div>
                                         </div>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="media_nsfw-nao" class="custom-control-input " v-model="media.media_nsfw" :name="`media_nsfw`" :value="0" :class="{ 'is-invalid': formMedia.errors.has('media_nsfw') }"/>
-                                            <label class="custom-control-label" for="media_nsfw-nao">Não</label>
-                                            <div v-if="formMedia.errors.has('media_nsfw')" v-text="formMedia.errors.first('media_nsfw')" class="invalid-feedback"></div>
+
+                                        <div class="mt-2">
+                                            <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_media_owner" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
                                         </div>
-                                    </div>
-                                    <div class="mt-2">
-                                        <button type="button" @click="deleteMedia(media.media_id)" v-if="media.is_owner_media" class="btn btn-sm btn-block btn-outline-danger">Delete</button>
-                                    </div>
-                                    <div class="mt-2">
-                                        <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
-                                    </div>
-                                </fieldset>
-                            </form>
+                                        <div class="mt-2">
+                                            <button type="submit" class="btn btn-block btn-primary">Save Changes</button>
+                                        </div>
+                                    </fieldset>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <pagination :data="medias" @pagination-change-page="getAll"></pagination>
-    </main>
+            <pagination :data="medias" @pagination-change-page="getAll"></pagination>
+        </main>
+    </div>    
  </div>
 </template>
 
@@ -231,7 +300,7 @@
                 },
                 loading: true,
                 galleries: [],
-                bg_pages: ['about', 'contact'],
+                backgroundPages: [],
                 bg_pages_choices: [],
                 galleries_covers: [],
                 current_gallery_id: -1,
@@ -332,6 +401,8 @@
                     .then(response => {
                         this.media = response.data.data[0];
                         let media_galleries = [];
+                        let banner_galleries = [];
+                        let background_pages = [];
                         this.galleries.forEach(gallery => {
                             let is_checked = false;
                             this.media.media_galleries.forEach((mG, i) => {
@@ -341,7 +412,29 @@
                             })
                             media_galleries.push({...gallery, is_checked: is_checked});
                         });
+                        this.galleries.forEach((gallery, gIdx) => {
+                            let is_checked = false;
+                            //this.media.banner_galleries.forEach((bG, i) => {
+                                if(media.media_id == gallery.banner_media_id){
+                                    is_checked = true;
+                                }
+                            //})
+                            banner_galleries.push({...gallery, is_checked: is_checked});
+                        });
+
+                        this.backgroundPages.forEach((bgPage, bgPageIdx) => {
+                            let is_checked = false;
+                            //this.media.banner_galleries.forEach((bG, i) => {
+                                if(media.media_id == bgPage.media_id){
+                                    is_checked = true;
+                                }
+                            //})
+                            background_pages.push({...bgPage, is_checked: is_checked});
+                        });
+
                         this.media.media_galleries = {...media_galleries};
+                        this.media.banner_galleries = {...banner_galleries};
+                        this.media.background_pages = {...background_pages}
                     })
                     .finally(response => {
                         this.loading = false;
@@ -386,13 +479,15 @@
                 this.loading = true;
                 this.axios.all([
                     this.getGalleries(),
-                    this.getMedias(page)
+                    this.getMedias(page),
+                    this.getBackgroundPages()
                 ])
                 .then(
-                    this.axios.spread((galleries, medias) => {
+                    this.axios.spread((galleries, medias, backgroundPages) => {
                         console.log(medias);
                         this.medias = medias;
                         this.galleries = galleries;
+                        this.backgroundPages = backgroundPages;
                     })
                 )
                 .finally(() => {
@@ -432,6 +527,23 @@
                     .get(`${Laravel._BASE_URL}/admin/galleries/create`)
                     .then(response => {
                         return response.data;
+                    });
+            },
+            getBackgroundPages(){
+                return this.axios.get(`${Laravel._BASE_URL}/admin/medias/get_background_image`)
+                    .then(response => {
+                        return response.data;
+                        if(typeof result.data != 'undefined'){
+                            result.data.forEach((data, idx) => {
+                                let is_checked = false;
+                                if(data.media_id == media_id){
+                                    is_checked =  true;
+                                }
+                                vm.bg_pages_choices.push({
+                                    ...data, is_checked: is_checked
+                                });
+                            });
+                        }
                     });
             },
             deleteMedia(id) {

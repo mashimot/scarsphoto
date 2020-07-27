@@ -12,6 +12,7 @@ use App\MediaRoute;
 use App\Media;
 use Auth;
 use DB;
+use Storage;
 
 class MediaGalleryController extends Controller
 {
@@ -101,11 +102,11 @@ class MediaGalleryController extends Controller
     public function update(MediaRequest $request, $id)
     {
         //
-        $user_id = Auth::user()->id;
+        $user = Auth::user();
         $mediaRoute = MediaRoute::where('media_route_name', 'galleries')->first();
         $media = Media::find($id);
 
-        if($media->user_id == $user_id){ //only owner of the media are able to update
+        if($media->user_id == $user->id){ //only owner of the media are able to update
             $mediaUpdate = Media::find($id)->update([
                 'media_title' => $request->media_title,
                 'media_comment' => $request->media_comment,
@@ -114,7 +115,7 @@ class MediaGalleryController extends Controller
         }
 
         foreach($request->media_galleries as $m){
-            $galleryUser = GalleryUser::where('user_id', $user_id)
+            $galleryUser = GalleryUser::where('user_id', $user->id)
             ->where('gallery_user_id', $m['gallery_id'])
             ->first();
             
@@ -126,7 +127,7 @@ class MediaGalleryController extends Controller
                 if($m['is_checked']){
                     $last_media_gallery_pos = $this->mediaGallery->from('medias_galleries as mega')
                     ->join('galleries_users as gaus', 'gaus.gallery_user_id', 'mega.gallery_user_id')
-                    ->where('gaus.user_id', $user_id)
+                    ->where('gaus.user_id', $user->id)
                     ->where('gaus.gallery_user_id', $galleryUser->gallery_user_id)
                     ->max('mega.media_gallery_pos');
                     
@@ -145,6 +146,51 @@ class MediaGalleryController extends Controller
                 }
             }
         }
+
+//        $user = Auth::user();
+        $file_name = 'page-background.json';
+        $path = "images/pages/{$user->id}";        
+        $file = "{$path}/{$file_name}";
+        $dataJson = FileHelper::createPageBackgroundImage($file);
+
+        $dataJson = json_decode($dataJson);
+        foreach($dataJson as $k => $data){
+            foreach($request->background_pages as $bg_page){
+                $bg_page = (object) $bg_page;
+                if($data->page == $bg_page->page){
+                    if($bg_page->is_checked){
+                        $dataJson[$k]->media_id = $id;
+                    } else {
+                        if($data->media_id == $id && !is_null($data->media_id)){
+                            $dataJson[$k]->media_id = null;
+                        }
+                    }
+                }
+            }
+        }
+        Storage::disk('public')
+        ->put($file, json_encode($dataJson));            
+
+        foreach($request->banner_galleries as $galleryCover){
+            $galleryCover = (object) $galleryCover;
+            $galleryUser = GalleryUser::where('gallery_user_id', $galleryCover->gallery_id);
+            if(!is_null($galleryUser->first())){
+                if($galleryCover->is_checked){
+                    $galleryUser->update([
+                        'banner_media_id' => $id
+                    ]);
+                } else {
+                    $galleryUser->where('banner_media_id', $id)
+                    ->update([
+                        'banner_media_id' => null
+                    ]);
+                }
+            }
+        }
+
+
+
+
     }
 
     /**
@@ -157,5 +203,9 @@ class MediaGalleryController extends Controller
     {
         //
         return $id;
+    }
+
+    private function updateBackgroundCover(){
+        
     }
 }
